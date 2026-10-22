@@ -115,7 +115,7 @@ if(home){
       + '<ul class="list sublist" hidden>' + fullRows(rest) + "</ul></li>";
     h += "</ul></section>";
   });
-  h += '<section class="grp"><h2 class="gh">Смежные темы</h2><ul class="list">' + rel.map(function(g){
+  h += '<section class="grp"><h2 class="gh">Смежные специальности</h2><ul class="list">' + rel.map(function(g){
     var all = L.diseases.filter(function(d){ return d.g === g.id; });
     return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
       + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"
@@ -202,7 +202,7 @@ document.querySelectorAll(".block").forEach(function(block){
   var n = block.querySelectorAll(".more").length; if(!n) return;
   var p = block.querySelector(".more-hint");
   if(!p){ p = document.createElement("p"); p.className = "more-hint"; (block.querySelector(".body") || block).appendChild(p); }
-  var label = "Ещё " + n + " " + plural(n, "пункт", "пункта", "пунктов");
+  var label = "Показать ещё " + n + " " + plural(n, "пункт", "пункта", "пунктов");
   p.innerHTML = '<button class="more-btn" type="button" aria-expanded="false" data-label="' + label + '">' + label + ' <span class="chev" aria-hidden="true">›</span></button>';
   p.querySelector("button").onclick = function(){ var open = !block.classList.contains("open"); setOpen(block, open); if(!open) p.scrollIntoView({block:"nearest"}); };
 });
