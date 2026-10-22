@@ -175,7 +175,10 @@ if(tabbar){
     var b = e.target.closest("[data-tab]"); if(!b) return;
     showTab(b.dataset.tab);
     try{ history.replaceState(null, "", "#" + b.dataset.tab); }catch(err){}
-    var t = tabbar.getBoundingClientRect().top; if(t < 80) window.scrollTo(0, tabbar.offsetTop - 72);
+    /* новая вкладка открывается с начала: экран возвращается к заголовку разбора (панель вкладок «липкая», её offsetTop не годится) */
+    var h1 = document.querySelector("main h1"), hd = document.querySelector(".top, header.app, body > header");
+    var y = (h1 ? h1.getBoundingClientRect().top + window.scrollY : 0) - (hd ? hd.offsetHeight : 56) - 8;
+    if(window.scrollY > y) window.scrollTo(0, Math.max(0, y));
   });
   var start = (location.hash || "#over").slice(1);
   if(TABS.indexOf(start) >= 0) showTab(start);
