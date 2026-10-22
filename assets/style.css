@@ -168,6 +168,16 @@ td[colspan] b{font-weight:400}
 .tn-list{list-style:none;padding:0;display:grid;gap:var(--s2)}
 .tn-list small{display:block;color:var(--fg2)}
 .tn-list b{font-weight:400}
+.tn-row{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.tn-row b{color:var(--ac)}
+.tn-row[aria-expanded="true"] b{font-weight:600}
+.tn-det{margin:var(--s2) 0 var(--s2) var(--s3);padding-left:var(--s3);border-left:2px solid var(--line)}
+.tn-det p{margin-top:var(--s1)}
+.tn-h{font-weight:600;margin-top:var(--s2)!important}
+.tn-forms{padding-left:1.1em;margin:2px 0 0}
+.tn-reg{font:inherit;font-size:.92em;padding:2px 6px;margin:2px 0;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);cursor:pointer}
+.tn-reg.copied{border-color:var(--ac);color:var(--ac)}
+.tn-reg.copied::after{content:" скопирован"}
 .tn-more{color:var(--ac);margin-top:var(--s2)}
 .tn-note{color:var(--fg2);margin-top:var(--s2)}
 

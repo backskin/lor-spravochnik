@@ -276,6 +276,18 @@ document.querySelectorAll("main table").forEach(function(t){
   });
 });
 
+/* ---------- вещество в тексте разбора: карточка ГРЛС в нижнем окне, оттуда — экран «Препараты» ---------- */
+function openDrug(name, shown){
+  var title = (shown || name).trim();
+  pop.innerHTML = '<div class="sheet-h"><h3>' + esc(title.charAt(0).toUpperCase() + title.slice(1)) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div><div class="tn-box">Загружаю реестр…</div>';
+  openSheet(pop);
+  GRLS.load().then(function(){
+    var k = GRLS.findInn(name), box = pop.querySelector(".tn-box"); if(!box) return;
+    box.innerHTML = k ? GRLS.card(k, 8) : "В действующих регистрациях ГРЛС это вещество не нашлось. Попробуйте поиск на странице «Препараты».";
+    if(k) box.insertAdjacentHTML("afterend", '<ul class="list" style="margin-top:12px">' + row("preparaty.html#" + encodeURIComponent(k), "Открыть на экране «Препараты»", "все торговые названия, формы и дозировки, номера регистрационных удостоверений") + "</ul>");
+  }, function(){ var box = pop.querySelector(".tn-box"); if(box) box.textContent = "Реестр не загрузился. Проверьте интернет."; });
+}
+
 /* ---------- торговые названия: название препарата в таблице раскрывает список ГРЛС под строкой ---------- */
 if(window.GRLS) document.querySelectorAll("main table").forEach(function(t){
   var h = t.querySelector("thead th"); if(!h || !/^Препарат/.test(h.textContent.trim())) return;
@@ -292,7 +304,9 @@ document.addEventListener("click", function(e){
   var d = e.target.closest(".drug, .tn-more"); if(!d || !window.GRLS) return;
   e.preventDefault();
   if(d.classList.contains("tn-more")){ d.closest(".tn-box").innerHTML = GRLS.card(d.dataset.inn, 0); return; }
-  var td = d.closest("td"), box = td.querySelector(".tn-box");
+  var td = d.closest("td");
+  if(!td){ openDrug(d.dataset.name, d.textContent); return; }
+  var box = td.querySelector(".tn-box");
   if(box){ box.remove(); return; }
   box = document.createElement("div"); box.className = "tn-box"; box.textContent = "Загружаю реестр…"; td.appendChild(box);
   GRLS.load().then(function(){
