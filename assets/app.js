@@ -45,6 +45,7 @@ document.body.insertAdjacentHTML("afterbegin",
 document.body.insertAdjacentHTML("beforeend",
   '<div class="scrim" id="scrim"></div>'
   + '<aside class="sheet" id="pop" aria-label="Источник"></aside>'
+  + '<aside class="sheet full" id="moreSheet" aria-label="Подробнее"></aside>'
   + '<aside class="sheet" id="ask" aria-label="Спросить ИИ"><div class="sheet-h"><h3>Спросить ИИ</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>'
   + '<textarea id="askText" aria-label="Вопрос"></textarea>'
   + '<p class="fine" id="askCtx"></p>'
@@ -80,7 +81,7 @@ if(!HOME && B.page !== "sources"){
 }
 var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
 function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); }
-function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
+function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
 var menu = $("menu"), menuBtn = $("menuBtn");
 function openMenu(){ menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
 function closeMenu(){ if(!menu || menu.hidden) return; menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, 200); }
@@ -155,15 +156,28 @@ function showTab(id){
 }
 function findEl(id){ return id ? (document.getElementById(id) || document.querySelector('[data-v="' + id.replace(/"/g, "") + '"]')) : null; }
 function panelOf(el){ var p = el && el.closest("[data-panel]"); return p ? p.dataset.panel : null; }
-function setOpen(block, open){
-  block.classList.toggle("open", open);
-  var b = block.querySelector(".more-btn"); if(b){ b.setAttribute("aria-expanded", String(open)); b.firstChild.textContent = open ? "Скрыть подробности" : b.dataset.label; }
+/* «Подробнее»: редкие детали блока (класс more) открываются отдельным экраном, в карточке их нет */
+function openMore(block, focus){
+  var sh = $("moreSheet"), h2 = block.querySelector("h2");
+  var h = '<div class="sheet-h"><h3>Подробнее' + (h2 ? ": " + esc(h2.textContent.trim().toLowerCase()) : "") + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div><div class="more-body body"></div>';
+  sh.innerHTML = h;
+  var box = sh.querySelector(".more-body");
+  block.querySelectorAll(".more").forEach(function(m){
+    if(m.parentNode.closest(".more")) return;
+    var c = m.cloneNode(true); c.classList.remove("more");
+    c.querySelectorAll("[id]").forEach(function(x){ x.removeAttribute("id"); }); c.removeAttribute("id");
+    box.appendChild(c);
+  });
+  openSheet(sh); sh.scrollTop = 0;
+  if(focus){ var v = focus.dataset && focus.dataset.v, t = v ? box.querySelector('[data-v="' + v + '"]') : null;
+    if(t) requestAnimationFrame(function(){ t.scrollIntoView({block:"center"}); t.classList.remove("flash"); void t.offsetWidth; t.classList.add("flash"); }); }
 }
+function setOpen(block, open){ if(open) openMore(block); }
 /* показать пункт: открыть его раздел, вкладку «взрослые/дети», скрытые подробности — и подсветить */
 function reveal(el){
   if(!el) return;
   var pn = panelOf(el); if(pn) showTab(pn);
-  if(el.closest(".more")) setOpen(el.closest(".block"), true);
+  if(el.closest(".more")){ openMore(el.closest(".block"), el.closest("[data-v]") || el); return; }
   var tp = el.closest(".tabpanel"); if(tp && tp.hidden){ var tb = document.querySelector('.tabs button[data-tab="' + tp.id.slice(4) + '"]'); if(tb) tb.click(); }
   requestAnimationFrame(function(){
     el.scrollIntoView({block:"center"});
@@ -207,7 +221,7 @@ if(tabbar){
   toc.addEventListener("click", function(e){
     var a = e.target.closest("a"); if(!a) return; e.preventDefault();
     if(a.dataset.totab){ showTab(a.dataset.totab); window.scrollTo(0, 0); try{ history.replaceState(null, "", "#" + a.dataset.totab); }catch(err){} }
-    else { var sec = $(a.dataset.tosec); showTab(panelOf(sec)); if(sec.closest(".more")) setOpen(sec.closest(".block"), true); sec.scrollIntoView({block:"start"}); }
+    else { var sec = $(a.dataset.tosec); showTab(panelOf(sec)); if(sec.closest(".more")){ openMore(sec.closest(".block")); return; } sec.scrollIntoView({block:"start"}); }
   });  showTab(tabbar.querySelector('[aria-selected="true"]').dataset.tab);
 }
 
@@ -227,14 +241,13 @@ if(DOC){
   });
 }
 
-/* скрытые подробности: одна кнопка в конце блока */
+/* подробности блока: одна кнопка в конце, открывает отдельный экран */
 document.querySelectorAll(".block").forEach(function(block){
-  var n = block.querySelectorAll(".more").length; if(!n) return;
+  var n = Array.prototype.filter.call(block.querySelectorAll(".more"), function(m){ return !m.parentNode.closest(".more"); }).length; if(!n) return;
   var p = block.querySelector(".more-hint");
   if(!p){ p = document.createElement("p"); p.className = "more-hint"; (block.querySelector(".body") || block).appendChild(p); }
-  var label = "Показать ещё " + n + " " + plural(n, "пункт", "пункта", "пунктов");
-  p.innerHTML = '<button class="more-btn" type="button" aria-expanded="false" data-label="' + label + '">' + label + ' <span class="chev" aria-hidden="true">›</span></button>';
-  p.querySelector("button").onclick = function(){ var open = !block.classList.contains("open"); setOpen(block, open); if(!open) p.scrollIntoView({block:"nearest"}); };
+  p.innerHTML = '<button class="more-btn" type="button">Подробнее <span class="chev" aria-hidden="true">›</span></button>';
+  p.querySelector("button").onclick = function(){ openMore(block); };
 });
 
 /* «взрослые / дети» внутри блока */

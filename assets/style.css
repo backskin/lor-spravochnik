@@ -121,7 +121,7 @@ main h1{font-size:var(--t1);line-height:var(--l1)}
 .term{border-bottom:1px dotted var(--fg2);cursor:help}
 
 /* скрытые подробности: раскрываются на месте */
-.block:not(.open) .more{display:none}
+main .more{display:none}
 .more-hint{margin:var(--s2) 0 0}
 .more-btn{display:flex;align-items:center;gap:var(--s2);min-height:44px;color:var(--ac)}
 
@@ -198,6 +198,8 @@ dl.meta dd{margin:0}
   padding:var(--s4) max(16px,env(safe-area-inset-right,0px)) calc(var(--s5) + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
   transform:translateY(105%);transition:transform .2s ease;visibility:hidden}
 .sheet.on{transform:none;visibility:visible}
+.sheet.full{top:0;max-height:none;border-radius:0}
+.more-body>*+*{margin-top:var(--s3)}
 .sheet-h{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s3)}
 .sheet-h h3{flex:1;font-size:var(--t2);line-height:var(--l2)}
 .x{width:40px;height:40px;text-align:center;color:var(--fg2);font-size:20px}
@@ -232,8 +234,7 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
 
 /* списки-строки внутри текста блока — без отступа маркированного списка */
 .body ul.list{padding-left:0;display:block}
-.more-btn .chev{display:inline-block;transform:rotate(90deg);transition:transform .15s}
-.more-btn[aria-expanded="true"] .chev{transform:rotate(-90deg)}
+.more-btn .chev{display:inline-block}
 
 /* кнопка «Спросить ИИ» в шапке */
 .ask-btn{height:40px;padding:0 var(--s3);border:1px solid var(--line);border-radius:var(--r);color:var(--ac);white-space:nowrap}
@@ -264,6 +265,7 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
   .sheet{left:50%;right:auto;top:10vh;bottom:auto;width:560px;max-height:80vh;border:1px solid var(--line);border-radius:var(--r);
     transform:translate(-50%,8px);opacity:0;transition:opacity .15s,transform .15s}
   .sheet.on{transform:translate(-50%,0);opacity:1}
+  .sheet.full{top:5vh;max-height:90vh;width:720px;border-radius:var(--r)}
 }
 
 /* самые узкие телефоны: четыре вкладки должны поместиться */
