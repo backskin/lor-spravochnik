@@ -507,7 +507,7 @@ function render(){
   /* болезни */
   var dz = L.diseases.filter(function(d){ return has(low(d.name + " " + (d.codes || []).map(function(c){ return c[0] + " " + c[1]; }).join(" ")), ws); })
     .sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); }).slice(0, 8);
-  if(dz.length){ total += dz.length; h += '<h2 class="gh">Болезни</h2><ul class="list">' + dz.map(function(d){
+  if(dz.length){ total += dz.length; h += '<h2 class="gh">Заболевания</h2><ul class="list">' + dz.map(function(d){
     return d.href ? row(d.href, mark(d.name, ws), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(d.name, ws), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
   }).join("") + "</ul>"; }
   /* препараты из ГРЛС: вещество или торговое название */
@@ -520,12 +520,12 @@ function render(){
       rows.push(row("preparaty.html#" + encodeURIComponent(x.inn), mark(x.tn, ws), "действующее вещество — " + esc(d.inn[x.inn].n), "", ' data-drug="' + esc(x.inn) + '"'));
       drugWords.push(d.inn[x.inn].n);
     });
-    if(rows.length){ total += rows.length; h += '<h2 class="gh">Препарат</h2><ul class="list">' + rows.join("") + "</ul>"; }
+    if(rows.length){ total += rows.length; h += '<h2 class="gh">Лекарственные препараты (ГРЛС)</h2><ul class="list">' + rows.join("") + "</ul>"; }
   }
   /* текст разборов; если искали торговое название — ищем его действующее вещество */
   var hits = textHits(ws), via = "";
   if(!hits.length && drugWords.length){ var w2 = words(drugWords[0].split(/\s+/)[0]); hits = textHits(w2); if(hits.length){ via = drugWords[0]; ws = ws.concat(w2); } }
-  if(hits.length){ total += hits.length; h += '<h2 class="gh">В разборах' + (via ? " — по веществу «" + esc(via) + "»" : "") + "</h2><ul class=\"list\">" + hits.map(function(x){
+  if(hits.length){ total += hits.length; h += '<h2 class="gh">Найдено в разборах' + (via ? " по действующему веществу «" + esc(via) + "»" : "") + "</h2><ul class=\"list\">" + hits.map(function(x){
     return row(x.p.s + ".html#" + x.it[0], esc(x.p.t) + ", " + esc(x.it[1].toLowerCase()), (x.it[2] ? esc(x.it[2]) + ": " : "") + mark(snippet(x.it[3], ws), ws));
   }).join("") + "</ul>"; }
   /* коды МКБ */
@@ -537,7 +537,7 @@ function render(){
   }
   if(!IDX) h += '<p class="empty">Загружаю текст разборов…</p>';
   else if(!total) h += '<p class="empty">По запросу «' + esc(q) + "» ничего не нашлось. Проверьте написание или напишите начало слова.</p>";
-  h += '<h2 class="gh">' + (total ? "Не то?" : "Спросить ИИ") + '</h2><ul class="list"><li><button class="row" id="askQ"><span class="rt">Спросить ИИ: «' + esc(q) + "»</span></button></li></ul>";
+  h += '<ul class="list" style="margin-top:24px"><li><button class="row" id="askQ"><span class="rt">Спросить ИИ: «' + esc(q) + "»</span></button></li></ul>";
   resIn.innerHTML = h; res.hidden = false; cancel.hidden = false; $("askBtn").hidden = true; document.body.classList.add("searching");
   $("askQ").onclick = function(){ openAsk(q, "", ""); };
 }
