@@ -4,7 +4,9 @@
 
 :root{
   --bg:#fff; --bg2:#f2f5f4; --fg:#1b2320; --fg2:#5b6662; --ac:#0b6b53; --line:#e1e6e4; --warn:#b3261e;
-  --t1:22px; --l1:28px; --t2:18px; --l2:24px; --t3:16px; --l3:24px; --t4:14px; --l4:20px;
+  --k:1;
+  --t1:calc(22px*var(--k)); --l1:calc(28px*var(--k)); --t2:calc(18px*var(--k)); --l2:calc(24px*var(--k));
+  --t3:calc(16px*var(--k)); --l3:calc(24px*var(--k)); --t4:calc(14px*var(--k)); --l4:calc(20px*var(--k));
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
   --r:8px; --hd:56px; --col:40rem;
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -13,7 +15,7 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#121715; --bg2:#1c2421; --fg:#e4ebe8; --fg2:#9caaa5; --ac:#63c7a6; --line:#2b3531; --warn:#ff8a80; color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#121715; --bg2:#1c2421; --fg:#e4ebe8; --fg2:#9caaa5; --ac:#63c7a6; --line:#2b3531; --warn:#ff8a80; color-scheme:dark}
-@media (min-width:900px){:root{--t1:26px; --l1:32px; --l3:26px}}
+@media (min-width:900px){:root{--t1:calc(26px*var(--k)); --l1:calc(32px*var(--k)); --l3:calc(26px*var(--k))}}
 
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hd) + 64px)}
@@ -264,3 +266,21 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
 .trust p{margin-bottom:var(--s2)}
 .trust .row{border-bottom:0;padding-bottom:0}
 .site-foot{grid-column:1/-1;margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);display:grid;gap:var(--s1);color:var(--fg2);font-size:var(--t4);line-height:var(--l4)}
+
+/* знак «ЛОР» — он же кнопка меню: две полоски бургера и буквы между ними */
+.logo-btn{flex:none;width:40px;height:40px;border-radius:var(--r);background:var(--ac);color:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;text-align:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.logo-btn:hover{filter:brightness(1.08)}
+.logo-bar{display:block;width:26px;height:2.5px;border-radius:2px;background:currentColor}
+.logo-txt{display:block;font-size:12px;line-height:11px;font-weight:700;letter-spacing:.08em;padding-left:.08em}
+.logo-btn[aria-expanded="true"] .logo-bar:first-child{transform:translateY(-1px)}
+
+/* боковое меню */
+.drawer{position:fixed;z-index:55;top:0;bottom:0;left:0;width:min(340px,88vw);background:var(--bg);border-right:1px solid var(--line);
+  overflow-y:auto;padding:calc(var(--s3) + env(safe-area-inset-top,0px)) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  transform:translateX(-105%);transition:transform .2s ease;box-shadow:4px 0 24px rgba(0,0,0,.12)}
+.drawer.on{transform:none}
+.drawer-h{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s2)}
+.drawer-t{flex:1;font-weight:600}
+.drawer-l{color:var(--fg2);font-size:var(--t4);margin:var(--s5) 0 0}
+.drawer .tabs button{font-size:13px}

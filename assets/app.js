@@ -34,7 +34,8 @@ function isDark(){ return root.dataset.theme ? root.dataset.theme === "dark" : m
 /* ---------- шапка, окна, всплывающая подсказка ---------- */
 document.body.insertAdjacentHTML("afterbegin",
   '<header class="top"><div class="top-in">'
-  + '<a class="brand" href="index.html" aria-label="Главная">' + (HOME ? "" : '<span class="back">‹ </span>') + "ЛОР</a>"
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<span class="logo-bar"></span><span class="logo-txt">ЛОР</span><span class="logo-bar"></span></button>'
   + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? "Торговое название или вещество" : "Болезнь, код, препарат") + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
   + '<button class="brand" id="qCancel" type="button" hidden style="color:var(--ac);font-weight:400">Отмена</button>'
   + '<button class="ask-btn" id="askBtn" type="button" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.5-4.5"/></svg><span>ИИ</span></button>'
@@ -52,7 +53,20 @@ document.body.insertAdjacentHTML("beforeend",
   + '<p class="fine" id="askMsg" hidden></p>'
   + '<p class="fine">Ответ ИИ — подсказка, а не источник. Проверяйте по тексту рекомендации.</p>'
   + '<details><summary>Полный текст, который получит ИИ</summary><pre id="promptPreview"></pre></details></aside>'
-  + '<div class="toast" id="toast" role="status"></div>');
+  + '<div class="toast" id="toast" role="status"></div>'
+  + '<nav class="drawer" id="menu" aria-label="Меню" hidden>'
+  + '<div class="drawer-h"><span class="drawer-t">ЛОР-справочник</span><button class="x" data-close aria-label="Закрыть">✕</button></div>'
+  + '<ul class="list">'
+  + row("index.html", "Главная", "все рекомендации по разделам")
+  + row("preparaty.html", "Препараты и торговые названия", "Государственный реестр лекарственных средств")
+  + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
+  + row("pdf/vse-razbory.pdf", "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
+  + row("kak-polzovatsya.html", "Как пользоваться", "")
+  + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
+  + "</ul>"
+  + '<p class="drawer-l">Тема оформления</p><div class="tabs" id="themeSeg"><button data-th="light">Светлая</button><button data-th="">Как в системе</button><button data-th="dark">Тёмная</button></div>'
+  + '<p class="drawer-l">Размер текста</p><div class="tabs" id="sizeSeg"><button data-k="0.9">Мельче</button><button data-k="1">Обычный</button><button data-k="1.12">Крупнее</button><button data-k="1.25">Крупный</button></div>'
+  + "</nav>");
 
 /* внизу каждой страницы, кроме главной (там свой блок) — откуда данные */
 if(!HOME && B.page !== "sources"){
@@ -62,7 +76,20 @@ if(!HOME && B.page !== "sources"){
 }
 var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
 function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); }
-function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); scrim.classList.remove("on"); }
+function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
+var menu = $("menu"), menuBtn = $("menuBtn");
+function openMenu(){ menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
+function closeMenu(){ if(!menu || menu.hidden) return; menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, 200); }
+menuBtn.onclick = function(){ if(menu.classList.contains("on")){ closeMenu(); scrim.classList.remove("on"); } else openMenu(); };
+/* тема: светлая / как в системе / тёмная */
+function themeSync(){ var t = root.dataset.theme || ""; $("themeSeg").querySelectorAll("button").forEach(function(b){ b.type = "button"; b.setAttribute("aria-selected", String(b.dataset.th === t)); }); }
+$("themeSeg").addEventListener("click", function(e){ var b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.th){ root.dataset.theme = b.dataset.th; store("lor-theme", b.dataset.th); } else { delete root.dataset.theme; store("lor-theme", ""); } themeSync(); });
+themeSync();
+/* размер текста: множитель шрифтовой шкалы, запоминается */
+function sizeSync(){ var k = store("lor-k") || "1"; root.style.setProperty("--k", k); $("sizeSeg").querySelectorAll("button").forEach(function(b){ b.type = "button"; b.setAttribute("aria-selected", String(b.dataset.k === k)); }); }
+$("sizeSeg").addEventListener("click", function(e){ var b = e.target.closest("button"); if(!b) return; store("lor-k", b.dataset.k); sizeSync(); });
+sizeSync();
 scrim.onclick = closeSheets;
 document.addEventListener("click", function(e){ if(e.target.closest("[data-close]")) closeSheets(); });
 function say(t){ var x = $("toast"); x.textContent = t; x.classList.add("on"); clearTimeout(say.t); say.t = setTimeout(function(){ x.classList.remove("on"); }, 1600); }
@@ -94,13 +121,6 @@ if(home){
       + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"
       + '<ul class="list sublist" hidden>' + all.map(function(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("") + "</ul></li>";
   }).join("") + "</ul></section>";
-  h += '<section class="grp"><h2 class="gh">Ещё</h2><ul class="list">'
-    + row("preparaty.html", "Препараты и торговые названия", "Государственный реестр лекарственных средств")
-    + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
-    + row("pdf/vse-razbory.pdf", "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
-    + row("kak-polzovatsya.html", "Как пользоваться справочником", "")
-    + '<li><button class="row" id="themeRow"><span class="rt">Тема оформления<span class="rs" id="themeName"></span></span></button></li>'
-    + "</ul></section>";
   h = '<div class="grps">' + h + "</div>";
   home.innerHTML = h;
   home.addEventListener("click", function(e){
@@ -108,10 +128,6 @@ if(home){
     var open = b.getAttribute("aria-expanded") !== "true";
     b.setAttribute("aria-expanded", String(open)); b.nextElementSibling.hidden = !open;
   });
-  var tn = $("themeName");
-  function themeLabel(){ tn.textContent = isDark() ? "тёмная — нажмите, чтобы сделать светлой" : "светлая — нажмите, чтобы сделать тёмной"; }
-  themeLabel();
-  $("themeRow").onclick = function(){ root.dataset.theme = isDark() ? "light" : "dark"; store("lor-theme", root.dataset.theme); themeLabel(); };
   var ready = L.diseases.filter(function(d){ return d.href; }).length;
   $("stat").textContent = "Минздрав РФ, оториноларингология. Разобрано " + ready + " из " + L.diseases.length + " " + plural(L.diseases.length, "рекомендации", "рекомендаций", "рекомендаций")
     + ", список сверен " + L.updated.split("-").reverse().join(".");
