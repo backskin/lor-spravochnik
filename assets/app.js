@@ -36,6 +36,7 @@ document.body.insertAdjacentHTML("afterbegin",
   '<header class="top"><div class="top-in">'
   + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
   + '<span class="logo-bar"></span><span class="logo-txt">ЛОР</span><span class="logo-bar"></span></button>'
+  + (HOME ? "" : '<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
   + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? "Торговое название или вещество" : "Болезнь, код, препарат") + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
   + '<button class="brand" id="qCancel" type="button" hidden style="color:var(--ac);font-weight:400">Отмена</button>'
   + '<button class="ask-btn" id="askBtn" type="button" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.5-4.5"/></svg><span>ИИ</span></button>'
@@ -66,6 +67,8 @@ document.body.insertAdjacentHTML("beforeend",
   + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
   + "</ul>"
   + '<p class="drawer-l">Тема оформления</p><div class="tabs" id="themeSeg"><button data-th="light">Светлая</button><button data-th="">Как в системе</button><button data-th="dark">Тёмная</button></div>'
+  + '<p class="drawer-l">Подсказки по справочнику</p><label class="switch"><span>Показывать подсказки при первом открытии</span><input type="checkbox" id="helpToggle"></label>'
+  + '<ul class="list"><li><button class="row" id="helpReset"><span class="rt">Показать подсказки заново</span></button></li></ul>'
   + '<p class="drawer-l">Размер текста</p><div class="tabs" id="sizeSeg"><button data-k="0.9">Мельче</button><button data-k="1">Обычный</button><button data-k="1.12">Крупнее</button><button data-k="1.25">Крупный</button></div>'
   + "</nav>");
 
@@ -107,13 +110,20 @@ if(home){
   function fullRows(list){
     return list.map(function(d){ return row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
   }
+  /* порядок по востребованности в амбулаторной ЛОР-практике; в разделе показываются первые пять */
+  var TOP = {nose:["313_3","261_2","955_1","977_1","890_1","1082_1","913_1","956_1","756_1"],
+             ear:["314_3","663_2","698_2","518_3","18_2","21_3","22_3","315_4","311_2","304_2","609_2"],
+             throat:["306_3","683_2","662_2","664_2"], larynx:["309_2","352_3","305_2"],
+             trauma:["815_1","812_1","813_1"], ari:["724_2","25_3","943_1"]};
+  function rank(g, d){ var i = (TOP[g] || []).indexOf(d.cv); return i < 0 ? 99 : i; }
+  function oneRow(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : fullRows([d]); }
   core.forEach(function(g){
-    var all = L.diseases.filter(function(d){ return d.g === g.id; }), ready = all.filter(function(d){ return d.href; }), rest = all.filter(function(d){ return !d.href; });
-    h += '<section class="grp"><h2 class="gh">' + esc(g.title) + '</h2><ul class="list">'
-      + ready.map(function(d){ return row(d.href, esc(d.name), esc(codesShort(d.codes))); }).join("");
-    if(rest.length) h += '<li><button class="row toggle dim" aria-expanded="false"><span class="rt">' + (ready.length ? "Ещё " : "") + rest.length + " "
-      + plural(rest.length, "рекомендация", "рекомендации", "рекомендаций") + " без разбора</span></button>"
-      + '<ul class="list sublist" hidden>' + fullRows(rest) + "</ul></li>";
+    var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
+    var top = all.slice(0, 5), more = all.slice(5).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
+    h += '<section class="grp"><h2 class="gh">' + esc(g.title) + '</h2><ul class="list">' + top.map(oneRow).join("");
+    if(more.length) h += '<li><button class="row toggle dim" aria-expanded="false"><span class="rt">Ещё ' + more.length + " "
+      + plural(more.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></button>"
+      + '<ul class="list sublist" hidden>' + more.map(oneRow).join("") + "</ul></li>";
     h += "</ul></section>";
   });
   h += '<section class="grp"><h2 class="gh">Смежные специальности</h2><ul class="list">' + rel.map(function(g){
@@ -196,6 +206,22 @@ if(tabbar){
     if(a.dataset.totab){ showTab(a.dataset.totab); window.scrollTo(0, 0); try{ history.replaceState(null, "", "#" + a.dataset.totab); }catch(err){} }
     else { var sec = $(a.dataset.tosec); showTab(panelOf(sec)); if(sec.closest(".more")) setOpen(sec.closest(".block"), true); sec.scrollIntoView({block:"start"}); }
   });  showTab(tabbar.querySelector('[aria-selected="true"]').dataset.tab);
+}
+
+/* источник по каждому блоку: номера разделов КР, из которых взяты пункты, и ссылка на официальный текст */
+if(DOC){
+  document.querySelectorAll("main section.block, main section.summary").forEach(function(sec){
+    if(sec.classList.contains("b-src")) return;
+    var secs = [];
+    sec.querySelectorAll(".ev[data-loc]").forEach(function(ev){ var m = /^(\d+(?:\.\d+)*)/.exec(ev.dataset.loc || ""); if(m && secs.indexOf(m[1]) < 0) secs.push(m[1]); });
+    if(!secs.length && window.LOR_VERIFY) sec.querySelectorAll("[data-v]").forEach(function(el){ var v = LOR_VERIFY.items[el.dataset.v]; var m = v && /^(\d+(?:\.\d+)*)/.exec(v.sec || ""); if(m && secs.indexOf(m[1]) < 0) secs.push(m[1]); });
+    secs.sort(function(a, b){ var x = a.split(".").map(Number), y = b.split(".").map(Number); for(var i = 0; i < 4; i++){ if((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; });
+    var line = document.createElement("p"); line.className = "src-of";
+    line.innerHTML = "Источник: клинические рекомендации «" + esc(DOC.title) + "» (" + esc(DOC.year) + ")"
+      + (secs.length ? ", " + (secs.length > 1 ? "разделы " : "раздел ") + esc(secs.slice(0, 6).join(", ")) + (secs.length > 6 ? " и др." : "") : "")
+      + ' · <a href="' + CRURL + esc(DOC.id) + '" target="_blank" rel="noopener">текст на сайте Минздрава ↗</a>';
+    sec.appendChild(line);
+  });
 }
 
 /* скрытые подробности: одна кнопка в конце блока */
@@ -575,4 +601,74 @@ document.addEventListener("keydown", function(e){
   if(e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA"){ e.preventDefault(); qIn.focus(); }
   if(e.key === "Escape") closeSheets();
 });
+})();
+
+
+/* подсказки по справочнику: при первом открытии страницы подсвечивают элемент и объясняют его; показанные запоминаются */
+(function(){
+  function get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} try{ document.cookie = k + "=" + v + "; max-age=31536000; path=/; SameSite=Lax"; }catch(e){} }
+  var off = get("lor-help-off") === "1";
+  var seen = {}; try{ seen = JSON.parse(get("lor-help-seen") || "{}"); }catch(e){}
+  var tg = document.getElementById("helpToggle"), rs = document.getElementById("helpReset");
+  if(tg){ tg.checked = !off; tg.onchange = function(){ off = !tg.checked; set("lor-help-off", off ? "1" : "0"); }; }
+  if(rs) rs.onclick = function(){ seen = {}; set("lor-help-seen", "{}"); off = false; set("lor-help-off", "0"); if(tg) tg.checked = true; location.reload(); };
+  var B = document.body.dataset, home = document.body.classList.contains("home"), tabs = document.getElementById("tabbar");
+  var wide = matchMedia("(min-width:1024px)").matches;
+  var STEPS = [
+    {id:"menu", sel:"#menuBtn", text:"Знак «ЛОР» открывает меню: главная страница, препараты, коды МКБ-10, все разборы в PDF, источники, тема оформления и размер текста."},
+    {id:"home", sel:"#homeBtn", text:"Этой кнопкой можно сразу вернуться на главную страницу."},
+    {id:"search", sel:".searchbox", text:"Поиск по всем разборам: название болезни, код МКБ-10, действующее вещество или торговое название. Можно писать несколько слов, например «синусит амоксициллин дети»."},
+    {id:"ai", sel:"#askBtn", text:"Вопрос искусственному интеллекту — Алисе, DeepSeek или Google. Со страницы болезни к вопросу автоматически добавляются название рекомендации, коды МКБ-10 и основные положения."},
+    {id:"groups", sel:"#home .grp", when:function(){ return home; }, text:"В каждом разделе показаны пять самых востребованных рекомендаций. Остальные открываются строкой «Ещё…» в конце раздела."},
+    {id:"tabs", sel:"#tabbar", when:function(){ return !!tabs; }, text:"Разбор разделён на четыре вкладки: обзор, клиническая картина, диагностика и лечение."},
+    {id:"toc", sel:".toc", when:function(){ return !!tabs && wide; }, text:"Оглавление текущей вкладки: нажатие переводит к нужному подразделу."},
+    {id:"srcof", sel:"main .src-of", when:function(){ return !!tabs; }, text:"Под каждым разделом указано, из какой рекомендации и из каких её разделов взят текст, со ссылкой на официальный документ."},
+    {id:"more", sel:".more-btn", when:function(){ return !!tabs; }, text:"Редкие подробности свёрнуты. Эта строка их раскрывает."},
+    {id:"drug", sel:".drug", when:function(){ return !!tabs; }, text:"Название препарата нажимается: под ним откроются торговые названия из Государственного реестра лекарственных средств."},
+    {id:"drugsearch", sel:".searchbox", when:function(){ return B.page === "drugs"; }, text:"На этой странице поиск ищет по реестру: торговое название покажет действующее вещество, а вещество — все торговые названия."}
+  ];
+  var queue = [], i = 0, box, ring;
+  function visible(el){ var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !el.closest("[hidden]"); }
+  function build(){
+    STEPS.forEach(function(st){
+      if(seen[st.id] || (st.when && !st.when())) return;
+      if(st.id === "drugsearch" || (B.page === "drugs" && st.id === "search")){ if(st.id === "search") return; }
+      var el = document.querySelector(st.sel); if(el && visible(el)) queue.push({st:st, el:el});
+    });
+  }
+  function close(){ if(ring) ring.remove(); if(box) box.remove(); ring = box = null; document.removeEventListener("keydown", onKey); }
+  function onKey(e){ if(e.key === "Escape") finish(); }
+  function finish(){ queue.slice(i).forEach(function(q){ seen[q.st.id] = 1; }); set("lor-help-seen", JSON.stringify(seen)); close(); }
+  function show(){
+    if(i >= queue.length || off){ close(); return; }
+    var q = queue[i]; seen[q.st.id] = 1; set("lor-help-seen", JSON.stringify(seen));
+    var tall = q.el.getBoundingClientRect().height > innerHeight * 0.4;
+    q.el.scrollIntoView({block: tall ? "start" : "center"});
+    if(tall) window.scrollBy(0, -80);
+    requestAnimationFrame(function(){
+      var r = q.el.getBoundingClientRect(), pad = 6;
+      if(!ring){ ring = document.createElement("div"); ring.className = "help-ring"; document.body.appendChild(ring); ring.onclick = next; }
+      ring.style.cssText = "top:" + (r.top - pad) + "px;left:" + (r.left - pad) + "px;width:" + (r.width + pad * 2) + "px;height:" + (r.height + pad * 2) + "px";
+      if(!box){ box = document.createElement("div"); box.className = "help-box"; box.setAttribute("role", "dialog"); document.body.appendChild(box); }
+      box.innerHTML = '<p class="help-t"></p><div class="help-a"><label class="help-off"><input type="checkbox" id="helpOffNow"> Больше не показывать подсказки</label>'
+        + '<button type="button" class="help-next">' + (i + 1 < queue.length ? "Далее" : "Понятно") + "</button></div>"
+        + '<p class="help-n">' + (i + 1) + " из " + queue.length + "</p>";
+      box.querySelector(".help-t").textContent = q.st.text;
+      box.querySelector(".help-next").onclick = next;
+      box.querySelector("#helpOffNow").onchange = function(){ off = this.checked; set("lor-help-off", off ? "1" : "0"); if(tg) tg.checked = !off; if(off) finish(); };
+      var bw = Math.min(360, innerWidth - 32), below = r.bottom + 12 + 160 < innerHeight;
+      box.style.width = bw + "px";
+      box.style.left = Math.max(16, Math.min(r.left, innerWidth - bw - 16)) + "px";
+      var r2 = q.el.getBoundingClientRect(), tall2 = r2.height > innerHeight * 0.4;
+      box.style.top = (tall2 ? innerHeight - box.offsetHeight - 16 : below ? r.bottom + 12 : Math.max(16, r.top - 12 - box.offsetHeight)) + "px";
+      box.querySelector(".help-next").focus();
+    });
+  }
+  function next(){ i++; show(); }
+  addEventListener("load", function(){
+    if(off) return;
+    setTimeout(function(){ build(); if(queue.length){ document.addEventListener("keydown", onKey); show(); } }, 500);
+  });
+  addEventListener("resize", function(){ if(box) show(); });
 })();

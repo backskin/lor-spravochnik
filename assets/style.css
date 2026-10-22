@@ -284,3 +284,22 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
 .drawer-t{flex:1;font-weight:600}
 .drawer-l{color:var(--fg2);font-size:var(--t4);margin:var(--s5) 0 0}
 .drawer .tabs button{font-size:13px}
+
+/* кнопка «Главная» в шапке */
+.home-btn{flex:none;width:40px;height:40px;border:1px solid var(--line);border-radius:var(--r);display:flex;align-items:center;justify-content:center;color:var(--ac)}
+.home-btn:hover{border-color:var(--ac);text-decoration:none}
+
+/* источник под каждым разделом страницы болезни */
+.src-of{margin-top:var(--s3);padding-top:var(--s2);border-top:1px dashed var(--line);color:var(--fg2);font-size:var(--t4);line-height:var(--l4)}
+.src-of a{white-space:nowrap}
+.source-line{color:var(--fg2);font-size:var(--t4);line-height:var(--l4);margin-top:var(--s2)}
+
+/* подсказки: затемнение всего, кроме подсвеченного элемента */
+.help-ring{position:fixed;z-index:70;border-radius:var(--r);box-shadow:0 0 0 9999px rgba(0,0,0,.55);outline:2px solid var(--ac);transition:all .2s ease;pointer-events:auto}
+.help-box{position:fixed;z-index:71;background:var(--bg);color:var(--fg);border-radius:var(--r);padding:var(--s4);box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.help-t{margin:0 0 var(--s3)}
+.help-a{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);flex-wrap:wrap}
+.help-off{display:flex;align-items:center;gap:var(--s2);color:var(--fg2);font-size:var(--t4);cursor:pointer}
+.help-off input{accent-color:var(--ac);margin:0}
+.help-next{background:var(--ac);color:#fff;border-radius:var(--r);padding:var(--s2) var(--s4);font-weight:600}
+.help-n{color:var(--fg2);font-size:var(--t4);margin:var(--s2) 0 0}
