@@ -35,8 +35,9 @@ function isDark(){ return root.dataset.theme ? root.dataset.theme === "dark" : m
 document.body.insertAdjacentHTML("afterbegin",
   '<header class="top"><div class="top-in">'
   + '<a class="brand" href="index.html" aria-label="Главная">' + (HOME ? "" : '<span class="back">‹ </span>') + "ЛОР</a>"
-  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? "Торговое название или вещество" : "Болезнь, код МКБ, препарат") + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? "Торговое название или вещество" : "Болезнь, код, препарат") + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
   + '<button class="brand" id="qCancel" type="button" hidden style="color:var(--ac);font-weight:400">Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.5-4.5"/></svg><span>ИИ</span></button>'
   + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
   + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
 document.body.insertAdjacentHTML("beforeend",
@@ -74,26 +75,27 @@ if(home){
   }
   core.forEach(function(g){
     var all = L.diseases.filter(function(d){ return d.g === g.id; }), ready = all.filter(function(d){ return d.href; }), rest = all.filter(function(d){ return !d.href; });
-    h += '<h2 class="gh">' + esc(g.title) + '</h2><ul class="list">'
+    h += '<section class="grp"><h2 class="gh">' + esc(g.title) + '</h2><ul class="list">'
       + ready.map(function(d){ return row(d.href, esc(d.name), esc(codesShort(d.codes))); }).join("");
     if(rest.length) h += '<li><button class="row toggle dim" aria-expanded="false"><span class="rt">' + (ready.length ? "Ещё " : "") + rest.length + " "
       + plural(rest.length, "рекомендация", "рекомендации", "рекомендаций") + " без разбора</span></button>"
       + '<ul class="list sublist" hidden>' + fullRows(rest) + "</ul></li>";
-    h += "</ul>";
+    h += "</ul></section>";
   });
-  h += '<h2 class="gh">Смежные темы</h2><ul class="list">' + rel.map(function(g){
+  h += '<section class="grp"><h2 class="gh">Смежные темы</h2><ul class="list">' + rel.map(function(g){
     var all = L.diseases.filter(function(d){ return d.g === g.id; });
     return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
       + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"
       + '<ul class="list sublist" hidden>' + all.map(function(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("") + "</ul></li>";
-  }).join("") + "</ul>";
-  h += '<h2 class="gh">Ещё</h2><ul class="list">'
+  }).join("") + "</ul></section>";
+  h += '<section class="grp"><h2 class="gh">Ещё</h2><ul class="list">'
     + row("preparaty.html", "Препараты и торговые названия", "Государственный реестр лекарственных средств")
     + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
     + row("pdf/vse-razbory.pdf", "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
     + row("kak-polzovatsya.html", "Как пользоваться справочником", "")
     + '<li><button class="row" id="themeRow"><span class="rt">Тема оформления<span class="rs" id="themeName"></span></span></button></li>'
-    + "</ul>";
+    + "</ul></section>";
+  h = '<div class="grps">' + h + "</div>";
   home.innerHTML = h;
   home.addEventListener("click", function(e){
     var b = e.target.closest(".toggle"); if(!b) return;
@@ -115,6 +117,8 @@ function showTab(id){
   if(TABS.indexOf(id) < 0) return;
   tabbar.querySelectorAll("[data-tab]").forEach(function(b){ b.setAttribute("aria-selected", String(b.dataset.tab === id)); });
   document.querySelectorAll("[data-panel]").forEach(function(p){ p.hidden = p.dataset.panel !== id; });
+  document.querySelectorAll(".toc [data-totab]").forEach(function(a){ a.classList.toggle("on", a.dataset.totab === id); });
+  document.querySelectorAll(".toc [data-tosec]").forEach(function(a){ var s = $(a.dataset.tosec); a.hidden = !s || panelOf(s) !== id; });
 }
 function findEl(id){ return id ? (document.getElementById(id) || document.querySelector('[data-v="' + id.replace(/"/g, "") + '"]')) : null; }
 function panelOf(el){ var p = el && el.closest("[data-panel]"); return p ? p.dataset.panel : null; }
@@ -144,6 +148,31 @@ if(tabbar){
   if(TABS.indexOf(start) >= 0) showTab(start);
   else { var target = findEl(start); showTab(panelOf(target) || "over"); if(target) addEventListener("load", function(){ reveal(target); }); }
   addEventListener("hashchange", function(){ var id = location.hash.slice(1); if(TABS.indexOf(id) >= 0) showTab(id); else reveal(findEl(id)); });
+}
+
+/* оглавление: разделы и подзаголовки; на компьютере стоит слева, на телефоне не показывается */
+if(tabbar){
+  var toc = document.createElement("nav"); toc.className = "toc"; toc.setAttribute("aria-label", "Оглавление");
+  var th = "";
+  tabbar.querySelectorAll("[data-tab]").forEach(function(b){
+    th += '<a class="toc-tab" href="#' + b.dataset.tab + '" data-totab="' + b.dataset.tab + '">' + esc(b.textContent) + "</a>";
+    document.querySelectorAll('[data-panel="' + b.dataset.tab + '"]').forEach(function(sec){
+      var h2 = sec.querySelector("h2"); if(!h2) return;
+      if(!sec.id) sec.id = "s-" + Math.random().toString(36).slice(2, 7);
+      th += '<a class="toc-sub" href="#' + sec.id + '" data-tosec="' + sec.id + '">' + esc(h2.textContent.trim()) + "</a>";
+      sec.querySelectorAll(".body > h3, .body > .more > h3").forEach(function(h3){
+        if(!h3.id) h3.id = "h-" + Math.random().toString(36).slice(2, 7);
+        th += '<a class="toc-sub toc-h3" href="#' + h3.id + '" data-tosec="' + h3.id + '">' + esc(h3.firstChild ? h3.firstChild.textContent.trim() : h3.textContent.trim()) + "</a>";
+      });
+    });
+  });
+  toc.innerHTML = th;
+  var mainEl = document.querySelector("main"); mainEl.parentNode.insertBefore(toc, mainEl);
+  toc.addEventListener("click", function(e){
+    var a = e.target.closest("a"); if(!a) return; e.preventDefault();
+    if(a.dataset.totab){ showTab(a.dataset.totab); window.scrollTo(0, 0); try{ history.replaceState(null, "", "#" + a.dataset.totab); }catch(err){} }
+    else { var sec = $(a.dataset.tosec); showTab(panelOf(sec)); if(sec.closest(".more")) setOpen(sec.closest(".block"), true); sec.scrollIntoView({block:"start"}); }
+  });  showTab(tabbar.querySelector('[aria-selected="true"]').dataset.tab);
 }
 
 /* скрытые подробности: одна кнопка в конце блока */
@@ -335,15 +364,31 @@ var ASK_EXAMPLES = [
 "Когда пациента с охриплостью нужно направить к онкологу?"
 ];
 var askText = $("askText"), ctxFrag = "", ctxSec = "", example = "";
+/* текст для ИИ: роль, требования к ответу и то, что справочник уже знает (рекомендация, коды МКБ, раздел, главное) */
+function cut(t, n){ t = t.replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; }
+function pageContext(){
+  if(!DOC) return "";
+  var d = L.diseases.filter(function(x){ return x.cv === DOC.id; })[0], lines = [];
+  lines.push("Рекомендация: «" + DOC.title + "», версия " + DOC.year + " года (рубрикатор Минздрава, " + DOC.id + ").");
+  if(d && d.codes && d.codes.length) lines.push("Коды МКБ-10: " + d.codes.slice(0, 8).map(function(c){ return c[0] + " " + c[1]; }).join("; ") + (d.codes.length > 8 ? " и другие" : "") + ".");
+  var tab = tabbar && tabbar.querySelector('[aria-selected="true"]');
+  if(tab) lines.push("Я сейчас читаю раздел «" + tab.textContent.trim() + "»" + (ctxSec && ctxSec !== tab.textContent.trim() ? ", блок «" + ctxSec + "»" : "") + ".");
+  var sum = Array.prototype.map.call(document.querySelectorAll(".summary li"), function(li){ return "— " + cut(textOf(li), 220); });
+  if(sum.length) lines.push("Главное по этой рекомендации (из справочника):\n" + sum.join("\n"));
+  return lines.join("\n");
+}
 function buildPrompt(){
   var q = askText.value.trim() || example;
-  var p = "Ты помогаешь практикующему врачу-оториноларингологу в России. Отвечай строго по действующим клиническим рекомендациям Минздрава РФ (рубрикатор cr.minzdrav.gov.ru). "
-    + "Для каждого утверждения укажи: название КР, год версии, раздел, уровень убедительности рекомендаций (УУР) и достоверности доказательств (УДД). "
-    + "Если КР пересмотрена или есть более новая версия — скажи об этом явно. Если источник не нашёл или не уверен — так и напиши, не додумывай. "
-    + "Зарубежные рекомендации (EPOS, AAO-HNS и др.) приводи только отдельно и с пометкой, что это не российские КР.";
-  if(DOC) p += "\n\nКонтекст: КР «" + DOC.title + "», версия " + DOC.year + " (ID " + DOC.id + " в рубрикаторе). Раздел: " + (ctxSec || "—") + ".";
-  if(ctxFrag) p += "\nФрагмент из справочника: «" + ctxFrag + "»";
-  p += "\n\nВопрос: " + (q || "поясни этот фрагмент и проверь, соответствует ли он актуальной версии КР.");
+  var p = "Я врач-оториноларинголог, работаю в России. Ответь на вопрос, опираясь на действующие клинические рекомендации Минздрава РФ (cr.minzdrav.gov.ru).\n\n"
+    + "Как отвечать:\n"
+    + "— к каждому утверждению укажи рекомендацию, год её версии и раздел, а для рекомендаций — уровень убедительности (УУР) и уровень достоверности доказательств (УДД);\n"
+    + "— препараты называй по международному непатентованному названию, дозы давай так, как они указаны в рекомендации;\n"
+    + "— если в российских рекомендациях ответа нет или ты не уверен, так и напиши, ничего не додумывай;\n"
+    + "— зарубежные руководства (EPOS, AAO-HNS и другие) упоминай только отдельно и с пометкой, что это не российские рекомендации.";
+  var ctx = pageContext();
+  if(ctx) p += "\n\nЧто уже известно:\n" + ctx;
+  if(ctxFrag) p += "\n\nВопрос касается этого пункта: «" + cut(ctxFrag, 600) + "»";
+  p += "\n\nВопрос: " + (q || "поясни этот пункт подробнее и проверь, соответствует ли он действующей версии рекомендации.");
   return p;
 }
 function refreshAsk(){
@@ -354,11 +399,21 @@ function refreshAsk(){
 }
 function openAsk(q, frag, sec){
   ctxFrag = frag || ""; ctxSec = sec || ""; askText.value = q || "";
-  example = ctxFrag ? "" : ASK_EXAMPLES[Math.floor(Math.random() * ASK_EXAMPLES.length)] || "";
+  /* пример вопроса: на странице болезни — про эту болезнь, на остальных — из общего списка */
+  var pool = DOC ? [
+    "Когда при заболевании «" + DOC.title + "» показана госпитализация?",
+    "Какой антибиотик выбрать при заболевании «" + DOC.title + "», если у пациента аллергия на пенициллины?",
+    "Как лечить заболевание «" + DOC.title + "» у беременной?",
+    "Какие дозы препаратов рекомендованы детям при заболевании «" + DOC.title + "»?",
+    "С чем нужно дифференцировать заболевание «" + DOC.title + "»?",
+    "Какие обследования обязательны при заболевании «" + DOC.title + "»?"
+  ] : ASK_EXAMPLES;
+  example = ctxFrag ? "" : pool[Math.floor(Math.random() * pool.length)] || "";
   askText.placeholder = example ? "Например: " + example : "Ваш вопрос об этом пункте (можно оставить пустым)";
   $("askMsg").hidden = true; refreshAsk(); openSheet(ask);
 }
 askText.addEventListener("input", refreshAsk);
+$("askBtn").onclick = function(){ openAsk("", "", ""); };
 $("goYandex").addEventListener("click", function(){
   var m = $("askMsg"); m.hidden = false;
   m.textContent = "Вопрос скопирован. В чате Алисы нажмите на поле ввода и выберите «Вставить».";
@@ -452,10 +507,10 @@ function render(){
   if(!IDX) h += '<p class="empty">Загружаю текст разборов…</p>';
   else if(!total) h += '<p class="empty">По запросу «' + esc(q) + "» ничего не нашлось. Проверьте написание или напишите начало слова.</p>";
   h += '<h2 class="gh">' + (total ? "Не то?" : "Спросить ИИ") + '</h2><ul class="list"><li><button class="row" id="askQ"><span class="rt">Спросить ИИ: «' + esc(q) + "»</span></button></li></ul>";
-  resIn.innerHTML = h; res.hidden = false; cancel.hidden = false; document.body.classList.add("searching");
+  resIn.innerHTML = h; res.hidden = false; cancel.hidden = false; $("askBtn").hidden = true; document.body.classList.add("searching");
   $("askQ").onclick = function(){ openAsk(q, "", ""); };
 }
-function closeResults(){ res.hidden = true; cancel.hidden = true; document.body.classList.remove("searching"); }
+function closeResults(){ res.hidden = true; cancel.hidden = true; $("askBtn").hidden = false; document.body.classList.remove("searching"); }
 var deb;
 if(B.page !== "drugs"){
   qIn.addEventListener("input", function(){
