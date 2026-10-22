@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Коды МКБ-10 · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+<main class="page">
+  <h1 class="pt">Коды МКБ-10</h1>
+  <p class="meta-line">ЛОР-рубрики. Нажмите на раздел, чтобы открыть коды, на код — чтобы скопировать. Найти код по слову можно в поиске вверху.</p>
+  <ul class="list" id="mkbRef" style="margin-top:24px"></ul>
+  <p class="foot" id="mkbSrc"></p>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/mkb.js"></script>
+<script src="assets/grls.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  var L = window.LOR, box = document.getElementById("mkbRef");
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  /* разбор, где этот код есть: точное совпадение или рубрика из трёх знаков */
+  function crFor(code){
+    var c = code.replace(/[*†]/g, ""), rub = c.slice(0, 3);
+    return L.diseases.filter(function(d){ return d.href && (d.codes || []).some(function(x){ var k = x[0].replace("*", ""); return k === c || k === rub; }); });
+  }
+  box.innerHTML = (window.LOR_MKB || []).map(function(sec, si){
+    var m = sec.sec.match(/^(.*?)\s*(\([^)]*\))?$/), shown = {};
+    return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(m[1])
+      + '<span class="rs">' + (m[2] ? esc(m[2].slice(1, -1)) + " · " : "") + sec.rows.length + " код.</span></span></button>"
+      + '<div class="sublist" hidden><div class="mkb-list">' + sec.rows.map(function(r){
+          var rub = r[0].replace(/[*†]/g, "").slice(0, 3), links = "";
+          if(r[2] && !shown[rub]){ shown[rub] = 1; links = crFor(rub).map(function(d){ return '<a class="row" href="' + d.href + '"><span class="rt">Разбор: ' + esc(d.name) + "</span></a>"; }).join(""); }
+          return '<button class="mkb-row" data-code="' + esc(r[0].replace(/[*†]/g, "")) + '"><code>' + esc(r[0]) + "</code><span>" + esc(r[1]) + "</span></button>" + links;
+        }).join("") + "</div></div></li>";
+  }).join("");
+  box.addEventListener("click", function(e){
+    var b = e.target.closest(".toggle"); if(!b) return;
+    var open = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", String(open)); b.nextElementSibling.hidden = !open;
+  });
+  var meta = window.LOR_MKB_META;
+  if(meta) document.getElementById("mkbSrc").textContent = "Коды и названия — " + meta.source + ". Знаки «*» и «†» — двойное кодирование (проявление и причина).";
+})();
+</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
+</body>
+</html>

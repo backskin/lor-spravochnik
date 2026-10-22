@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Препараты · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body data-page="drugs">
+
+<main class="page">
+  <h1 class="pt">Препараты</h1>
+  <p class="meta-line" id="dstatus">Загружаю реестр…</p>
+  <p class="lead" id="dlead">Напишите в поиске вверху торговое название, которое назвал пациент, — увидите действующее вещество. Или напишите вещество — увидите торговые названия, под которыми оно зарегистрировано.</p>
+  <div id="dres"></div>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/grls.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function(){
+  var q = document.getElementById("q"), res = document.getElementById("dres"), st = document.getElementById("dstatus"), E = GRLS.esc;
+  function plural(n, a, b, c){ var m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; }
+  function mark(s, t){ var i = s.toLowerCase().replace(/ё/g, "е").indexOf(t); return i < 0 ? E(s) : E(s.slice(0, i)) + "<mark>" + E(s.slice(i, i + t.length)) + "</mark>" + E(s.slice(i + t.length)); }
+  function item(k, title, sub){ return '<li><button class="row toggle" aria-expanded="false" data-inn="' + E(k) + '"><span class="rt">' + title + '<span class="rs">' + sub + "</span></span></button></li>"; }
+  function render(){
+    var t = q.value.trim().toLowerCase().replace(/ё/g, "е");
+    document.getElementById("dlead").hidden = t.length >= 2;
+    if(t.length < 2){ res.innerHTML = ""; return; }
+    var r = GRLS.search(t), d = GRLS.data, h = "";
+    if(r.tn.length) h += '<h2 class="gh">Торговые названия</h2><ul class="list">' + r.tn.map(function(x){ return item(x.inn, mark(x.tn, t), "действующее вещество — " + E(d.inn[x.inn].n)); }).join("") + "</ul>";
+    if(r.inn.length) h += '<h2 class="gh">Действующие вещества</h2><ul class="list">' + r.inn.map(function(k){ var n = d.inn[k].tn.length; return item(k, mark(d.inn[k].n, t), n + " " + plural(n, "торговое название", "торговых названия", "торговых названий")); }).join("") + "</ul>";
+    res.innerHTML = h || '<p class="empty">Ничего не нашлось. Проверьте написание или напишите начало слова.</p>';
+  }
+  function show(k){
+    var d = GRLS.data; if(!d.inn[k]) return;
+    res.innerHTML = '<div class="tn-box">' + GRLS.card(k, 0) + "</div>";
+  }
+  res.addEventListener("click", function(e){
+    var more = e.target.closest(".tn-more"); if(more){ more.closest(".tn-box").innerHTML = GRLS.card(more.dataset.inn, 0); return; }
+    var b = e.target.closest(".toggle"); if(!b) return;
+    var li = b.parentNode, open = b.getAttribute("aria-expanded") !== "true";
+    res.querySelectorAll(".toggle[aria-expanded=true]").forEach(function(x){ x.setAttribute("aria-expanded", "false"); var c = x.parentNode.querySelector(".tn-box"); if(c) c.remove(); });
+    if(open){ b.setAttribute("aria-expanded", "true"); li.insertAdjacentHTML("beforeend", '<div class="tn-box">' + GRLS.card(b.dataset.inn, 15) + "</div>"); }
+  });
+  GRLS.load().then(function(d){
+    st.textContent = "Государственный реестр лекарственных средств от " + d.date.split("-").reverse().join(".") + ": " + Object.keys(d.inn).length + " веществ, " + d.all.length + " торговых названий.";
+    q.addEventListener("input", render);
+    var k = decodeURIComponent(location.hash.slice(1));
+    if(k && d.inn[k]){ q.value = d.inn[k].n; show(k); } else q.focus();
+  }, function(){ st.textContent = "Реестр не загрузился. Проверьте интернет и обновите страницу."; });
+})();
+</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
+</body>
+</html>

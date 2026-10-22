@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body class="home">
+
+<main class="page">
+  <h1 class="pt">Клинические рекомендации</h1>
+  <p class="meta-line" id="stat"></p>
+  <div id="home"></div>
+  <p class="foot">Список рекомендаций и даты — из рубрикатора Минздрава (cr.minzdrav.gov.ru). Справочник не заменяет текст клинических рекомендаций.</p>
+</main>
+
+<script src="assets/data.js"></script>
+<script src="assets/grls.js"></script>
+<script src="assets/app.js"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
+</body>
+</html>
