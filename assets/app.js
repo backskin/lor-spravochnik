@@ -380,7 +380,7 @@ function pageContext(){
   var tab = tabbar && tabbar.querySelector('[aria-selected="true"]');
   if(tab) lines.push("Я сейчас читаю раздел «" + tab.textContent.trim() + "»" + (ctxSec && ctxSec !== tab.textContent.trim() ? ", блок «" + ctxSec + "»" : "") + ".");
   var sum = Array.prototype.map.call(document.querySelectorAll(".summary li"), function(li){ return "— " + cut(textOf(li), 220); });
-  if(sum.length) lines.push("Главное по этой рекомендации (из справочника):\n" + sum.join("\n"));
+  if(sum.length) lines.push("Основные положения этой рекомендации (из справочника):\n" + sum.join("\n"));
   return lines.join("\n");
 }
 function buildPrompt(){
