@@ -54,6 +54,6 @@
   }, function(){ st.textContent = "Реестр не загрузился. Проверьте интернет и обновите страницу."; });
 })();
 </script>
-<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;sw.addEventListener("controllerchange",function(){if(had&&!done){done=true;location.reload();}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
 </html>

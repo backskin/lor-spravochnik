@@ -309,6 +309,6 @@
 <script src="assets/verify-315_4.js?v=3d59e87fe1ef"></script>
 <script src="assets/grls.js?v=3d59e87fe1ef"></script>
 <script src="assets/app.js?v=3d59e87fe1ef"></script>
-<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;sw.addEventListener("controllerchange",function(){if(had&&!done){done=true;location.reload();}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
 </html>
