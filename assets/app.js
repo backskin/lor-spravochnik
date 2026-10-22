@@ -63,6 +63,7 @@ document.body.insertAdjacentHTML("beforeend",
   + row("index.html", "Главная", "все рекомендации по разделам")
   + row("preparaty.html", "Препараты и торговые названия", "Государственный реестр лекарственных средств")
   + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
+  + row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций")
   + row("pdf/vse-razbory.pdf", "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
   + row("kak-polzovatsya.html", "Как пользоваться", "")
   + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
@@ -354,8 +355,12 @@ document.addEventListener("click", function(e){
   if(ev && DOC){ e.preventDefault(); openSource(ev.closest("[data-v]"), ev); return; }
   var term = e.target.closest(".term");
   if(term && TERMS[term.dataset.t]){
-    var d = TERMS[term.dataset.t];
-    pop.innerHTML = '<div class="sheet-h"><h3>' + esc(d.t) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div><blockquote class="vquote">' + esc(d.q) + "<cite>КР " + esc(VER.cv) + ", раздел " + esc(d.sec) + ", страница " + d.page + "</cite></blockquote>";
+    var d = TERMS[term.dataset.t], key = term.dataset.t;
+    var sec = /^\d/.test(d.sec) ? "раздел " + d.sec : "«" + d.sec + "»";
+    pop.innerHTML = '<div class="sheet-h"><h3>' + esc(d.t) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>'
+      + '<p class="term-def">' + esc(d.q) + "</p>"
+      + '<p class="vnote">Дословно из КР «' + esc(DOC ? DOC.title : VER.cv) + "», " + sec + ", страница " + d.page + ".</p>"
+      + '<ul class="list" style="margin-top:12px">' + row("slovar.html#" + encodeURIComponent(key.replace(/^[ad]:/, "")), "Открыть в словаре", "все термины и сокращения рекомендаций") + "</ul>";
     openSheet(pop);
   }
 });

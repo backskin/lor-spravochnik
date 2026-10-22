@@ -118,7 +118,9 @@ main h1{font-size:var(--t1);line-height:var(--l1)}
 .rec>p+p{margin-top:var(--s2)}
 .sub{display:block;margin-top:var(--s2)}
 .fact.fn{color:var(--fg2);font-size:var(--t4);line-height:var(--l4)}
-.term{border-bottom:1px dotted var(--fg2);cursor:help}
+.term{text-decoration:underline dotted var(--ac);text-decoration-thickness:1.5px;text-underline-offset:3px;cursor:pointer}
+.term:hover{color:var(--ac)}
+.term-def{font-size:1.06em;line-height:1.5;margin-top:var(--s2)}
 
 /* скрытые подробности: раскрываются на месте */
 main .more{display:none}
