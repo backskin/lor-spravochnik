@@ -431,35 +431,52 @@ var ASK_EXAMPLES = [
 var askText = $("askText"), ctxFrag = "", ctxSec = "", example = "";
 /* текст для ИИ: роль, требования к ответу и то, что справочник уже знает (рекомендация, коды МКБ, раздел, главное) */
 function cut(t, n){ t = t.replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; }
-function pageContext(){
+/* текст пункта со вложенными списками: «Подпись: пункт; пункт; пункт» */
+function flatText(el){
+  var c = el.cloneNode(true);
+  c.querySelectorAll(".ev, .tn-box").forEach(function(x){ x.remove(); });
+  c.querySelectorAll(".enum-h").forEach(function(x){ x.insertAdjacentText("beforebegin", " "); x.insertAdjacentText("beforeend", ": "); });
+  c.querySelectorAll("li").forEach(function(x){ x.insertAdjacentText("beforeend", " "); });
+  c.querySelectorAll("ol, ul").forEach(function(x){ x.insertAdjacentText("beforebegin", " "); });
+  return c.textContent.replace(/\s+/g, " ").replace(/:\s*:/g, ":").trim();
+}
+function pageContext(full){
   if(!DOC) return "";
   var d = L.diseases.filter(function(x){ return x.cv === DOC.id; })[0], lines = [];
-  lines.push("Рекомендация: «" + DOC.title + "», версия " + DOC.year + " года (рубрикатор Минздрава, " + DOC.id + ").");
+  lines.push("Рекомендация, которую я сейчас читаю: «" + DOC.title + "», версия " + DOC.year + " года (рубрикатор Минздрава, " + DOC.id + ").");
   if(d && d.codes && d.codes.length) lines.push("Коды МКБ-10: " + d.codes.slice(0, 8).map(function(c){ return c[0] + " " + c[1]; }).join("; ") + (d.codes.length > 8 ? " и другие" : "") + ".");
+  if(!full) return lines.join("\n");
   var tab = tabbar && tabbar.querySelector('[aria-selected="true"]');
-  if(tab) lines.push("Я сейчас читаю раздел «" + tab.textContent.trim() + "»" + (ctxSec && ctxSec !== tab.textContent.trim() ? ", блок «" + ctxSec + "»" : "") + ".");
-  var sum = Array.prototype.map.call(document.querySelectorAll(".summary li"), function(li){ return "— " + cut(textOf(li), 220); });
-  if(sum.length) lines.push("Основные положения этой рекомендации (из справочника):\n" + sum.join("\n"));
+  if(tab) lines.push("Раздел: «" + tab.textContent.trim() + "»" + (ctxSec && ctxSec !== tab.textContent.trim() ? ", блок «" + ctxSec + "»" : "") + ".");
+  var sum = Array.prototype.map.call(document.querySelectorAll(".summary > ul > li"), function(li){ return "— " + cut(flatText(li), 300); });
+  if(sum.length) lines.push("Основные положения этой рекомендации:\n" + sum.join("\n"));
+  var other = L.diseases.filter(function(x){ return x.href && x.cv !== DOC.id; }).map(function(x){ return "«" + x.name + "» (" + x.cv + ")"; });
+  if(other.length) lines.push("Другие действующие КР по ЛОР, которые тоже можно использовать: " + other.join(", ") + ".");
   return lines.join("\n");
 }
-function buildPrompt(){
+var RULES = "Как отвечать:\n"
+  + "— опирайся на любые действующие клинические рекомендации Минздрава РФ, относящиеся к вопросу, а не только на ту, что я читаю; если ответ есть в другой рекомендации, назови её;\n"
+  + "— к каждому утверждению укажи рекомендацию, год её версии и раздел, для рекомендаций также уровень убедительности (УУР) и уровень достоверности доказательств (УДД);\n"
+  + "— препараты называй по международному непатентованному названию, дозы давай так, как они указаны в рекомендации;\n"
+  + "— если ни в одной российской рекомендации ответа нет, так и напиши и ничего не додумывай;\n"
+  + "— зарубежные руководства (EPOS, AAO-HNS и другие) упоминай только отдельно, с пометкой, что это не российские рекомендации.";
+function buildPrompt(short){
   var q = askText.value.trim() || example;
-  var p = "Я врач-оториноларинголог, работаю в России. Ответь на вопрос, опираясь на действующие клинические рекомендации Минздрава РФ (cr.minzdrav.gov.ru).\n\n"
-    + "Как отвечать:\n"
-    + "— к каждому утверждению укажи рекомендацию, год её версии и раздел, а для рекомендаций — уровень убедительности (УУР) и уровень достоверности доказательств (УДД);\n"
-    + "— препараты называй по международному непатентованному названию, дозы давай так, как они указаны в рекомендации;\n"
-    + "— если в российских рекомендациях ответа нет или ты не уверен, так и напиши, ничего не додумывай;\n"
-    + "— зарубежные руководства (EPOS, AAO-HNS и другие) упоминай только отдельно и с пометкой, что это не российские рекомендации.";
-  var ctx = pageContext();
-  if(ctx) p += "\n\nЧто уже известно:\n" + ctx;
-  if(ctxFrag) p += "\n\nВопрос касается этого пункта: «" + cut(ctxFrag, 600) + "»";
-  p += "\n\nВопрос: " + (q || "поясни этот пункт подробнее и проверь, соответствует ли он действующей версии рекомендации.");
-  return p;
+  var ask = q || "поясни этот пункт подробнее и проверь, соответствует ли он действующей версии рекомендации.";
+  /* для Google — одна строка: адрес страницы с вопросом ограничен по длине */
+  if(short) return "Ответь по действующим клиническим рекомендациям Минздрава РФ (любым, относящимся к вопросу), с указанием рекомендации, года и раздела; препараты по МНН; не додумывай. "
+    + (DOC ? "Я читаю КР «" + DOC.title + "» (" + DOC.id + "). " : "") + (ctxFrag ? "Пункт: «" + cut(ctxFrag, 200) + "». " : "") + "Вопрос: " + ask;
+  var p = "Я врач-оториноларинголог, работаю в России. Ответь на вопрос по действующим клиническим рекомендациям Минздрава РФ (cr.minzdrav.gov.ru).\n\n" + RULES;
+  var ctx = pageContext(true);
+  if(ctx) p += "\n\nКонтекст (это не ограничивает ответ):\n" + ctx;
+  if(ctxFrag) p += "\n\nВопрос касается пункта: «" + cut(ctxFrag, 600) + "»";
+  return p + "\n\nВопрос: " + ask;
 }
 function refreshAsk(){
   var p = buildPrompt();
   $("promptPreview").textContent = p;
-  $("goGoogle").href = "https://www.google.com/search?udm=50&q=" + encodeURIComponent(p);
+  /* Google принимает вопрос в адресе страницы, а длина адреса ограничена — ему уходит короткий вариант */
+  $("goGoogle").href = "https://www.google.com/search?udm=50&q=" + encodeURIComponent(buildPrompt(true));
   $("askCtx").textContent = ctxFrag ? "К вопросу приложен пункт: «" + (ctxFrag.length > 160 ? ctxFrag.slice(0, 160) + "…" : ctxFrag) + "»" : (DOC ? "ИИ попросим отвечать по рекомендации «" + DOC.title + "»." : "ИИ попросим отвечать только по клиническим рекомендациям Минздрава.");
 }
 function openAsk(q, frag, sec){
