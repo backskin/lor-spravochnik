@@ -103,6 +103,7 @@ main h1{font-size:var(--t1);line-height:var(--l1)}
 .block>header .n{color:var(--fg2);font-size:var(--t4)}
 .body h3{font-size:var(--t3);line-height:var(--l3);margin:var(--s5) 0 var(--s2)}
 .body>h3:first-child{margin-top:0}
+.body h4{font-size:var(--t4);line-height:var(--l4);color:var(--fg2);margin:var(--s4) 0 var(--s2)}
 .h-src{color:var(--fg2);font-weight:400;font-size:var(--t4)}
 .body p{margin-bottom:var(--s3)}
 .body .rec>p{margin-bottom:0}
