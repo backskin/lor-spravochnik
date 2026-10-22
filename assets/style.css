@@ -257,3 +257,10 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
 
 /* самые узкие телефоны: четыре вкладки должны поместиться */
 @media (max-width:360px){.tabbar button{padding:0 4px;font-size:13px}}
+
+/* откуда данные: заметный блок внизу главной и строка внизу остальных страниц */
+.trust{margin-top:var(--s7);padding:var(--s4);border:1px solid var(--line);border-left:3px solid var(--ac);border-radius:var(--r)}
+.trust h2{font-size:var(--t2);line-height:var(--l2);margin-bottom:var(--s2)}
+.trust p{margin-bottom:var(--s2)}
+.trust .row{border-bottom:0;padding-bottom:0}
+.site-foot{grid-column:1/-1;margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);display:grid;gap:var(--s1);color:var(--fg2);font-size:var(--t4);line-height:var(--l4)}

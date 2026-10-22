@@ -54,6 +54,12 @@ document.body.insertAdjacentHTML("beforeend",
   + '<details><summary>Полный текст, который получит ИИ</summary><pre id="promptPreview"></pre></details></aside>'
   + '<div class="toast" id="toast" role="status"></div>');
 
+/* внизу каждой страницы, кроме главной (там свой блок) — откуда данные */
+if(!HOME && B.page !== "sources"){
+  var mainBox = document.querySelector(".page");
+  if(mainBox) mainBox.insertAdjacentHTML("beforeend", '<footer class="site-foot"><a href="istochniki.html">Источники и проверка данных ›</a>'
+    + "<span>Только клинические рекомендации Минздрава, ГРЛС и справочник МКБ-10. Не заменяет полный текст рекомендации.</span></footer>");
+}
 var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
 function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); }
 function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); scrim.classList.remove("on"); }
@@ -444,7 +450,13 @@ function words(q){
     return [st];
   });
 }
-function has(l, ws){ return ws.every(function(alts){ return alts.some(function(w){ return l.indexOf(w) >= 0; }); }); }
+/* слово ищем с начала слова: «ларингит» не должен находиться внутри «оториноларинголог» */
+function atWord(l, w){
+  var i = l.indexOf(w);
+  while(i > 0 && /[а-яa-z0-9]/.test(l.charAt(i - 1))) i = l.indexOf(w, i + 1);
+  return i;
+}
+function has(l, ws){ return ws.every(function(alts){ return alts.some(function(w){ return atWord(l, w) >= 0; }); }); }
 function mark(text, ws){
   var s = esc(text); ws = [].concat.apply([], ws);
   ws.forEach(function(w){ if(w.length > 1) s = s.replace(new RegExp("(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[а-яёa-z]*)", "gi"), "<mark>$1</mark>"); });
@@ -466,7 +478,10 @@ function textHits(ws){
   });
   /* сначала «Лечение», потом «Обзор», потом остальное — порядок страниц сохраняется */
   var rank = {"Лечение":0, "Обзор":1};
-  return out.map(function(x, i){ return [x, i]; }).sort(function(a, b){ var ra = rank[a[0].it[1]] === undefined ? 2 : rank[a[0].it[1]], rb = rank[b[0].it[1]] === undefined ? 2 : rank[b[0].it[1]]; return ra - rb || a[1] - b[1]; })
+  /* выше всего — пункты со страницы болезни, в названии которой есть искомое слово */
+  function score(x){ var t = low(x.p.t), own = ws.some(function(alts){ return alts.some(function(w){ return atWord(t, w) >= 0; }); });
+    return (own ? 0 : 10) + (rank[x.it[1]] === undefined ? 2 : rank[x.it[1]]); }
+  return out.map(function(x, i){ return [x, i]; }).sort(function(a, b){ return score(a[0]) - score(b[0]) || a[1] - b[1]; })
     .map(function(x){ return x[0]; }).slice(0, 24);
 }
 function render(){
