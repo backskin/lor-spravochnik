@@ -49,6 +49,6 @@
   if(meta) document.getElementById("mkbSrc").textContent = "Коды и названия — " + meta.source + ". Знаки «*» и «†» — двойное кодирование (проявление и причина).";
 })();
 </script>
-<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
 </html>

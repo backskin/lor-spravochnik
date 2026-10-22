@@ -313,6 +313,6 @@
 <script src="assets/verify-313_3.js"></script>
 <script src="assets/grls.js"></script>
 <script src="assets/app.js"></script>
-<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
 </html>
