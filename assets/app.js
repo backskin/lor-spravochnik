@@ -49,6 +49,7 @@ document.body.insertAdjacentHTML("beforeend",
   + '<p class="fine" id="askCtx"></p>'
   + '<ul class="list" style="margin-top:12px">'
   + '<li><a class="row ext" id="goYandex" href="https://alice.yandex.ru/" target="_blank" rel="noopener"><span class="rt">Спросить Алису<span class="rs">вопрос скопируется — в чате нажмите на поле и «Вставить»</span></span></a></li>'
+  + '<li><a class="row ext" id="goDeepseek" href="https://chat.deepseek.com/" target="_blank" rel="noopener"><span class="rt">Спросить DeepSeek<span class="rs">вопрос скопируется — в чате нажмите на поле и «Вставить»</span></span></a></li>'
   + '<li><a class="row ext" id="goGoogle" href="https://www.google.com/" target="_blank" rel="noopener"><span class="rt">Спросить Google<span class="rs">вопрос подставится сам</span></span></a></li></ul>'
   + '<p class="fine" id="askMsg" hidden></p>'
   + '<p class="fine">Ответ ИИ — подсказка, а не источник. Проверяйте по тексту рекомендации.</p>'
@@ -436,11 +437,14 @@ function openAsk(q, frag, sec){
 }
 askText.addEventListener("input", refreshAsk);
 $("askBtn").onclick = function(){ openAsk("", "", ""); };
-$("goYandex").addEventListener("click", function(){
+/* Алиса и DeepSeek не принимают вопрос в ссылке: копируем его, чат открывается в новой вкладке */
+function copyAndGo(name){
   var m = $("askMsg"); m.hidden = false;
-  m.textContent = "Вопрос скопирован. В чате Алисы нажмите на поле ввода и выберите «Вставить».";
+  m.textContent = "Вопрос скопирован. В чате " + name + " нажмите на поле ввода и выберите «Вставить».";
   try{ navigator.clipboard.writeText(buildPrompt()).catch(function(){ m.textContent = "Скопировать не получилось: откройте «Полный текст» ниже и скопируйте его вручную."; }); }catch(err){}
-});
+}
+$("goYandex").addEventListener("click", function(){ copyAndGo("Алисы"); });
+$("goDeepseek").addEventListener("click", function(){ copyAndGo("DeepSeek"); });
 
 /* ---------- поиск: болезни, текст разборов, препараты (ГРЛС), коды МКБ ---------- */
 var qIn = $("q"), res = $("results"), resIn = $("resIn"), cancel = $("qCancel");
