@@ -152,6 +152,8 @@ td[colspan] b{font-weight:400}
   table.lbl td[data-label]:not(:first-child)::before,
   table.cmp td[data-label]::before{content:attr(data-label) ": ";color:var(--fg2)}
   td[colspan]{padding-top:var(--s3)}
+  table:not(.cmp) td:first-child:not([colspan]){font-weight:600}
+  td .enum{margin-top:var(--s1)}
 }
 
 /* торговые названия ГРЛС — раскрываются под препаратом */

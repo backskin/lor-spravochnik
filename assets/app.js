@@ -255,7 +255,7 @@ document.addEventListener("click", function(e){
 document.querySelectorAll("main table").forEach(function(t){
   var hs = Array.prototype.map.call(t.querySelectorAll("thead th"), function(th){ return th.textContent.trim(); });
   if(!hs.length) return;
-  if(!/^(Препарат|Признак|Показатель|Показание|Форма|Шкала|Баллы|Код|Ступень|Возраст|Шок|Степень)/.test(hs[0])) t.classList.add("cmp");
+  if(!/^(Препарат|Признак|Показатель|Показание|Форма|Шкала|Баллы|Код|Ступень|Возраст|Шок|Степень|Основание|Заболевание|Возбудитель|Синдром|Стадия)/.test(hs[0])) t.classList.add("cmp");
   if(hs.length >= 3) t.classList.add("lbl");
   t.querySelectorAll("tbody tr").forEach(function(tr){
     Array.prototype.forEach.call(tr.cells, function(td, i){ if(!td.hasAttribute("colspan") && hs[i]) td.dataset.label = hs[i]; });
