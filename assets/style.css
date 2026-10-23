@@ -164,6 +164,16 @@ td[colspan] b{font-weight:400}
   td .enum{margin-top:var(--s1)}
 }
 
+/* широкие таблицы с длинным текстом (4+ колонки) — карточками на любой ширине: колонки по 8 символов не читаются */
+table.stack,table.stack thead,table.stack tbody,table.stack tr,table.stack td{display:block}
+table.stack thead{display:none}
+table.stack tr{padding:var(--s3) 0;border-bottom:1px solid var(--line)}
+table.stack td{border:0;padding:0}
+table.stack td+td{margin-top:var(--s1)}
+table.stack td[data-label]:not(:first-child)::before{content:attr(data-label) ": ";color:var(--fg2)}
+table.stack td:first-child:not([colspan]){font-weight:600}
+table.stack td.nw{white-space:normal}
+
 /* торговые названия ГРЛС — раскрываются под препаратом */
 .drug{color:var(--ac);cursor:pointer}
 .drug:hover{text-decoration:underline}

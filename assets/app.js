@@ -748,6 +748,10 @@ document.addEventListener("keydown", function(e){
     if(prev && /^H[34]$/.test(prev.tagName)){ var c = prev.cloneNode(true); c.querySelectorAll("small").forEach(function(x){ x.remove(); }); title = c.textContent.replace(/\s+/g, " ").trim().toLowerCase(); }
     names = names.map(function(n){ return n.toLowerCase() === title ? "" : n; });
     t.classList.add("lbl");
+    /* 4+ колонки и длинный текст в ячейках — карточками (класс stack) */
+    var tds = t.querySelectorAll("tbody td:not([colspan])"), len = 0;
+    [].forEach.call(tds, function(td){ len += td.textContent.trim().length; });
+    if(names.length >= 4 && tds.length && len / tds.length > 22 && !t.classList.contains("cmp")) t.classList.add("stack");
     /* колонка из коротких значений («с 1 года», «с 18 лет») — не переносить: иначе «с 18 / лет» */
     var rows = t.querySelectorAll("tbody tr");
     names.forEach(function(_, ci){
