@@ -64,6 +64,11 @@ document.body.insertAdjacentHTML("beforeend",
   + '<div class="tsize-row"><button class="tsize-b" id="sizeDown" type="button" aria-label="Мельче"><span style="font-size:14px">А</span></button>'
   + '<input type="range" id="sizeRange" min="0.7" max="1.3" step="0.05" aria-label="Размер текста">'
   + '<button class="tsize-b" id="sizeUp" type="button" aria-label="Крупнее"><span style="font-size:22px">А</span></button></div></div>'
+  /* тема — сразу под размером текста, компактной строкой: видна без прокрутки меню */
+  + '<div class="themes" id="themeSeg" role="group" aria-label="Тема оформления">'
+  + '<button data-th="light"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><span>Светлая</span></button>'
+  + '<button data-th=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg><span>Системная</span></button>'
+  + '<button data-th="dark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg><span>Тёмная</span></button></div>'
   + '<div class="drawer-h"><span class="drawer-t">ЛОР-справочник</span></div>'
   + '<ul class="list">'
   + row("index.html", "Главная", "все рекомендации по разделам")
@@ -75,10 +80,6 @@ document.body.insertAdjacentHTML("beforeend",
   + row("kak-polzovatsya.html", "Как пользоваться", "")
   + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
   + "</ul>"
-  + '<p class="drawer-l">Тема оформления</p><div class="themes" id="themeSeg">'
-  + '<button data-th="light"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><span>Светлая</span></button>'
-  + '<button data-th=""><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg><span>Системная</span></button>'
-  + '<button data-th="dark"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg><span>Тёмная</span></button></div>'
   + '<p class="drawer-l">Подсказки по справочнику</p><label class="switch"><span>Показывать подсказки при первом открытии</span><input type="checkbox" id="helpToggle"></label>'
   + '<ul class="list"><li><button class="row" id="helpReset"><span class="rt">Показать подсказки заново</span></button></li></ul>'
   + "</nav>");
@@ -87,15 +88,18 @@ var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
 function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); }
 function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("askBtn").setAttribute("aria-expanded", "false"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
 var menu = $("menu"), menuBtn = $("menuBtn");
-function openMenu(){ menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
-function closeMenu(){ if(!menu || menu.hidden) return; menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, 200); }
+/* пока меню открыто, страница под ним не прокручивается */
+function lockPage(on){ root.classList.toggle("menu-lock", on); }
+function openMenu(){ lockPage(true); menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
+function closeMenu(){ if(!menu || menu.hidden) return; lockPage(false); menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, 200); }
 menuBtn.onclick = function(){ if(menu.classList.contains("on")){ closeMenu(); scrim.classList.remove("on"); } else openMenu(); };
 /* тема: светлая / как в системе / тёмная */
 function themeSync(){ var t = root.dataset.theme || ""; $("themeSeg").querySelectorAll("button").forEach(function(b){ b.type = "button"; b.setAttribute("aria-selected", String(b.dataset.th === t)); }); }
 $("themeSeg").addEventListener("click", function(e){ var b = e.target.closest("button"); if(!b) return;
   function apply(){ if(b.dataset.th){ root.dataset.theme = b.dataset.th; store("lor-theme", b.dataset.th); } else { delete root.dataset.theme; store("lor-theme", ""); } themeSync(); }
   /* смена темы — мягким перетеканием, где браузер это умеет */
-  if(document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply); else apply(); });
+  /* при открытом меню — без перетекания: снимок страницы рисовал шапку поверх меню (баг на телефоне 24.10.2026) */
+  if(document.startViewTransition && !menu.classList.contains("on") && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply); else apply(); });
 themeSync();
 /* размер текста: плавный множитель шрифтовой шкалы от 0,7 до 1,3 — обычный ровно посередине, мельче нужнее, чем крупнее; применяется сразу и запоминается */
 var sizeRange = $("sizeRange");

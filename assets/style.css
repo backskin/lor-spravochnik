@@ -464,3 +464,9 @@ html,body{overflow-x:clip}
 .fig-fold[open]>summary{border-color:var(--ac)}
 .fig-fold[open]>summary .fig-sum{white-space:normal}
 .fig-fold>.fig{margin-top:.5rem}
+
+/* меню: страница под ним не прокручивается, прокрутка меню не передаётся странице; тема — компактной строкой под размером текста */
+html.menu-lock,html.menu-lock body{overflow:hidden;overscroll-behavior:none}
+.drawer{overscroll-behavior:contain}
+.drawer .themes{margin-top:var(--s3);gap:6px}
+.drawer .themes button{flex-direction:row;justify-content:center;gap:6px;padding:7px 4px;font-size:var(--t4);line-height:1.2}
