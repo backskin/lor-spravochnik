@@ -309,11 +309,17 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
 .trust .row{border-bottom:0;padding-bottom:0}
 .site-foot{grid-column:1/-1;margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);display:grid;gap:var(--s1);color:var(--fg2);font-size:var(--t4);line-height:var(--l4)}
 
-/* кнопка меню: три полосы разной длины со срезом под 45°; открыто — стрелка «←» туда, куда уезжает меню */
-.logo-btn{flex:none;width:40px;height:40px;border-radius:var(--r);background:var(--ac);color:var(--bg);display:grid;place-items:center;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-.logo-btn:hover{filter:brightness(1.08)}
+/* кнопка меню: обычно — контурная, как «ИИ» и домик; открыто — залита, полоски стягиваются в три точки */
+.logo-btn{flex:none;width:40px;height:40px;border:1px solid var(--line);border-radius:var(--r);color:var(--ac);display:grid;place-items:center}
+.logo-btn:hover{border-color:var(--ac)}
 .logo-btn svg{display:block}
+.logo-btn path{stroke-dasharray:15 30;stroke-dashoffset:0;transition:stroke-dasharray .22s ease,stroke-dashoffset .22s ease,stroke-width .22s ease}
+.logo-btn[aria-expanded="true"] path{stroke-dasharray:0 30;stroke-dashoffset:-7.5;stroke-width:3.4}
+/* нажатие чувствуется на всех кнопках шапки: кнопка чуть утапливается; открытое окно — кнопка залита */
+.logo-btn,.home-btn,.ask-btn{transition:transform .12s ease,background-color .2s ease,color .2s ease,border-color .2s ease}
+.logo-btn:active,.home-btn:active,.ask-btn:active{transform:scale(.92);background:var(--bg2)}
+.logo-btn[aria-expanded="true"],.ask-btn[aria-expanded="true"]{background:var(--ac);border-color:var(--ac);color:var(--bg)}
+@media (prefers-reduced-motion:reduce){.logo-btn,.home-btn,.ask-btn,.logo-btn path{transition:none}}
 
 /* боковое меню */
 .drawer{position:fixed;z-index:55;top:0;bottom:0;left:0;width:min(340px,88vw);background:var(--bg);border-right:1px solid var(--line);
@@ -343,3 +349,24 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
 .help-off input{accent-color:var(--ac);margin:0}
 .help-next{background:var(--ac);color:#fff;border-radius:var(--r);padding:var(--s2) var(--s4);font-weight:600}
 .help-n{color:var(--fg2);font-size:var(--t4);margin:var(--s2) 0 0}
+
+/* ---------- отклик на наведение и нажатие: тихая матовая подложка ----------
+   Только навигация и кнопки: строки списков, вкладки, кнопки шапки и окон. Текст разборов не подсвечивается.
+   На компьютере — при наведении, на телефоне — пока палец нажимает. Подложка выходит за края строки на 8 px,
+   чтобы текст не прилипал к её краю, и лежит под содержимым. */
+html{-webkit-tap-highlight-color:transparent}
+.row,.mkb-row{position:relative;isolation:isolate}
+.row::before,.mkb-row::before{content:"";position:absolute;z-index:-1;inset:3px -8px;border-radius:var(--r);
+  background:var(--bg2);box-shadow:inset 0 0 0 1px var(--line);opacity:0;transition:opacity .15s ease}
+.row:active::before,.mkb-row:active::before{opacity:1}
+.tabbar button,.tabs button,.x,.more-btn{transition:background-color .15s ease}
+.tabbar button:not([aria-selected="true"]):active,.tabs button:not([aria-selected="true"]):active,.x:active{background:var(--bg2)}
+.x{border-radius:var(--r)}
+.more-btn{border-radius:var(--r);padding:0 var(--s2);margin-left:calc(-1 * var(--s2))}
+.more-btn:active{background:var(--bg2)}
+@media (hover:hover){
+  .row:hover::before,.mkb-row:hover::before{opacity:1}
+  .tabbar button:not([aria-selected="true"]):hover,.tabs button:not([aria-selected="true"]):hover,.x:hover,.more-btn:hover{background:var(--bg2)}
+  .home-btn:hover,.ask-btn:not([aria-expanded="true"]):hover,.logo-btn:not([aria-expanded="true"]):hover{background:var(--bg2)}
+}
+@media (prefers-reduced-motion:reduce){.row::before,.mkb-row::before,.tabbar button,.tabs button,.x,.more-btn{transition:none}}

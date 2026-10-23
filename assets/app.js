@@ -39,7 +39,7 @@ document.body.insertAdjacentHTML("afterbegin",
   + (HOME ? "" : '<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
   + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
   + '<button class="brand" id="qCancel" type="button" hidden style="color:var(--ac);font-weight:400">Отмена</button>'
-  + '<button class="ask-btn" id="askBtn" type="button" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.5-4.5"/></svg><span>ИИ</span></button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.5-4.5"/></svg><span>ИИ</span></button>'
   + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
   + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
 document.body.insertAdjacentHTML("beforeend",
@@ -83,7 +83,7 @@ if(!HOME && B.page !== "sources"){
 }
 var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
 function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); }
-function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
+function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("askBtn").setAttribute("aria-expanded", "false"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
 var menu = $("menu"), menuBtn = $("menuBtn");
 function openMenu(){ menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
 function closeMenu(){ if(!menu || menu.hidden) return; menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, 200); }
@@ -518,7 +518,7 @@ function openAsk(q, frag, sec){
   ] : ASK_EXAMPLES;
   example = ctxFrag ? "" : pool[Math.floor(Math.random() * pool.length)] || "";
   askText.placeholder = example ? "Например: " + example : "Ваш вопрос об этом пункте (можно оставить пустым)";
-  $("askMsg").hidden = true; refreshAsk(); openSheet(ask);
+  $("askMsg").hidden = true; refreshAsk(); openSheet(ask); $("askBtn").setAttribute("aria-expanded", "true");
 }
 askText.addEventListener("input", refreshAsk);
 $("askBtn").onclick = function(){ openAsk("", "", ""); };
