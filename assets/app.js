@@ -85,8 +85,9 @@ document.body.insertAdjacentHTML("beforeend",
   + "</nav>");
 
 var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
-function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); }
-function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("askBtn").setAttribute("aria-expanded", "false"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
+/* открытая шторка: страница под ней не прокручивается и не перезагружается жестом «потянуть вниз» (Chrome) */
+function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); root.classList.add("sheet-lock"); }
+function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("askBtn").setAttribute("aria-expanded", "false"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); root.classList.remove("sheet-lock"); closeMenu(); }
 var menu = $("menu"), menuBtn = $("menuBtn");
 /* пока меню открыто, страница под ним не прокручивается */
 function lockPage(on){ root.classList.toggle("menu-lock", on); }
@@ -101,6 +102,14 @@ $("themeSeg").addEventListener("click", function(e){ var b = e.target.closest("b
   /* при открытом меню — без перетекания: снимок страницы рисовал шапку поверх меню (баг на телефоне 24.10.2026) */
   if(document.startViewTransition && !menu.classList.contains("on") && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply); else apply(); });
 themeSync();
+/* шторка выезжает снизу — и закрывается свайпом вниз (когда её содержимое прокручено к началу) */
+document.querySelectorAll(".sheet").forEach(function(sh){
+  var y0 = null, dy = 0;
+  sh.addEventListener("touchstart", function(e){ y0 = sh.scrollTop <= 0 ? e.touches[0].clientY : null; dy = 0; sh.style.transition = "none"; }, {passive: true});
+  sh.addEventListener("touchmove", function(e){ if(y0 === null) return; dy = e.touches[0].clientY - y0;
+    if(dy > 0){ sh.style.transform = "translateY(" + dy + "px)"; if(e.cancelable) e.preventDefault(); } else { y0 = null; sh.style.transform = ""; } }, {passive: false});
+  sh.addEventListener("touchend", function(){ sh.style.transition = ""; sh.style.transform = ""; if(y0 !== null && dy > 80) closeSheets(); y0 = null; });
+});
 /* размер текста: плавный множитель шрифтовой шкалы от 0,7 до 1,3 — обычный ровно посередине, мельче нужнее, чем крупнее; применяется сразу и запоминается */
 var sizeRange = $("sizeRange");
 function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; store("lor-k", String(k)); }
@@ -177,9 +186,12 @@ function glossaryHref(t){
   var ch = t.charAt(0).toLowerCase(), f = GL_TR[ch] ? "slovar-" + GL_TR[ch] : (/[a-z]/.test(ch) ? "slovar-lat" : "slovar-other");
   return f + ".html#" + encodeURIComponent(t);
 }
-function openDrug(name, shown){
+function openDrug(name, shown, offl){
   var title = (shown || name).trim();
-  pop.innerHTML = '<div class="sheet-h"><h3>' + esc(title.charAt(0).toUpperCase() + title.slice(1)) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div><div class="tn-box">Загружаю реестр…</div>';
+  pop.innerHTML = '<div class="sheet-h"><h3>' + esc(title.charAt(0).toUpperCase() + title.slice(1)) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>'
+    /* пометка КР «#» (на странице — «off-label»): объяснение прямо в карточке препарата */
+    + (offl ? '<p class="offl-note"><b>Off-label</b> — в этой рекомендации препарат применяется вне показаний инструкции. По тексту КР такое назначение «осуществляется по решению врачебной комиссии при условии подписанного информированного добровольного согласия».</p>' : '')
+    + '<div class="tn-box">Загружаю реестр…</div>';
   openSheet(pop);
   GRLS.load().then(function(){
     var k = GRLS.findInn(name), box = pop.querySelector(".tn-box"); if(!box) return;
@@ -193,7 +205,8 @@ document.addEventListener("click", function(e){
   e.preventDefault();
   if(d.classList.contains("tn-more")){ d.closest(".tn-box").innerHTML = GRLS.card(d.dataset.inn, 0); return; }
   /* везде одинаково — в тексте и в таблицах: карточка торговых названий в нижнем окне, таблица не раздвигается */
-  openDrug(d.dataset.name, d.textContent);
+  var nx = d.nextElementSibling;
+  openDrug(d.dataset.name, d.textContent, !!(nx && nx.classList.contains("offl")));
 });
 
 /* ---------- источник под пунктом: скрыт, включается в «Обзоре» ---------- */
@@ -915,3 +928,4 @@ function lorTables(){
     });
   });
 }
+

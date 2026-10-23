@@ -470,3 +470,10 @@ html.menu-lock,html.menu-lock body{overflow:hidden;overscroll-behavior:none}
 .drawer{overscroll-behavior:contain}
 .drawer .themes{margin-top:var(--s3);gap:6px}
 .drawer .themes button{flex-direction:row;justify-content:center;gap:6px;padding:7px 4px;font-size:var(--t4);line-height:1.2}
+
+/* шторка открыта: без прокрутки и pull-to-refresh страницы; .offl — надстрочная пометка «off-label» вместо «#» КР */
+html.sheet-lock,html.sheet-lock body{overflow:hidden;overscroll-behavior-y:none}
+.sheet{overscroll-behavior:contain;touch-action:pan-y}
+.offl{font-size:.68em;font-style:italic;color:var(--fg2);font-weight:400;margin-left:2px;letter-spacing:.01em;white-space:nowrap}
+.offl-note{margin:0 0 var(--s3);padding:var(--s2) var(--s3);border-left:3px solid var(--fg2);background:var(--bg2);color:var(--fg2);font-size:var(--t4);line-height:1.45}
+.offl-note b{color:var(--fg)}
