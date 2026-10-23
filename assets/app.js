@@ -35,7 +35,7 @@ function isDark(){ return root.dataset.theme ? root.dataset.theme === "dark" : m
 document.body.insertAdjacentHTML("afterbegin",
   '<header class="top"><div class="top-in">'
   + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
-  + '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path class="mb1" d="M4 5.75h17.5L19 8.25H4z"/><path class="mb2" d="M4 10.75h10.5L12 13.25H4z"/><path class="mb3" d="M4 15.75h14.5L16 18.25H4z"/></svg></button>'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
   + (HOME ? "" : '<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
   + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
   + '<button class="brand" id="qCancel" type="button" hidden style="color:var(--ac);font-weight:400">Отмена</button>'
@@ -681,7 +681,7 @@ document.addEventListener("keydown", function(e){
   var B = document.body.dataset, home = document.body.classList.contains("home"), tabs = document.getElementById("tabbar");
   var wide = matchMedia("(min-width:1024px)").matches;
   var STEPS = [
-    {id:"menu", sel:"#menuBtn", text:"Знак «ЛОР» открывает меню: главная страница, препараты, коды МКБ-10, все разборы в PDF, источники, тема оформления и размер текста."},
+    {id:"menu", sel:"#menuBtn", text:"Кнопка с тремя полосками открывает меню: главная страница, препараты, коды МКБ-10, все разборы в PDF, источники, тема оформления и размер текста."},
     {id:"home", sel:"#homeBtn", text:"Этой кнопкой можно сразу вернуться на главную страницу."},
     {id:"search", sel:".searchbox", text:"Поиск по всем разборам: название болезни, код МКБ-10, действующее вещество или торговое название. Можно писать несколько слов, например «синусит амоксициллин дети»."},
     {id:"ai", sel:"#askBtn", text:"Вопрос искусственному интеллекту — Алисе, DeepSeek или Google. Со страницы болезни к вопросу автоматически добавляются название рекомендации, коды МКБ-10 и основные положения."},
