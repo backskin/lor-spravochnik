@@ -232,6 +232,17 @@ function openSource(host, ev){
   pop.innerHTML = h; openSheet(pop);
   $("askFrom").onclick = function(){ openAsk("", textOf(host), secOf(host)); };
 }
+/* рисунок или блок-схема: нажатие открывает во весь экран в натуральном размере, повторное — закрывает */
+document.addEventListener("click", function(e){
+  var f = e.target.closest(".fig-scroll");
+  if(!f) return;
+  var fig = f.parentNode, full = fig.classList.toggle("fig-full");
+  document.documentElement.style.overflow = full ? "hidden" : "";
+  if(full){  /* к началу схемы: первый блок — по центру экрана */
+    var st = fig.querySelector(".fc-start") || fig.querySelector(".fc-n");
+    if(st){ var b = st.getBoundingClientRect(), fb = fig.getBoundingClientRect(); fig.scrollLeft += b.left + b.width / 2 - fb.width / 2; fig.scrollTop = 0; }
+  }
+});
 document.addEventListener("click", function(e){
   var ev = e.target.closest(".ev");
   if(ev && DOC){ e.preventDefault(); openSource(ev.closest("[data-v]"), ev); return; }

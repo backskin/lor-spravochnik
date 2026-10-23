@@ -410,3 +410,32 @@ html{-webkit-tap-highlight-color:transparent}
 /* страховка для телефона: что бы ни оказалось шире экрана, страницу нельзя «шатать» вбок.
    clip, а не hidden: прилипающая шапка и вкладки продолжают работать */
 html,body{overflow-x:clip}
+
+/* Рисунки и блок-схемы алгоритмов (tools/flowchart.py): цвета — токены темы, широкая схема прокручивается внутри рамки */
+.fig{margin:var(--s4) 0 var(--s5)}
+.fig-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--r);padding:var(--s3);background:var(--bg)}
+.fig svg{display:block;margin:0 auto;max-width:100%;height:auto}
+.fig-scroll{cursor:zoom-in}
+.fig-hint{display:block;font-size:.88em}
+.fig-full{position:fixed;inset:0;z-index:1000;margin:0;background:var(--bg);overflow:auto;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.fig-full .fig-scroll{border:0;cursor:zoom-out;overflow:visible}
+.fig-full svg{max-width:none}
+.fig-full figcaption{position:sticky;left:0}
+.fig figcaption{margin-top:var(--s2);font-size:var(--t4);line-height:var(--l4);color:var(--fg2)}
+.fig .fig-src{display:block;font-size:.88em}
+.fc text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;fill:var(--fg)}
+.fc .fc-t{font-size:12px;text-anchor:middle}
+.fc .fc-n{fill:var(--bg2);stroke:var(--fg2);stroke-width:1.2}
+.fc .fc-q{fill:var(--mark);stroke:color-mix(in srgb,var(--mark),var(--fg) 45%)}
+.fc .fc-start{fill:color-mix(in srgb,var(--ac) 14%,var(--bg));stroke:var(--ac)}
+.fc .fc-end{fill:color-mix(in srgb,var(--ac) 7%,var(--bg));stroke:var(--ac)}
+.fc .fc-warn{fill:color-mix(in srgb,var(--warn) 12%,var(--bg));stroke:var(--warn)}
+.fc .fc-e{fill:none;stroke:var(--fg2);stroke-width:1.2}
+.fc .fc-back{stroke-dasharray:4 3}
+.fc .fc-arrow{fill:var(--fg2)}
+.fc .fc-l{font-size:11px;font-weight:600}
+.fc .fc-yes{fill:var(--ac)}
+.fc .fc-no{fill:var(--warn)}
+.fc .fc-lab{fill:var(--fg2)}
+.fig .fig-note{display:block;margin-top:var(--s1);color:var(--warn)}
+.fig-pic img{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:4px}
