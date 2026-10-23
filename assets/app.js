@@ -737,3 +737,20 @@ document.addEventListener("keydown", function(e){
   });
   addEventListener("resize", function(){ if(box) show(); });
 })();
+
+/* на телефоне заголовки колонок скрыты: каждой ячейке — подпись её колонки, иначе «++» или «1 / 0 / −1» непонятно к чему относятся */
+(function(){
+  document.querySelectorAll("table").forEach(function(t){
+    var ths = t.querySelectorAll("thead th"); if(ths.length < 2) return;
+    var names = [].map.call(ths, function(th){ var c = th.cloneNode(true); c.querySelectorAll("small,sup").forEach(function(x){ x.remove(); }); return c.textContent.replace(/\s+/g, " ").trim(); });
+    t.classList.add("lbl");
+    t.querySelectorAll("tbody tr").forEach(function(tr){
+      var i = 0;
+      [].forEach.call(tr.children, function(td){
+        if(td.hasAttribute("colspan")){ i += +td.getAttribute("colspan"); return; }
+        if(names[i] && !td.dataset.label) td.dataset.label = names[i];
+        i++;
+      });
+    });
+  });
+})();
