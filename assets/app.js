@@ -70,6 +70,7 @@ document.body.insertAdjacentHTML("beforeend",
   + row("preparaty.html", "Препараты и торговые названия", "Государственный реестр лекарственных средств")
   + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
   + row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций")
+  + row("uchebnik.html", "Учебник", "анатомия и физиология по учебникам, со ссылками")
   + row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
   + row("kak-polzovatsya.html", "Как пользоваться", "")
   + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
@@ -521,7 +522,7 @@ readPage();
 var hb = $("homeBtn"); if(hb){ if(HOME) hb.setAttribute("aria-current", "page"); else hb.removeAttribute("aria-current"); }
 $("q").placeholder = B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат");
 /* внизу каждой страницы, кроме главной (там свой блок) — откуда данные */
-if(!HOME && B.page !== "sources"){
+if(!HOME && B.page !== "sources" && B.page !== "textbook"){  /* «Учебник» — не КР, подпись про источники к нему не относится */
   var mainBox = document.querySelector(".page");
   if(mainBox) mainBox.insertAdjacentHTML("beforeend", '<footer class="site-foot"><a href="istochniki.html">Источники и проверка данных ›</a>'
     + "<span>Только клинические рекомендации Минздрава, ГРЛС и справочник МКБ-10. Не заменяет полный текст рекомендации.</span></footer>");
