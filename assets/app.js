@@ -173,15 +173,8 @@ document.addEventListener("click", function(e){
   var d = e.target.closest(".drug, .tn-more"); if(!d || !window.GRLS) return;
   e.preventDefault();
   if(d.classList.contains("tn-more")){ d.closest(".tn-box").innerHTML = GRLS.card(d.dataset.inn, 0); return; }
-  var td = d.closest("td");
-  if(!td){ openDrug(d.dataset.name, d.textContent); return; }
-  var box = td.querySelector(".tn-box");
-  if(box){ box.remove(); return; }
-  box = document.createElement("div"); box.className = "tn-box"; box.textContent = "Загружаю реестр…"; td.appendChild(box);
-  GRLS.load().then(function(){
-    var k = GRLS.findInn(d.dataset.name);
-    box.innerHTML = k ? GRLS.card(k, 8) : "В действующих регистрациях ГРЛС это вещество не нашлось. Попробуйте поиск на странице «Препараты».";
-  }, function(){ box.textContent = "Реестр не загрузился. Проверьте интернет."; });
+  /* везде одинаково — в тексте и в таблицах: карточка торговых названий в нижнем окне, таблица не раздвигается */
+  openDrug(d.dataset.name, d.textContent);
 });
 
 /* ---------- источник под пунктом: скрыт, включается в «Обзоре» ---------- */
