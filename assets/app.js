@@ -748,11 +748,11 @@ document.addEventListener("keydown", function(e){
     if(prev && /^H[34]$/.test(prev.tagName)){ var c = prev.cloneNode(true); c.querySelectorAll("small").forEach(function(x){ x.remove(); }); title = c.textContent.replace(/\s+/g, " ").trim().toLowerCase(); }
     names = names.map(function(n){ return n.toLowerCase() === title ? "" : n; });
     t.classList.add("lbl");
-    /* колонка из коротких значений («с 1 года», «без ограничений») — не переносить: иначе «без / огра- / ничений» */
+    /* колонка из коротких значений («с 1 года», «с 18 лет») — не переносить: иначе «с 18 / лет» */
     var rows = t.querySelectorAll("tbody tr");
     names.forEach(function(_, ci){
       var cells = [].map.call(rows, function(tr){ return tr.children[ci]; }).filter(function(td){ return td && !td.hasAttribute("colspan"); });
-      if(cells.length && cells.every(function(td){ return td.textContent.trim().length <= 18; })) cells.forEach(function(td){ td.classList.add("nw"); });
+      if(cells.length && cells.every(function(td){ return td.textContent.trim().length <= 12; })) cells.forEach(function(td){ td.classList.add("nw"); });
     });
     t.querySelectorAll("tbody tr").forEach(function(tr){
       var i = 0;
