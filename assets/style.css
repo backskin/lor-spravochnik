@@ -406,3 +406,7 @@ html{-webkit-tap-highlight-color:transparent}
 
 /* кнопка «Главная» есть на всех экранах — ширина поиска не прыгает; на главной она отмечена как текущая */
 .home-btn[aria-current="page"]{color:var(--fg2);pointer-events:none;opacity:.55}
+
+/* страховка для телефона: что бы ни оказалось шире экрана, страницу нельзя «шатать» вбок.
+   clip, а не hidden: прилипающая шапка и вкладки продолжают работать */
+html,body{overflow-x:clip}

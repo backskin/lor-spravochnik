@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Препараты · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=88b6efbf9dd1">
+<link rel="stylesheet" href="assets/style.css?v=1711c1b4e868">
 <style>
 .dz-abc{display:flex;flex-wrap:wrap;gap:2px;margin-top:var(--s3)}
 .dz-abc button{min-width:34px;height:34px;padding:0 6px;font:inherit;font-weight:600;border:0;border-radius:6px;background:none;color:var(--ac);cursor:pointer}
 .dz-abc button[aria-pressed="true"]{background:var(--ac);color:var(--bg)}
 .dz-chips{display:flex;flex-wrap:wrap;gap:8px}
-.dz-chips .drug{display:inline-flex;align-items:center;min-height:40px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font:inherit;font-weight:600;color:var(--ac);cursor:pointer;text-align:left}
+.dz-chips .drug{max-width:100%;overflow-wrap:anywhere;display:inline-flex;align-items:center;min-height:40px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font:inherit;font-weight:600;color:var(--ac);cursor:pointer;text-align:left}
 .dz-chips.small .drug{min-height:32px;padding:4px 10px;font-weight:400;font-size:var(--t4)}
 .dz-dirs{display:flex;flex-wrap:wrap;gap:6px}
 .dz-dirs button{font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--fg);cursor:pointer}
@@ -26,7 +26,7 @@
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body data-page="drugs">
-<script src="assets/shell.js?v=88b6efbf9dd1"></script>
+<script src="assets/shell.js?v=1711c1b4e868"></script>
 
 <main class="page">
   <h1 class="pt">Препараты</h1>
@@ -45,9 +45,9 @@
   <p class="src-of">Источник: Государственный реестр лекарственных средств Минздрава России · <a href="https://grls.rosminzdrav.ru/" target="_blank" rel="noopener">grls.rosminzdrav.ru ↗</a></p>
 </main>
 
-<script src="assets/data.js?v=88b6efbf9dd1"></script>
-<script src="assets/grls.js?v=88b6efbf9dd1"></script>
-<script src="assets/app.js?v=88b6efbf9dd1"></script>
+<script src="assets/data.js?v=1711c1b4e868"></script>
+<script src="assets/grls.js?v=1711c1b4e868"></script>
+<script src="assets/app.js?v=1711c1b4e868"></script>
 <script>
 (function(){
   var q = document.getElementById("q"), res = document.getElementById("dres"), st = document.getElementById("dstatus"), homeEl = document.getElementById("dhome"), E = GRLS.esc;
@@ -55,7 +55,8 @@
   function mark(s, t){ var i = s.toLowerCase().replace(/ё/g, "е").indexOf(t); return i < 0 ? E(s) : E(s.slice(0, i)) + "<mark>" + E(s.slice(i, i + t.length)) + "</mark>" + E(s.slice(i + t.length)); }
   function item(k, title, sub){ return '<li><button class="row toggle" aria-expanded="false" data-inn="' + E(k) + '"><span class="rt">' + title + '<span class="rs">' + sub + "</span></span></button></li>"; }
   function store(k, v){ try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
-  function chip(x){ return '<button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n) + "</button>"; }
+  /* многокомпонентный состав без пробелов («А+Б+В») переносится после «+», иначе кнопка шире экрана телефона */
+  function chip(x){ return '<button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n).replace(/\+/g, "+<wbr>") + "</button>"; }
   /* поиск: торговое название -> вещество, вещество -> торговые названия */
   function render(){
     var t = q.value.trim().toLowerCase().replace(/ё/g, "е");
