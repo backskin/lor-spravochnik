@@ -235,7 +235,8 @@ document.addEventListener("click", function(e){
     var sec = /^\d/.test(d.sec) ? "раздел " + d.sec : "«" + d.sec + "»";
     pop.innerHTML = '<div class="sheet-h"><h3>' + esc(d.t) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>'
       + '<p class="term-def">' + esc(d.q) + "</p>"
-      + '<p class="vnote">Дословно из КР «' + esc(DOC ? DOC.title : VER.cv) + "», " + sec + ", страница " + d.page + ".</p>"
+      + '<p class="vnote">' + (d.book ? "Не из клинических рекомендаций: пересказ по книге " + esc(d.book) + "."
+          : "Дословно из КР «" + esc(d.kr || (DOC ? DOC.title : VER.cv)) + "», " + sec + ", страница " + d.page + ".") + "</p>"
       + '<ul class="list" style="margin-top:12px">' + row(glossaryHref(key.replace(/^[ad]:/, "")), "Открыть в словаре", "все термины и сокращения рекомендаций") + "</ul>";
     openSheet(pop);
   }
