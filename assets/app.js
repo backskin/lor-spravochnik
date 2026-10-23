@@ -62,7 +62,7 @@ document.body.insertAdjacentHTML("beforeend",
   /* размер текста — самым верхним: над ним ничего не растёт, поэтому регулятор не уезжает из-под пальца */
   + '<div class="tsize" role="group" aria-label="Размер текста"><div class="tsize-h"><span>Размер текста</span><button class="x" data-close aria-label="Закрыть">✕</button></div>'
   + '<div class="tsize-row"><button class="tsize-b" id="sizeDown" type="button" aria-label="Мельче"><span style="font-size:14px">А</span></button>'
-  + '<input type="range" id="sizeRange" min="0.85" max="1.4" step="0.05" aria-label="Размер текста">'
+  + '<input type="range" id="sizeRange" min="0.7" max="1.3" step="0.05" aria-label="Размер текста">'
   + '<button class="tsize-b" id="sizeUp" type="button" aria-label="Крупнее"><span style="font-size:22px">А</span></button></div></div>'
   + '<div class="drawer-h"><span class="drawer-t">ЛОР-справочник</span></div>'
   + '<ul class="list">'
@@ -96,13 +96,13 @@ $("themeSeg").addEventListener("click", function(e){ var b = e.target.closest("b
   /* смена темы — мягким перетеканием, где браузер это умеет */
   if(document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply); else apply(); });
 themeSync();
-/* размер текста: плавный множитель шрифтовой шкалы от 0,85 до 1,4, применяется сразу и запоминается */
+/* размер текста: плавный множитель шрифтовой шкалы от 0,7 до 1,3 — обычный ровно посередине, мельче нужнее, чем крупнее; применяется сразу и запоминается */
 var sizeRange = $("sizeRange");
-function setK(k){ k = Math.min(1.4, Math.max(0.85, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; store("lor-k", String(k)); }
+function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; store("lor-k", String(k)); }
 sizeRange.addEventListener("input", function(){ setK(+sizeRange.value); });
 $("sizeDown").onclick = function(){ setK(+sizeRange.value - 0.05); };
 $("sizeUp").onclick = function(){ setK(+sizeRange.value + 0.05); };
-(function(){ var k = +(store("lor-k") || 1); root.style.setProperty("--k", k); sizeRange.value = k; })();
+(function(){ var k = Math.min(1.3, Math.max(0.7, +(store("lor-k") || 1))); root.style.setProperty("--k", k); sizeRange.value = k; })();
 scrim.onclick = closeSheets;
 document.addEventListener("click", function(e){ if(e.target.closest("[data-close]")) closeSheets(); });
 function say(t){ var x = $("toast"); x.textContent = t; x.classList.add("on"); clearTimeout(say.t); say.t = setTimeout(function(){ x.classList.remove("on"); }, 1600); }
