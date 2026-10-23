@@ -743,6 +743,10 @@ document.addEventListener("keydown", function(e){
   document.querySelectorAll("table").forEach(function(t){
     var ths = t.querySelectorAll("thead th"); if(ths.length < 2) return;
     var names = [].map.call(ths, function(th){ var c = th.cloneNode(true); c.querySelectorAll("small,sup").forEach(function(x){ x.remove(); }); return c.textContent.replace(/\s+/g, " ").trim(); });
+    /* подпись, повторяющая заголовок таблицы, не нужна: «Показания к тонзиллэктомии:» под каждой строкой — шум */
+    var wrap = t.closest(".tbl-wrap"), prev = wrap && wrap.previousElementSibling, title = "";
+    if(prev && /^H[34]$/.test(prev.tagName)){ var c = prev.cloneNode(true); c.querySelectorAll("small").forEach(function(x){ x.remove(); }); title = c.textContent.replace(/\s+/g, " ").trim().toLowerCase(); }
+    names = names.map(function(n){ return n.toLowerCase() === title ? "" : n; });
     t.classList.add("lbl");
     t.querySelectorAll("tbody tr").forEach(function(tr){
       var i = 0;
