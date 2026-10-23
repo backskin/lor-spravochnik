@@ -379,3 +379,6 @@ html{-webkit-tap-highlight-color:transparent}
   .home-btn:hover,.ask-btn:not([aria-expanded="true"]):hover,.logo-btn:not([aria-expanded="true"]):hover{background:var(--bg2)}
 }
 @media (prefers-reduced-motion:reduce){.row::before,.mkb-row::before,.tabbar button,.tabs button,.x,.more-btn{transition:none}}
+
+/* кнопка «Главная» есть на всех экранах — ширина поиска не прыгает; на главной она отмечена как текущая */
+.home-btn[aria-current="page"]{color:var(--fg2);pointer-events:none;opacity:.55}
