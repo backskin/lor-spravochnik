@@ -73,6 +73,10 @@
     return '<p class="tn-h">Состав</p><div class="tn-comp">' + esc(c[3]) + "</div>" + src;
   }
   var GRLS = "https://grls.rosminzdrav.ru/";
+  /* карточки ГРЛС адресуются по routingGuid; пока его нет — поиск реестра сразу по номеру удостоверения */
+  function regSearch(r){
+    return GRLS + "GRLS.aspx?RegNumber=" + encodeURIComponent(r) + "&MnnR=&lf=&TradeNmR=&OwnerName=&MnfOrg=&MnfOrgCountry=&isfs=0&regtype=1%2c6&pageSize=10&order=RegDate&orderType=desc&pageNum=1";
+  }
   function regLine(r){
     var x = instr && instr.r[r];
     var h = '<li><button type="button" class="tn-reg" data-reg="' + esc(r) + '">' + esc(r) + "</button>";
@@ -94,7 +98,7 @@
       h += '<p class="tn-h">Регистрационные удостоверения и инструкции</p><ul class="tn-regs">' + x[1].map(regLine).join("") + "</ul>"
         + '<p class="tn-note">' + (any ? "Инструкции — официальные файлы ГРЛС (сайт открывается из России). " : "Инструкция — в карточке препарата на сайте ГРЛС. ")
         + "Нажатие на номер копирует его.</p>"
-        + (any ? "" : '<p><a class="tn-ext" href="https://grls.rosminzdrav.ru/GRLS.aspx" target="_blank" rel="noopener">Открыть ГРЛС ↗</a></p>');
+        + (any ? "" : '<p><a class="tn-ext" href="' + esc(regSearch(x[1][0])) + '" target="_blank" rel="noopener">Найти в ГРЛС по номеру ' + esc(x[1][0]) + " ↗</a></p>");
     }
     return h;
   }

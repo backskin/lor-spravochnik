@@ -207,6 +207,12 @@ function vstatHtml(el){
   if(v && v.note && !v.img) h += '<p class="vnote">' + esc(v.note) + "</p>";
   return h;
 }
+/* название КР длиннее двух строк телефона («Агрессивные нефолликулярные лимфомы - диффузная …») — до первого тире, иначе по слову */
+function shortName(n){
+  if(n.length <= 80) return n;
+  var m = n.match(/^(.{20,}?)\s[-–—]\s/);
+  return m ? m[1] : n.slice(0, 77).replace(/\s\S*$/, "") + "…";
+}
 function textOf(host){
   var p = host && (host.querySelector(":scope > p") || host);
   if(!p) return "";
@@ -451,7 +457,7 @@ function render(){
   var dz = L.diseases.filter(function(d){ return has(low(d.name + " " + (d.age || "") + " " + (d.codes || []).map(function(c){ return c[0] + " " + c[1]; }).join(" ")), ws); })
     .sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); }).slice(0, 8);
   if(dz.length){ total += dz.length; h += '<h2 class="gh">Заболевания</h2><ul class="list">' + dz.map(function(d){
-    return d.href ? row(d.href, mark(d.name, ws), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(d.name, ws), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
+    return d.href ? row(d.href, mark(d.name, ws), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(shortName(d.name), ws), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
   }).join("") + "</ul>"; }
   /* препараты из ГРЛС: вещество или торговое название */
   var drugWords = [];
@@ -534,7 +540,7 @@ home = $("home");
 if(home){
   var h = "", core = L.groups.filter(function(g){ return !g.related; }), rel = L.groups.filter(function(g){ return g.related; });
   function fullRows(list){
-    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
+    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(shortName(d.name)), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
   }
   /* порядок по востребованности в амбулаторной ЛОР-практике; в разделе показываются первые пять */
   var TOP = {nose:["313_3","261_2","955_1","977_1","890_1","1082_1","913_1","956_1","756_1"],
@@ -556,7 +562,7 @@ if(home){
     var all = L.diseases.filter(function(d){ return d.g === g.id; });
     return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
       + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"
-      + '<ul class="list sublist" hidden>' + all.map(function(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("") + "</ul></li>";
+      + '<ul class="list sublist" hidden>' + all.map(function(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), esc(shortName(d.name)), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("") + "</ul></li>";
   }).join("") + "</ul></section>";
   h = '<div class="grps">' + h + "</div>";
   home.innerHTML = h;
