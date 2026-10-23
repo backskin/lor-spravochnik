@@ -439,3 +439,10 @@ html,body{overflow-x:clip}
 .fc .fc-lab{fill:var(--fg2)}
 .fig .fig-note{display:block;margin-top:var(--s1);color:var(--warn)}
 .fig-pic img{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:4px}
+/* графики, перерисованные по учебникам (tools/draw_*.py) */
+.ch text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;fill:var(--fg)}
+.ch .ch-bg{fill:var(--bg2)}
+.ch .ch-grid{stroke:var(--line);stroke-width:.8}
+.ch .ch-tick{font-size:8px;fill:var(--fg2)}
+.ch .ch-name{font-size:11px;font-weight:600}
+.ch .ch-curve{fill:none;stroke:var(--ac);stroke-width:2}
