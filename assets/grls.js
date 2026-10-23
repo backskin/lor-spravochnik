@@ -75,7 +75,7 @@
   var GRLS = "https://grls.rosminzdrav.ru/";
   /* карточки ГРЛС адресуются по routingGuid; пока его нет — поиск реестра сразу по номеру удостоверения */
   function regSearch(r){
-    return GRLS + "GRLS.aspx?RegNumber=" + encodeURIComponent(r) + "&MnnR=&lf=&TradeNmR=&OwnerName=&MnfOrg=&MnfOrgCountry=&isfs=0&regtype=1%2c6&pageSize=10&order=RegDate&orderType=desc&pageNum=1";
+    return GRLS + "GRLS.aspx?RegNumber=" + encodeURIComponent(r) + "&MnnR=&lf=&TradeNmR=&OwnerName=&MnfOrg=&MnfOrgCountry=&isfs=0&regtype=1%2c2%2c3%2c4%2c5%2c6%2c7%2c8&pageSize=10&order=RegDate&orderType=desc&pageNum=1";
   }
   function regLine(r){
     var x = instr && instr.r[r];
