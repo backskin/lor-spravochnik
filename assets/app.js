@@ -50,6 +50,7 @@ document.body.insertAdjacentHTML("beforeend",
   + '<textarea id="askText" aria-label="Вопрос"></textarea>'
   + '<p class="fine" id="askCtx"></p>'
   + '<ul class="list" style="margin-top:12px">'
+  + '<li id="shareLi" hidden><button class="row" id="goShare" type="button"><span class="rt">Поделиться вопросом<span class="rs">откроется меню телефона — выберите приложение DeepSeek или Алисы</span></span></button></li>'
   + '<li><a class="row ext" id="goYandex" href="https://alice.yandex.ru/" target="_blank" rel="noopener"><span class="rt">Спросить Алису<span class="rs">вопрос скопируется — в чате нажмите на поле и «Вставить»</span></span></a></li>'
   + '<li><a class="row ext" id="goDeepseek" href="https://chat.deepseek.com/" target="_blank" rel="noopener"><span class="rt">Спросить DeepSeek<span class="rs">вопрос скопируется — в чате нажмите на поле и «Вставить»</span></span></a></li>'
   + '<li><a class="row ext" id="goGoogle" href="https://www.google.com/" target="_blank" rel="noopener"><span class="rt">Спросить Google<span class="rs">вопрос подставится сам</span></span></a></li></ul>'
@@ -523,6 +524,18 @@ function copyAndGo(name){
 }
 $("goYandex").addEventListener("click", function(){ copyAndGo("Алисы"); });
 $("goDeepseek").addEventListener("click", function(){ copyAndGo("DeepSeek"); });
+/* на телефоне вопрос уходит через системное меню «Поделиться» прямо в приложение ИИ, без копирования;
+   на компьютере строку не показываем: там это меню бесполезно */
+var MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && matchMedia("(pointer:coarse)").matches);
+if(navigator.share && MOBILE){
+  $("shareLi").hidden = false;
+  $("goShare").addEventListener("click", function(){
+    navigator.share({ text: buildPrompt() }).catch(function(err){
+      if(err && err.name === "AbortError") return;
+      copyAndGo("ИИ");
+    });
+  });
+}
 
 /* ---------- поиск: болезни, текст разборов, препараты (ГРЛС), коды МКБ ---------- */
 var qIn = $("q"), res = $("results"), resIn = $("resIn"), cancel = $("qCancel");
