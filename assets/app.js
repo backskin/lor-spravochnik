@@ -1,12 +1,18 @@
 /* ЛОР-справочник. Дизайн-система и сценарии — docs/ux.
-   На каждой странице: шапка (название + поиск), содержимое, окно источника и окно «Спросить ИИ».
-   Шапку и окна строит этот скрипт — так они одинаковые везде. */
+   Шапку строит assets/shell.js (первым тегом в <body>), окна и меню — этот скрипт, один раз.
+   Переход между экранами справочника — без перезагрузки: подменяется только содержимое под шапкой (go() ниже),
+   а всё, что относится к содержимому экрана, оживляет initPage(). Шапка, поиск, меню и окна не перерисовываются. */
 (function(){
 "use strict";
 var L = window.LOR, B = document.body.dataset;
 var $ = function(id){ return document.getElementById(id); };
-var DOC = B.title ? {title:B.title, year:B.year, id:B.crid, rev:B.rev, group:B.group} : null;
-var HOME = document.body.classList.contains("home");
+var DOC = null, HOME = false, VER = null, TERMS = {}, tabbar = null, TABS = [], home = null, vlog = null, fixes = [];
+/* B — живой dataset <body>: при переходе маршрутизатор переносит атрибуты нового экрана на тот же <body> */
+function readPage(){
+  DOC = B.title ? {title:B.title, year:B.year, id:B.crid, rev:B.rev, group:B.group} : null;
+  HOME = document.body.classList.contains("home");
+  VER = window.LOR_VERIFY || null; TERMS = (VER && VER.terms) || {};
+}
 var CRURL = "https://cr.minzdrav.gov.ru/view-cr/";
 
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -67,12 +73,6 @@ document.body.insertAdjacentHTML("beforeend",
   + '<p class="drawer-l">Размер текста</p><div class="tabs" id="sizeSeg"><button data-k="0.9">Мельче</button><button data-k="1">Обычный</button><button data-k="1.12">Крупнее</button><button data-k="1.25">Крупный</button></div>'
   + "</nav>");
 
-/* внизу каждой страницы, кроме главной (там свой блок) — откуда данные */
-if(!HOME && B.page !== "sources"){
-  var mainBox = document.querySelector(".page");
-  if(mainBox) mainBox.insertAdjacentHTML("beforeend", '<footer class="site-foot"><a href="istochniki.html">Источники и проверка данных ›</a>'
-    + "<span>Только клинические рекомендации Минздрава, ГРЛС и справочник МКБ-10. Не заменяет полный текст рекомендации.</span></footer>");
-}
 var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
 function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); }
 function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("askBtn").setAttribute("aria-expanded", "false"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); closeMenu(); }
@@ -98,49 +98,8 @@ function copy(text, msg){
 function netState(){ document.body.classList.toggle("offline", !navigator.onLine); }
 addEventListener("online", netState); addEventListener("offline", netState); netState();
 
-/* ---------- главная: список болезней по разделам ---------- */
-var home = $("home");
-if(home){
-  var h = "", core = L.groups.filter(function(g){ return !g.related; }), rel = L.groups.filter(function(g){ return g.related; });
-  function fullRows(list){
-    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
-  }
-  /* порядок по востребованности в амбулаторной ЛОР-практике; в разделе показываются первые пять */
-  var TOP = {nose:["313_3","261_2","955_1","977_1","890_1","1082_1","913_1","956_1","756_1"],
-             ear:["314_3","663_2","698_2","518_3","18_2","21_3","22_3","315_4","311_2","304_2","609_2"],
-             throat:["306_3","683_2","662_2","664_2"], larynx:["309_2","352_3","305_2"],
-             trauma:["815_1","812_1","813_1"], ari:["724_2","25_3","943_1"]};
-  function rank(g, d){ var i = (TOP[g] || []).indexOf(d.cv); return i < 0 ? 99 : i; }
-  function oneRow(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : fullRows([d]); }
-  core.forEach(function(g){
-    var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
-    var top = all.slice(0, 5), more = all.slice(5).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
-    h += '<section class="grp"><h2 class="gh">' + esc(g.title) + '</h2><ul class="list">' + top.map(oneRow).join("");
-    if(more.length) h += '<li><button class="row toggle dim" aria-expanded="false"><span class="rt">Ещё ' + more.length + " "
-      + plural(more.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></button>"
-      + '<ul class="list sublist" hidden>' + more.map(oneRow).join("") + "</ul></li>";
-    h += "</ul></section>";
-  });
-  h += '<section class="grp"><h2 class="gh">Смежные специальности</h2><ul class="list">' + rel.map(function(g){
-    var all = L.diseases.filter(function(d){ return d.g === g.id; });
-    return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
-      + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"
-      + '<ul class="list sublist" hidden>' + all.map(function(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("") + "</ul></li>";
-  }).join("") + "</ul></section>";
-  h = '<div class="grps">' + h + "</div>";
-  home.innerHTML = h;
-  home.addEventListener("click", function(e){
-    var b = e.target.closest(".toggle"); if(!b) return;
-    var open = b.getAttribute("aria-expanded") !== "true";
-    b.setAttribute("aria-expanded", String(open)); b.nextElementSibling.hidden = !open;
-  });
-  var ready = L.diseases.filter(function(d){ return d.href; }).length;
-  $("stat").textContent = "Минздрав РФ, оториноларингология. Разобрано " + ready + " из " + L.diseases.length + " " + plural(L.diseases.length, "рекомендации", "рекомендаций", "рекомендаций")
-    + ", список сверен " + L.updated.split("-").reverse().join(".");
-}
 
 /* ---------- страница болезни: разделы ---------- */
-var tabbar = $("tabbar"), TABS = tabbar ? Array.prototype.map.call(tabbar.querySelectorAll("[data-tab]"), function(b){ return b.dataset.tab; }) : [];
 function showTab(id){
   if(TABS.indexOf(id) < 0) return;
   tabbar.querySelectorAll("[data-tab]").forEach(function(b){ b.setAttribute("aria-selected", String(b.dataset.tab === id)); });
@@ -178,79 +137,12 @@ function reveal(el){
     el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
   });
 }
-if(tabbar){
-  tabbar.addEventListener("click", function(e){
-    var b = e.target.closest("[data-tab]"); if(!b) return;
-    showTab(b.dataset.tab);
-    try{ history.replaceState(null, "", "#" + b.dataset.tab); }catch(err){}
-    /* новая вкладка открывается с начала: экран возвращается к заголовку разбора (панель вкладок «липкая», её offsetTop не годится) */
-    var h1 = document.querySelector("main h1"), hd = document.querySelector(".top, header.app, body > header");
-    var y = (h1 ? h1.getBoundingClientRect().top + window.scrollY : 0) - (hd ? hd.offsetHeight : 56) - 8;
-    if(window.scrollY > y) window.scrollTo(0, Math.max(0, y));
-  });
-  var start = (location.hash || "#over").slice(1);
-  if(TABS.indexOf(start) >= 0) showTab(start);
-  else { var target = findEl(start); showTab(panelOf(target) || "over"); if(target) addEventListener("load", function(){ reveal(target); }); }
-  addEventListener("hashchange", function(){ var id = location.hash.slice(1); if(TABS.indexOf(id) >= 0) showTab(id); else reveal(findEl(id)); });
-}
 
-/* оглавление: разделы и подзаголовки; на компьютере стоит слева, на телефоне не показывается */
-if(tabbar){
-  var toc = document.createElement("nav"); toc.className = "toc"; toc.setAttribute("aria-label", "Оглавление");
-  var th = "";
-  tabbar.querySelectorAll("[data-tab]").forEach(function(b){
-    th += '<a class="toc-tab" href="#' + b.dataset.tab + '" data-totab="' + b.dataset.tab + '">' + esc(b.textContent) + "</a>";
-    document.querySelectorAll('[data-panel="' + b.dataset.tab + '"]').forEach(function(sec){
-      var h2 = sec.querySelector("h2"); if(!h2) return;
-      if(!sec.id) sec.id = "s-" + Math.random().toString(36).slice(2, 7);
-      th += '<a class="toc-sub" href="#' + sec.id + '" data-tosec="' + sec.id + '">' + esc(h2.textContent.trim()) + "</a>";
-      sec.querySelectorAll(".body > h3, .body > .more > h3").forEach(function(h3){
-        if(!h3.id) h3.id = "h-" + Math.random().toString(36).slice(2, 7);
-        th += '<a class="toc-sub toc-h3" href="#' + h3.id + '" data-tosec="' + h3.id + '">' + esc(h3.firstChild ? h3.firstChild.textContent.trim() : h3.textContent.trim()) + "</a>";
-      });
-    });
-  });
-  toc.innerHTML = th;
-  var mainEl = document.querySelector("main"); mainEl.parentNode.insertBefore(toc, mainEl);
-  toc.addEventListener("click", function(e){
-    var a = e.target.closest("a"); if(!a) return; e.preventDefault();
-    if(a.dataset.totab){ showTab(a.dataset.totab); window.scrollTo(0, 0); try{ history.replaceState(null, "", "#" + a.dataset.totab); }catch(err){} }
-    else { var sec = $(a.dataset.tosec); showTab(panelOf(sec)); if(sec.closest(".more")){ openMore(sec.closest(".block")); return; } sec.scrollIntoView({block:"start"}); }
-  });  showTab(tabbar.querySelector('[aria-selected="true"]').dataset.tab);
-}
 
-/* источник по каждому блоку: номера разделов КР, из которых взяты пункты, и ссылка на официальный текст */
-if(DOC){
-  document.querySelectorAll("main section.block, main section.summary").forEach(function(sec){
-    if(sec.classList.contains("b-src")) return;
-    var secs = [];
-    sec.querySelectorAll(".ev[data-loc]").forEach(function(ev){ var m = /^(\d+(?:\.\d+)*)/.exec(ev.dataset.loc || ""); if(m && secs.indexOf(m[1]) < 0) secs.push(m[1]); });
-    if(!secs.length && window.LOR_VERIFY) sec.querySelectorAll("[data-v]").forEach(function(el){ var v = LOR_VERIFY.items[el.dataset.v]; var m = v && /^(\d+(?:\.\d+)*)/.exec(v.sec || ""); if(m && secs.indexOf(m[1]) < 0) secs.push(m[1]); });
-    secs.sort(function(a, b){ var x = a.split(".").map(Number), y = b.split(".").map(Number); for(var i = 0; i < 4; i++){ if((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; });
-    var line = document.createElement("p"); line.className = "src-of";
-    line.innerHTML = "Источник: клинические рекомендации «" + esc(DOC.title) + "» (" + esc(DOC.year) + ")"
-      + (secs.length ? ", " + (secs.length > 1 ? "разделы " : "раздел ") + esc(secs.slice(0, 6).join(", ")) + (secs.length > 6 ? " и др." : "") : "")
-      + ' · <a href="' + CRURL + esc(DOC.id) + '" target="_blank" rel="noopener">текст на сайте Минздрава ↗</a>';
-    sec.appendChild(line);
-  });
-}
 
-/* подробности блока: одна кнопка в конце, открывает отдельный экран */
-document.querySelectorAll(".block").forEach(function(block){
-  var n = Array.prototype.filter.call(block.querySelectorAll(".more"), function(m){ return !m.parentNode.closest(".more"); }).length; if(!n) return;
-  var p = block.querySelector(".more-hint");
-  if(!p){ p = document.createElement("p"); p.className = "more-hint"; (block.querySelector(".body") || block).appendChild(p); }
-  p.innerHTML = '<button class="more-btn" type="button">Подробнее <span class="chev" aria-hidden="true">›</span></button>';
-  p.querySelector("button").onclick = function(){ openMore(block); };
-});
 
-/* «взрослые / дети» внутри блока */
-document.querySelectorAll(".tabs button").forEach(function(b){
-  b.type = "button";
-  b.onclick = function(){
-    b.parentNode.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-selected", String(x === b)); $("tab-" + x.dataset.tab).hidden = x !== b; });
-  };
-});
+
+addEventListener("hashchange", function(){ if(!tabbar) return; var id = location.hash.slice(1); if(TABS.indexOf(id) >= 0) showTab(id); else reveal(findEl(id)); });
 
 /* коды МКБ: нажатие копирует код */
 document.addEventListener("click", function(e){
@@ -258,16 +150,6 @@ document.addEventListener("click", function(e){
   copy(r.dataset.code, "Скопировано: " + r.dataset.code);
 });
 
-/* таблицы: подписи колонок для телефона (строка таблицы становится карточкой) */
-document.querySelectorAll("main table").forEach(function(t){
-  var hs = Array.prototype.map.call(t.querySelectorAll("thead th"), function(th){ return th.textContent.trim(); });
-  if(!hs.length) return;
-  if(!/^(Препарат|Признак|Показатель|Показание|Форма|Шкала|Баллы|Код|Ступень|Возраст|Шок|Степень|Основание|Заболевание|Возбудитель|Синдром|Стадия)/.test(hs[0])) t.classList.add("cmp");
-  if(hs.length >= 3) t.classList.add("lbl");
-  t.querySelectorAll("tbody tr").forEach(function(tr){
-    Array.prototype.forEach.call(tr.cells, function(td, i){ if(!td.hasAttribute("colspan") && hs[i]) td.dataset.label = hs[i]; });
-  });
-});
 
 /* ---------- вещество в тексте разбора: карточка ГРЛС в нижнем окне, оттуда — экран «Препараты» ---------- */
 /* страница словаря для термина: каждая буква — своя страница, латиница — одна (tools/build_glossary.py) */
@@ -287,18 +169,6 @@ function openDrug(name, shown){
   }, function(){ var box = pop.querySelector(".tn-box"); if(box) box.textContent = "Реестр не загрузился. Проверьте интернет."; });
 }
 
-/* ---------- торговые названия: название препарата в таблице раскрывает список ГРЛС под строкой ---------- */
-if(window.GRLS) document.querySelectorAll("main table").forEach(function(t){
-  var h = t.querySelector("thead th"); if(!h || !/^Препарат/.test(h.textContent.trim())) return;
-  t.querySelectorAll("tbody tr").forEach(function(tr){
-    var td = tr.cells[0]; if(!td || td.hasAttribute("colspan")) return;
-    var first = td.firstChild; if(!first || first.nodeType !== 3) return;
-    var name = first.textContent.trim(); if(!name) return;
-    var s = document.createElement("span"); s.className = "drug"; s.setAttribute("role", "button"); s.tabIndex = 0;
-    s.dataset.name = name; s.title = "Торговые названия"; s.textContent = first.textContent;
-    td.replaceChild(s, first);
-  });
-});
 document.addEventListener("click", function(e){
   var d = e.target.closest(".drug, .tn-more"); if(!d || !window.GRLS) return;
   e.preventDefault();
@@ -315,26 +185,11 @@ document.addEventListener("click", function(e){
 });
 
 /* ---------- источник под пунктом: скрыт, включается в «Обзоре» ---------- */
-var VER = window.LOR_VERIFY || null, TERMS = (VER && VER.terms) || {};
 var UUR = {A:"сильная рекомендация", B:"условная рекомендация", C:"слабая рекомендация"};
 var UDD_DIAG = {"1":"систематические обзоры исследований с контролем референсным методом или систематический обзор РКИ с метаанализом","2":"отдельные исследования с контролем референсным методом или отдельные РКИ; систематические обзоры исследований любого дизайна, кроме РКИ, с метаанализом","3":"исследования без последовательного контроля референсным методом или с зависимым референсным методом; нерандомизированные сравнительные, в т.ч. когортные","4":"несравнительные исследования, описание клинического случая","5":"только обоснование механизма действия или мнение экспертов"};
 var UDD = {"1":"систематические обзоры или метаанализы РКИ","2":"отдельные РКИ или обзоры исследований иного дизайна","3":"нерандомизированные сравнительные исследования","4":"несравнительные исследования, описания серий случаев","5":"механизм действия или мнение экспертов"};
 function vOf(el){ return el && VER && VER.items[el.dataset.v] || null; }
 function shortSec(loc){ var m = /^(\d+(?:\.\d+)*)/.exec(loc || ""); return m ? "раздел " + m[1] : ""; }
-(function(){
-  var on = store("lor-src") === "1" || store("lor-lvl") === "1", t = $("srcToggle");
-  document.body.classList.toggle("src-on", on);
-  if(!t) return;
-  t.checked = on;
-  t.addEventListener("change", function(){ document.body.classList.toggle("src-on", t.checked); store("lor-src", t.checked ? "1" : "0"); store("lor-lvl", "0"); });
-})();
-if(DOC){
-  document.querySelectorAll(".ev").forEach(function(ev){
-    var v = vOf(ev.closest("[data-v]")), loc = shortSec(ev.dataset.loc || (v && v.sec));
-    ev.type = "button";
-    ev.textContent = [loc, ev.dataset.uur ? "УУР " + ev.dataset.uur + ", УДД " + ev.dataset.udd : ""].filter(Boolean).join(" · ") + " ›";
-  });
-}
 function vstatHtml(el){
   var v = vOf(el); if(!VER) return "";
   var h = '<p class="vstat">' + (v ? "Сверено с PDF рубрикатора " + esc(VER.checked) + (v.s === "fix" ? ", при сверке текст исправлен" : "") : "Не сверено с PDF — проверьте по тексту КР") + "</p>";
@@ -377,21 +232,7 @@ document.addEventListener("click", function(e){
     openSheet(pop);
   }
 });
-document.querySelectorAll(".term").forEach(function(el){ if(!TERMS[el.dataset.t]) el.classList.remove("term"); });
 
-/* журнал сверки — в блоке «Источник и актуальность» */
-var vlog = $("vlog");
-if(VER && vlog){
-  var tot = 0, none = 0, fixes = [];
-  document.querySelectorAll("[data-v]").forEach(function(el){ tot++; var v = vOf(el); if(!v) none++; else if(v.s === "fix") fixes.push({el:el, v:v}); });
-  vlog.innerHTML = "<p>" + esc(VER.checked) + ": каждый пункт страницы сверен с PDF «" + esc(VER.pdf) + "» из рубрикатора Минздрава (" + VER.pages + " с.). Пунктов: " + tot + "."
-    + (fixes.length ? " При сверке исправлено: " + fixes.length + "." : "") + (none ? " Не сверено: " + none + "." : "") + "</p>"
-    + '<p class="vlog-how">Цитаты вырезаны из текста PDF программой: если фрагмента нет в документе, страница не собирается. Цитата к пункту — по нажатию на строку источника под ним.</p>'
-    + (fixes.length ? "<details><summary>Что исправлено при сверке</summary><ul class=\"list\">" + fixes.map(function(f, i){
-        return '<li><button class="row" data-fix="' + i + '"><span class="rt">' + esc(textOf(f.el).slice(0, 90)) + "…" + (f.v.note ? '<span class="rs">' + esc(f.v.note) + "</span>" : "") + "</span></button></li>";
-      }).join("") + "</ul></details>" : "");
-  vlog.addEventListener("click", function(e){ var b = e.target.closest("[data-fix]"); if(b) reveal(fixes[+b.dataset.fix].el); });
-}
 
 /* ---------- Спросить ИИ ---------- */
 var ASK_EXAMPLES = [
@@ -636,18 +477,19 @@ function render(){
 }
 function closeResults(){ res.hidden = true; cancel.hidden = true; $("askBtn").hidden = false; document.body.classList.remove("searching"); }
 var deb;
-if(B.page !== "drugs"){
+{
   qIn.addEventListener("input", function(){
+    if(B.page === "drugs") return;
     clearTimeout(deb); deb = setTimeout(render, 120);
     if(qIn.value.trim().length >= 2){
       loadIndex().then(render, function(){ IDX = {pages:[], mkb:[]}; render(); });
       if(window.GRLS && qIn.value.trim().length >= 3) GRLS.load().then(render, function(){});
     }
   });
-  qIn.addEventListener("focus", function(){ if(qIn.value.trim().length >= 2) render(); });
+  qIn.addEventListener("focus", function(){ if(B.page !== "drugs" && qIn.value.trim().length >= 2) render(); });
   qIn.addEventListener("keydown", function(e){
     if(e.key === "Escape"){ qIn.value = ""; closeResults(); qIn.blur(); }
-    if(e.key === "Enter"){ e.preventDefault(); var a = resIn.querySelector("a.row"); if(a) a.click(); }
+    if(e.key === "Enter" && B.page !== "drugs"){ e.preventDefault(); var a = resIn.querySelector("a.row"); if(a) a.click(); }
   });
   cancel.onclick = function(){ qIn.value = ""; closeResults(); };
   /* переход к пункту на этой же странице — закрыть результаты и показать пункт */
@@ -664,6 +506,278 @@ document.addEventListener("keydown", function(e){
   if(e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA"){ e.preventDefault(); qIn.focus(); }
   if(e.key === "Escape") closeSheets();
 });
+
+/* ---------- содержимое экрана: вызывается при загрузке и после каждого перехода без перезагрузки ---------- */
+function initPage(){
+readPage();
+/* шапка общая для всех экранов: обновить то, что зависит от экрана */
+var hb = $("homeBtn"); if(hb){ if(HOME) hb.setAttribute("aria-current", "page"); else hb.removeAttribute("aria-current"); }
+$("q").placeholder = B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат");
+/* внизу каждой страницы, кроме главной (там свой блок) — откуда данные */
+if(!HOME && B.page !== "sources"){
+  var mainBox = document.querySelector(".page");
+  if(mainBox) mainBox.insertAdjacentHTML("beforeend", '<footer class="site-foot"><a href="istochniki.html">Источники и проверка данных ›</a>'
+    + "<span>Только клинические рекомендации Минздрава, ГРЛС и справочник МКБ-10. Не заменяет полный текст рекомендации.</span></footer>");
+}
+
+/* ---------- главная: список болезней по разделам ---------- */
+home = $("home");
+if(home){
+  var h = "", core = L.groups.filter(function(g){ return !g.related; }), rel = L.groups.filter(function(g){ return g.related; });
+  function fullRows(list){
+    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
+  }
+  /* порядок по востребованности в амбулаторной ЛОР-практике; в разделе показываются первые пять */
+  var TOP = {nose:["313_3","261_2","955_1","977_1","890_1","1082_1","913_1","956_1","756_1"],
+             ear:["314_3","663_2","698_2","518_3","18_2","21_3","22_3","315_4","311_2","304_2","609_2"],
+             throat:["306_3","683_2","662_2","664_2"], larynx:["309_2","352_3","305_2"],
+             trauma:["815_1","812_1","813_1"], ari:["724_2","25_3","943_1"]};
+  function rank(g, d){ var i = (TOP[g] || []).indexOf(d.cv); return i < 0 ? 99 : i; }
+  function oneRow(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : fullRows([d]); }
+  core.forEach(function(g){
+    var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
+    var top = all.slice(0, 5), more = all.slice(5).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
+    h += '<section class="grp"><h2 class="gh">' + esc(g.title) + '</h2><ul class="list">' + top.map(oneRow).join("");
+    if(more.length) h += '<li><button class="row toggle dim" aria-expanded="false"><span class="rt">Ещё ' + more.length + " "
+      + plural(more.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></button>"
+      + '<ul class="list sublist" hidden>' + more.map(oneRow).join("") + "</ul></li>";
+    h += "</ul></section>";
+  });
+  h += '<section class="grp"><h2 class="gh">Смежные специальности</h2><ul class="list">' + rel.map(function(g){
+    var all = L.diseases.filter(function(d){ return d.g === g.id; });
+    return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
+      + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"
+      + '<ul class="list sublist" hidden>' + all.map(function(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), esc(d.name), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("") + "</ul></li>";
+  }).join("") + "</ul></section>";
+  h = '<div class="grps">' + h + "</div>";
+  home.innerHTML = h;
+  home.addEventListener("click", function(e){
+    var b = e.target.closest(".toggle"); if(!b) return;
+    var open = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", String(open)); b.nextElementSibling.hidden = !open;
+  });
+  var ready = L.diseases.filter(function(d){ return d.href; }).length;
+  $("stat").textContent = "Минздрав РФ, оториноларингология. Разобрано " + ready + " из " + L.diseases.length + " " + plural(L.diseases.length, "рекомендации", "рекомендаций", "рекомендаций")
+    + ", список сверен " + L.updated.split("-").reverse().join(".");
+}
+
+tabbar = $("tabbar"); TABS = tabbar ? Array.prototype.map.call(tabbar.querySelectorAll("[data-tab]"), function(b){ return b.dataset.tab; }) : [];
+if(tabbar){
+  tabbar.addEventListener("click", function(e){
+    var b = e.target.closest("[data-tab]"); if(!b) return;
+    showTab(b.dataset.tab);
+    try{ history.replaceState(null, "", "#" + b.dataset.tab); }catch(err){}
+    /* новая вкладка открывается с начала: экран возвращается к заголовку разбора (панель вкладок «липкая», её offsetTop не годится) */
+    var h1 = document.querySelector("main h1"), hd = document.querySelector(".top, header.app, body > header");
+    var y = (h1 ? h1.getBoundingClientRect().top + window.scrollY : 0) - (hd ? hd.offsetHeight : 56) - 8;
+    if(window.scrollY > y) window.scrollTo(0, Math.max(0, y));
+  });
+  var start = (location.hash || "#over").slice(1);
+  if(TABS.indexOf(start) >= 0) showTab(start);
+  else { var target = findEl(start); showTab(panelOf(target) || "over"); if(target) setTimeout(function(){ reveal(target); }, 60); }
+}
+
+/* оглавление: разделы и подзаголовки; на компьютере стоит слева, на телефоне не показывается */
+if(tabbar){
+  var toc = document.createElement("nav"); toc.className = "toc"; toc.setAttribute("aria-label", "Оглавление");
+  var th = "";
+  tabbar.querySelectorAll("[data-tab]").forEach(function(b){
+    th += '<a class="toc-tab" href="#' + b.dataset.tab + '" data-totab="' + b.dataset.tab + '">' + esc(b.textContent) + "</a>";
+    document.querySelectorAll('[data-panel="' + b.dataset.tab + '"]').forEach(function(sec){
+      var h2 = sec.querySelector("h2"); if(!h2) return;
+      if(!sec.id) sec.id = "s-" + Math.random().toString(36).slice(2, 7);
+      th += '<a class="toc-sub" href="#' + sec.id + '" data-tosec="' + sec.id + '">' + esc(h2.textContent.trim()) + "</a>";
+      sec.querySelectorAll(".body > h3, .body > .more > h3").forEach(function(h3){
+        if(!h3.id) h3.id = "h-" + Math.random().toString(36).slice(2, 7);
+        th += '<a class="toc-sub toc-h3" href="#' + h3.id + '" data-tosec="' + h3.id + '">' + esc(h3.firstChild ? h3.firstChild.textContent.trim() : h3.textContent.trim()) + "</a>";
+      });
+    });
+  });
+  toc.innerHTML = th;
+  var mainEl = document.querySelector("main"); mainEl.parentNode.insertBefore(toc, mainEl);
+  toc.addEventListener("click", function(e){
+    var a = e.target.closest("a"); if(!a) return; e.preventDefault();
+    if(a.dataset.totab){ showTab(a.dataset.totab); window.scrollTo(0, 0); try{ history.replaceState(null, "", "#" + a.dataset.totab); }catch(err){} }
+    else { var sec = $(a.dataset.tosec); showTab(panelOf(sec)); if(sec.closest(".more")){ openMore(sec.closest(".block")); return; } sec.scrollIntoView({block:"start"}); }
+  });  showTab(tabbar.querySelector('[aria-selected="true"]').dataset.tab);
+}
+
+/* источник по каждому блоку: номера разделов КР, из которых взяты пункты, и ссылка на официальный текст */
+if(DOC){
+  document.querySelectorAll("main section.block, main section.summary").forEach(function(sec){
+    if(sec.classList.contains("b-src")) return;
+    var secs = [];
+    sec.querySelectorAll(".ev[data-loc]").forEach(function(ev){ var m = /^(\d+(?:\.\d+)*)/.exec(ev.dataset.loc || ""); if(m && secs.indexOf(m[1]) < 0) secs.push(m[1]); });
+    if(!secs.length && window.LOR_VERIFY) sec.querySelectorAll("[data-v]").forEach(function(el){ var v = LOR_VERIFY.items[el.dataset.v]; var m = v && /^(\d+(?:\.\d+)*)/.exec(v.sec || ""); if(m && secs.indexOf(m[1]) < 0) secs.push(m[1]); });
+    secs.sort(function(a, b){ var x = a.split(".").map(Number), y = b.split(".").map(Number); for(var i = 0; i < 4; i++){ if((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; });
+    var line = document.createElement("p"); line.className = "src-of";
+    line.innerHTML = "Источник: клинические рекомендации «" + esc(DOC.title) + "» (" + esc(DOC.year) + ")"
+      + (secs.length ? ", " + (secs.length > 1 ? "разделы " : "раздел ") + esc(secs.slice(0, 6).join(", ")) + (secs.length > 6 ? " и др." : "") : "")
+      + ' · <a href="' + CRURL + esc(DOC.id) + '" target="_blank" rel="noopener">текст на сайте Минздрава ↗</a>';
+    sec.appendChild(line);
+  });
+}
+
+/* подробности блока: одна кнопка в конце, открывает отдельный экран */
+document.querySelectorAll(".block").forEach(function(block){
+  var n = Array.prototype.filter.call(block.querySelectorAll(".more"), function(m){ return !m.parentNode.closest(".more"); }).length; if(!n) return;
+  var p = block.querySelector(".more-hint");
+  if(!p){ p = document.createElement("p"); p.className = "more-hint"; (block.querySelector(".body") || block).appendChild(p); }
+  p.innerHTML = '<button class="more-btn" type="button">Подробнее <span class="chev" aria-hidden="true">›</span></button>';
+  p.querySelector("button").onclick = function(){ openMore(block); };
+});
+
+/* «взрослые / дети» внутри блока */
+document.querySelectorAll(".tabs button").forEach(function(b){
+  b.type = "button";
+  b.onclick = function(){
+    b.parentNode.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-selected", String(x === b)); $("tab-" + x.dataset.tab).hidden = x !== b; });
+  };
+});
+
+/* таблицы: подписи колонок для телефона (строка таблицы становится карточкой) */
+document.querySelectorAll("main table").forEach(function(t){
+  var hs = Array.prototype.map.call(t.querySelectorAll("thead th"), function(th){ return th.textContent.trim(); });
+  if(!hs.length) return;
+  if(!/^(Препарат|Признак|Показатель|Показание|Форма|Шкала|Баллы|Код|Ступень|Возраст|Шок|Степень|Основание|Заболевание|Возбудитель|Синдром|Стадия)/.test(hs[0])) t.classList.add("cmp");
+  if(hs.length >= 3) t.classList.add("lbl");
+  t.querySelectorAll("tbody tr").forEach(function(tr){
+    Array.prototype.forEach.call(tr.cells, function(td, i){ if(!td.hasAttribute("colspan") && hs[i]) td.dataset.label = hs[i]; });
+  });
+});
+
+/* торговые названия: название препарата в первой колонке таблицы нажимается */
+if(window.GRLS) document.querySelectorAll("main table").forEach(function(t){
+  var h = t.querySelector("thead th"); if(!h || !/^Препарат/.test(h.textContent.trim())) return;
+  t.querySelectorAll("tbody tr").forEach(function(tr){
+    var td = tr.cells[0]; if(!td || td.hasAttribute("colspan")) return;
+    var first = td.firstChild; if(!first || first.nodeType !== 3) return;
+    var name = first.textContent.trim(); if(!name) return;
+    var s = document.createElement("span"); s.className = "drug"; s.setAttribute("role", "button"); s.tabIndex = 0;
+    s.dataset.name = name; s.title = "Торговые названия"; s.textContent = first.textContent;
+    td.replaceChild(s, first);
+  });
+});
+
+(function(){
+  var on = store("lor-src") === "1" || store("lor-lvl") === "1", t = $("srcToggle");
+  document.body.classList.toggle("src-on", on);
+  if(!t) return;
+  t.checked = on;
+  t.addEventListener("change", function(){ document.body.classList.toggle("src-on", t.checked); store("lor-src", t.checked ? "1" : "0"); store("lor-lvl", "0"); });
+})();
+
+if(DOC){
+  document.querySelectorAll(".ev").forEach(function(ev){
+    var v = vOf(ev.closest("[data-v]")), loc = shortSec(ev.dataset.loc || (v && v.sec));
+    ev.type = "button";
+    ev.textContent = [loc, ev.dataset.uur ? "УУР " + ev.dataset.uur + ", УДД " + ev.dataset.udd : ""].filter(Boolean).join(" · ") + " ›";
+  });
+}
+
+document.querySelectorAll(".term").forEach(function(el){ if(!TERMS[el.dataset.t]) el.classList.remove("term"); });
+
+/* журнал сверки — в блоке «Источник и актуальность» */
+vlog = $("vlog");
+if(VER && vlog){
+  var tot = 0, none = 0; fixes = [];
+  document.querySelectorAll("[data-v]").forEach(function(el){ tot++; var v = vOf(el); if(!v) none++; else if(v.s === "fix") fixes.push({el:el, v:v}); });
+  vlog.innerHTML = "<p>" + esc(VER.checked) + ": каждый пункт страницы сверен с PDF «" + esc(VER.pdf) + "» из рубрикатора Минздрава (" + VER.pages + " с.). Пунктов: " + tot + "."
+    + (fixes.length ? " При сверке исправлено: " + fixes.length + "." : "") + (none ? " Не сверено: " + none + "." : "") + "</p>"
+    + '<p class="vlog-how">Цитаты вырезаны из текста PDF программой: если фрагмента нет в документе, страница не собирается. Цитата к пункту — по нажатию на строку источника под ним.</p>'
+    + (fixes.length ? "<details><summary>Что исправлено при сверке</summary><ul class=\"list\">" + fixes.map(function(f, i){
+        return '<li><button class="row" data-fix="' + i + '"><span class="rt">' + esc(textOf(f.el).slice(0, 90)) + "…" + (f.v.note ? '<span class="rs">' + esc(f.v.note) + "</span>" : "") + "</span></button></li>";
+      }).join("") + "</ul></details>" : "");
+  vlog.addEventListener("click", function(e){ var b = e.target.closest("[data-fix]"); if(b) reveal(fixes[+b.dataset.fix].el); });
+}
+
+if(typeof lorTables === "function") lorTables();
+}
+
+/* ---------- переходы без перезагрузки ---------- */
+/* Ссылка на страницу справочника: страница берётся из кэша (service worker), из неё в документ переносится только
+   содержимое <body> (без шапки, меню и окон, которые уже есть), атрибуты <body>, заголовок и стили страницы;
+   скрипты страницы выполняются, общие (shell, data, grls, app) — нет. Если что-то пошло не так — обычный переход. */
+var KEEP = {"top":1, "results":1, "scrim":1, "pop":1, "moreSheet":1, "ask":1, "toast":1, "menu":1};
+var SHARED = /assets\/(shell|data|grls|app)\.js/;
+var pageAbort = null;
+window.lorPageSignal = function(){ return pageAbort ? pageAbort.signal : undefined; };
+function isKept(el){ return el.id && KEEP[el.id] || el.classList && (el.classList.contains("top") || el.classList.contains("offline-bar")); }
+function runScripts(list){
+  return list.reduce(function(chain, sc){
+    return chain.then(function(){
+      return new Promise(function(done){
+        var n = document.createElement("script");
+        if(sc.src){ n.src = sc.src; n.onload = n.onerror = function(){ done(); }; document.body.appendChild(n); }
+        else { n.textContent = sc.text; document.body.appendChild(n); done(); }
+      });
+    });
+  }, Promise.resolve());
+}
+function swap(html, url){
+  var doc = new DOMParser().parseFromString(html, "text/html");
+  if(!doc.body || !doc.querySelector("main")) throw new Error("не страница справочника");
+  if(pageAbort) pageAbort.abort();
+  pageAbort = window.AbortController ? new AbortController() : null;
+  closeSheets(); closeResults(); qIn.blur();
+  document.querySelectorAll(".help-ring, .help-box").forEach(function(x){ x.remove(); });
+  /* стили страницы из <head> (например, у словаря и «Препаратов») */
+  document.querySelectorAll("head style[data-page]").forEach(function(x){ x.remove(); });
+  doc.querySelectorAll("head style").forEach(function(st){ if(/@view-transition/.test(st.textContent)) return; var n = document.createElement("style"); n.dataset.page = "1"; n.textContent = st.textContent; document.head.appendChild(n); });
+  /* атрибуты <body> */
+  Array.prototype.slice.call(document.body.attributes).forEach(function(a){ if(a.name === "class" || a.name.indexOf("data-") === 0) document.body.removeAttribute(a.name); });
+  Array.prototype.slice.call(doc.body.attributes).forEach(function(a){ document.body.setAttribute(a.name, a.value); });
+  netState();
+  /* содержимое */
+  Array.prototype.slice.call(document.body.children).forEach(function(el){ if(!isKept(el)) el.remove(); });
+  var scripts = [], anchorEl = $("results").nextSibling;
+  Array.prototype.slice.call(doc.body.childNodes).forEach(function(n){
+    if(n.nodeType === 1 && n.tagName === "SCRIPT"){
+      var src = n.getAttribute("src");
+      if(src && SHARED.test(src)) return;
+      if(!src && (/serviceWorker/.test(n.textContent) || n.type === "speculationrules")) return;
+      scripts.push({src: src ? new URL(src, url).href : "", text: n.textContent});
+      return;
+    }
+    document.body.insertBefore(document.importNode(n, true), anchorEl);
+  });
+  document.title = doc.title;
+  window.LOR_VERIFY = null;
+  return runScripts(scripts.filter(function(x){ return x.src; })).then(function(){
+    initPage();
+    return runScripts(scripts.filter(function(x){ return !x.src; }));
+  }).then(function(){ if(window.lorTour) window.lorTour(); });
+}
+var navSeq = 0;
+function go(url, push){
+  var u = new URL(url, location.href), my = ++navSeq;
+  if(push) history.pushState({lor:1}, "", u.href);  /* адрес меняется сразу: «назад» работает даже во время загрузки */
+  return fetch(u.href.split("#")[0]).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); }).then(function(html){
+    if(my !== navSeq) return;  /* пока грузилось, нажали другую ссылку — этот ответ уже не нужен */
+    var run = function(){
+      var p = swap(html, u.href);
+      if(!u.hash) window.scrollTo(0, 0);
+      return p;
+    };
+    if(document.startViewTransition && document.visibilityState === "visible") document.startViewTransition(run);
+    else run();
+  }).catch(function(){ if(my === navSeq) location.href = u.href; });
+}
+document.addEventListener("click", function(e){
+  if(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  var a = e.target.closest("a[href]"); if(!a) return;
+  if((a.target && a.target !== "_self") || a.hasAttribute("download") || a.classList.contains("ext")) return;
+  var u = new URL(a.getAttribute("href"), location.href);
+  if(u.origin !== location.origin || !/\.html$|\/$/.test(u.pathname)) return;
+  if(u.pathname === location.pathname && u.search === location.search) return;  /* якорь на этой же странице — как обычно */
+  e.preventDefault();
+  go(u.href, true);
+});
+addEventListener("popstate", function(){ go(location.href, false); });
+try{ history.replaceState({lor:1}, "", location.href); }catch(err){}
+
+pageAbort = window.AbortController ? new AbortController() : null;
+initPage();
 })();
 
 
@@ -729,15 +843,20 @@ document.addEventListener("keydown", function(e){
     });
   }
   function next(){ i++; show(); }
-  addEventListener("load", function(){
+  function start(){
+    close(); queue = []; i = 0;
+    B = document.body.dataset; home = document.body.classList.contains("home"); tabs = document.getElementById("tabbar");
     if(off) return;
     setTimeout(function(){ build(); if(queue.length){ document.addEventListener("keydown", onKey); show(); } }, 500);
-  });
+  }
+  window.lorTour = start;
+  addEventListener("load", start);
   addEventListener("resize", function(){ if(box) show(); });
 })();
 
-/* на телефоне заголовки колонок скрыты: каждой ячейке — подпись её колонки, иначе «++» или «1 / 0 / −1» непонятно к чему относятся */
-(function(){
+/* на телефоне заголовки колонок скрыты: каждой ячейке — подпись её колонки, иначе «++» или «1 / 0 / −1» непонятно к чему относятся.
+   Вызывается из initPage() на каждом экране */
+function lorTables(){
   document.querySelectorAll("table").forEach(function(t){
     var ths = t.querySelectorAll("thead th"); if(ths.length < 2) return;
     var names = [].map.call(ths, function(th){ var c = th.cloneNode(true); c.querySelectorAll("small,sup").forEach(function(x){ x.remove(); }); return c.textContent.replace(/\s+/g, " ").trim(); });
@@ -765,4 +884,4 @@ document.addEventListener("keydown", function(e){
       });
     });
   });
-})();
+}
