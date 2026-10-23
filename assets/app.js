@@ -14,6 +14,8 @@ function readPage(){
   VER = window.LOR_VERIFY || null; TERMS = (VER && VER.terms) || {};
 }
 var CRURL = "https://cr.minzdrav.gov.ru/view-cr/";
+/* версия сайта (?v= у скриптов, ставит tools/build_site.py) — к ссылке на общий PDF, чтобы не открылась старая копия */
+var SITEV = (((document.querySelector('script[src*="assets/app.js"]') || {}).src || "").split("?v=")[1] || ""); SITEV = SITEV ? "?v=" + SITEV : "";
 
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function low(s){ return String(s || "").toLowerCase().replace(/ё/g, "е"); }
@@ -63,7 +65,7 @@ document.body.insertAdjacentHTML("beforeend",
   + row("preparaty.html", "Препараты и торговые названия", "Государственный реестр лекарственных средств")
   + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
   + row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций")
-  + row("pdf/vse-razbory.pdf", "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
+  + row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
   + row("kak-polzovatsya.html", "Как пользоваться", "")
   + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
   + "</ul>"
