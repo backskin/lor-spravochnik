@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>ЛОР-справочник</title>
+  <rect width="512" height="512" fill="#0b6b53"/>
+  <path d="M512 0V512H0z" fill="#095c47"/>
+  <path fill="#fff" d="M264 104 330 110 390 168 398 262 366 326 364 412H276L270 364 214 358 200 322 212 310 198 300 204 280 148 270 210 202 204 186 226 120z"/>
+  <path d="M318 252V232L336 212H358L374 230V258L350 284V302L338 312" fill="none" stroke="#0b6b53" stroke-width="15" stroke-linejoin="miter"/>
+  <path d="M214 278H262L304 320V412" fill="none" stroke="#63c7a6" stroke-width="20" stroke-linejoin="miter"/>
+</svg>
