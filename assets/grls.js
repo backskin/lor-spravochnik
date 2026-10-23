@@ -66,12 +66,18 @@
   }
   function plural(n, a, b, c){ var m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; }
   /* поиск в обе стороны: торговое название -> состав, вещество -> торговые названия */
+  /* с начала слова: «отит» не должен находить «паротит» */
+  function wpos(s, q){
+    var i = s.indexOf(q);
+    while(i > 0 && /[а-яa-z0-9]/.test(s.charAt(i - 1))) i = s.indexOf(q, i + 1);
+    return i;
+  }
   function search(q){
     q = low(q).trim(); if(q.length < 2) return {inn:[], tn:[]};
-    var inns = Object.keys(data.inn).filter(function(k){ return k.indexOf(q) >= 0; })
-      .sort(function(a, b){ return (a.indexOf(q) - b.indexOf(q)) || (a.length - b.length); }).slice(0, 15);
-    var tns = data.all.filter(function(x){ return x.l.indexOf(q) >= 0; })
-      .sort(function(a, b){ return (a.l.indexOf(q) - b.l.indexOf(q)) || (b.t[1] - a.t[1]) || a.l.localeCompare(b.l); }).slice(0, 40);
+    var inns = Object.keys(data.inn).filter(function(k){ return wpos(k, q) >= 0; })
+      .sort(function(a, b){ return (wpos(a, q) - wpos(b, q)) || (a.length - b.length); }).slice(0, 15);
+    var tns = data.all.filter(function(x){ return wpos(x.l, q) >= 0; })
+      .sort(function(a, b){ return (wpos(a.l, q) - wpos(b.l, q)) || (b.t[1] - a.t[1]) || a.l.localeCompare(b.l); }).slice(0, 40);
     return {inn:inns, tn:tns};
   }
   /* раскрытие торгового названия и копирование номера РУ — на любой странице, где есть карточка */

@@ -587,7 +587,7 @@ function render(){
   if(q.length < 2){ closeResults(); return; }
   var ws = words(q), h = "", total = 0;
   /* болезни */
-  var dz = L.diseases.filter(function(d){ return has(low(d.name + " " + (d.codes || []).map(function(c){ return c[0] + " " + c[1]; }).join(" ")), ws); })
+  var dz = L.diseases.filter(function(d){ return has(low(d.name + " " + (d.age || "") + " " + (d.codes || []).map(function(c){ return c[0] + " " + c[1]; }).join(" ")), ws); })
     .sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); }).slice(0, 8);
   if(dz.length){ total += dz.length; h += '<h2 class="gh">Заболевания</h2><ul class="list">' + dz.map(function(d){
     return d.href ? row(d.href, mark(d.name, ws), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(d.name, ws), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
