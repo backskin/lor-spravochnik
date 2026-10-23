@@ -335,10 +335,34 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
   overflow-y:auto;padding:calc(var(--s3) + env(safe-area-inset-top,0px)) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
   transform:translateX(-105%);transition:transform .2s ease;box-shadow:4px 0 24px rgba(0,0,0,.12)}
 .drawer.on{transform:none}
-.drawer-h{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s2)}
-.drawer-t{flex:1;font-weight:600}
-.drawer-l{color:var(--fg2);font-size:var(--t4);margin:var(--s5) 0 0}
-.drawer .tabs button{font-size:13px}
+.drawer-h{display:flex;align-items:center;gap:var(--s3);margin:var(--s4) 0 var(--s1)}
+.drawer-t{flex:1;font-weight:700;font-size:var(--t2);line-height:var(--l2)}
+.drawer-l{color:var(--fg2);font-size:var(--t4);font-weight:600;margin:var(--s5) 0 0}
+/* пункты меню — чуть плотнее основного текста, подписи под ними — обычные */
+.drawer .row .rt{font-weight:600}
+.drawer .row .rs{font-weight:400}
+
+/* размер текста — вверху меню; размеры здесь в пикселях, чтобы сам регулятор не рос вместе с текстом */
+.tsize{padding-bottom:12px;border-bottom:1px solid var(--line)}
+.tsize-h{display:flex;align-items:center;justify-content:space-between;font-size:13px;line-height:18px;color:var(--fg2);font-weight:600}
+.tsize-row{display:flex;align-items:center;gap:8px;margin-top:2px}
+.tsize-b{flex:none;width:40px;height:40px;border:1px solid var(--line);border-radius:var(--r);color:var(--ac);font-weight:700;line-height:1;
+  display:grid;place-items:center;transition:transform .12s ease,background-color .15s ease}
+.tsize-b:active{transform:scale(.92);background:var(--bg2)}
+.tsize input{flex:1;min-width:0;height:40px;margin:0;accent-color:var(--ac);cursor:pointer}
+
+/* тема — три одинаковые карточки с иконкой; выбранная обведена акцентом, иконка оживает */
+.themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:var(--s2)}
+.themes button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 10px;border:1px solid var(--line);border-radius:var(--r);
+  color:var(--fg2);font-size:13px;line-height:16px;text-align:center;transition:transform .12s ease,background-color .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease}
+.themes svg{display:block;transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.themes button:active{transform:scale(.96)}
+.themes button[aria-selected="true"]{color:var(--ac);border-color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac);background:var(--bg2);font-weight:600}
+.themes button[data-th="light"][aria-selected="true"] svg{transform:rotate(90deg) scale(1.1)}
+.themes button[data-th=""][aria-selected="true"] svg{transform:rotate(180deg)}
+.themes button[data-th="dark"][aria-selected="true"] svg{transform:rotate(-25deg) scale(1.1)}
+@media (hover:hover){.themes button:not([aria-selected="true"]):hover,.tsize-b:hover{background:var(--bg2)}}
+@media (prefers-reduced-motion:reduce){.themes button,.themes svg,.tsize-b{transition:none}}
 
 /* кнопка «Главная» в шапке */
 .home-btn{flex:none;width:40px;height:40px;border:1px solid var(--line);border-radius:var(--r);display:flex;align-items:center;justify-content:center;color:var(--ac)}
