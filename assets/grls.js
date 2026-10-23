@@ -50,8 +50,25 @@
       if(!r.ok) throw new Error(r.status);
       if(!window.DecompressionStream) throw new Error("old");
       return new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).json();
-    }).then(function(d){ forms = d; return d; }, function(e){ fwait = null; throw e; });
+    }).then(function(d){ forms = d; return loadInstr().then(function(){ return d; }); }, function(e){ fwait = null; throw e; });
     return fwait;
+  }
+  /* ссылки на карточки и инструкции ГРЛС по номеру РУ — data/grls-instr.json (tools/build_grls_instr.py); без файла просто не показываются */
+  var instr = null;
+  function loadInstr(){
+    if(instr) return Promise.resolve(instr);
+    return fetch("data/grls-instr.json").then(function(r){ return r.ok ? r.json() : {r:{}}; }, function(){ return {r:{}}; })
+      .then(function(d){ instr = d; return d; });
+  }
+  var GRLS = "https://grls.rosminzdrav.ru/";
+  function regLine(r){
+    var x = instr && instr.r[r];
+    var h = '<li><button type="button" class="tn-reg" data-reg="' + esc(r) + '">' + esc(r) + "</button>";
+    if(x){
+      if(x[1]) h += ' <a class="tn-ext" href="' + esc(GRLS + x[1]) + '" target="_blank" rel="noopener">инструкция, PDF ↗</a>';
+      h += ' <a class="tn-ext" href="' + esc(GRLS + "Grls_View_v2.aspx?routingGuid=" + x[0]) + '" target="_blank" rel="noopener">карточка ГРЛС ↗</a>';
+    }
+    return h + "</li>";
   }
   function detail(k, tn){
     var x = forms && forms.inn[k] && forms.inn[k][tn];
@@ -59,9 +76,13 @@
     var h = "";
     if(x[0].length) h += '<p class="tn-h">Формы и дозировки</p><ul class="tn-forms">' + x[0].map(function(f){ return "<li>" + esc(f) + "</li>"; }).join("") + "</ul>";
     if(x[2]) h += '<p class="tn-h">Фармакотерапевтическая группа</p><p>' + esc(x[2]) + "</p>";
-    if(x[1].length) h += '<p class="tn-h">Регистрационные удостоверения</p><p class="tn-regs">' + x[1].map(function(r){ return '<button type="button" class="tn-reg" data-reg="' + esc(r) + '">' + esc(r) + "</button>"; }).join(" ") + "</p>"
-      + '<p class="tn-note">Инструкция — в карточке препарата на сайте ГРЛС. Нажатие на номер копирует его; на сайте вставьте номер в поле «Номер РУ».</p>'
-      + '<p><a class="tn-ext" href="https://grls.rosminzdrav.ru/GRLS.aspx" target="_blank" rel="noopener">Открыть ГРЛС ↗</a></p>';
+    if(x[1].length){
+      var any = x[1].some(function(r){ return instr && instr.r[r]; });
+      h += '<p class="tn-h">Регистрационные удостоверения и инструкции</p><ul class="tn-regs">' + x[1].map(regLine).join("") + "</ul>"
+        + '<p class="tn-note">' + (any ? "Инструкции — официальные файлы ГРЛС (сайт открывается из России). " : "Инструкция — в карточке препарата на сайте ГРЛС. ")
+        + "Нажатие на номер копирует его.</p>"
+        + (any ? "" : '<p><a class="tn-ext" href="https://grls.rosminzdrav.ru/GRLS.aspx" target="_blank" rel="noopener">Открыть ГРЛС ↗</a></p>');
+    }
     return h;
   }
   function plural(n, a, b, c){ var m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; }

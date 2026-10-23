@@ -20,6 +20,9 @@
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hd) + 64px)}
 body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t3)/var(--l3) var(--font)}
+/* переносы по слогам в тексте (узкая колонка телефона); заголовки, кнопки, коды и номера не переносятся */
+main p,main li,main td,main dd{-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word}
+h1,h2,h3,h4,h5,button,code,.tn-reg,em.key{-webkit-hyphens:manual;hyphens:manual}
 h1,h2,h3,h4,h5{margin:0;font-weight:600;text-wrap:balance}
 p,ul,ol,dl,figure,blockquote{margin:0}
 a{color:var(--ac);text-decoration:none}
@@ -178,6 +181,9 @@ td[colspan] b{font-weight:400}
 .tn-reg{font:inherit;font-size:.92em;padding:2px 6px;margin:2px 0;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);cursor:pointer}
 .tn-reg.copied{border-color:var(--ac);color:var(--ac)}
 .tn-reg.copied::after{content:" скопирован"}
+.tn-regs{list-style:none;padding:0;margin:var(--s1) 0 0;display:grid;gap:var(--s1)}
+.tn-regs li{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) var(--s3)}
+.tn-regs .tn-ext{font-size:.92em}
 .tn-more{color:var(--ac);margin-top:var(--s2)}
 .tn-note{color:var(--fg2);margin-top:var(--s2)}
 
