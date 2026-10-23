@@ -57,8 +57,20 @@
   var instr = null;
   function loadInstr(){
     if(instr) return Promise.resolve(instr);
-    return fetch("data/grls-instr.json").then(function(r){ return r.ok ? r.json() : {r:{}}; }, function(){ return {r:{}}; })
-      .then(function(d){ instr = d; return d; });
+    var a = fetch("data/grls-instr.json").then(function(r){ return r.ok ? r.json() : {r:{}}; }, function(){ return {r:{}}; });
+    /* состав со вспомогательными веществами — дословно из инструкции ГРЛС, по торговому названию */
+    var b = fetch("data/grls-comp.json.gz").then(function(r){
+      if(!r.ok || !window.DecompressionStream) return {c:{}};
+      return new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).json();
+    }, function(){ return {c:{}}; });
+    return Promise.all([a, b]).then(function(x){ instr = x[0]; instr.comp = x[1].c || {}; return instr; });
+  }
+  function compBlock(k, tn){
+    var c = instr && instr.comp[k + "|" + tn];
+    if(!c) return "";
+    var src = '<p class="tn-note">Из инструкции ГРЛС' + (c[1] ? " (" + esc(c[1]) + ")" : "") + "</p>";
+    if(c[2] === "scan") return '<p class="tn-h">Состав</p><p class="tn-note">Инструкция в ГРЛС — скан, текст состава из неё не извлекается; откройте PDF по ссылке ниже.</p>';
+    return '<p class="tn-h">Состав</p><div class="tn-comp">' + esc(c[3]) + "</div>" + src;
   }
   var GRLS = "https://grls.rosminzdrav.ru/";
   function regLine(r){
@@ -76,6 +88,7 @@
     var h = "";
     if(x[0].length) h += '<p class="tn-h">Формы и дозировки</p><ul class="tn-forms">' + x[0].map(function(f){ return "<li>" + esc(f) + "</li>"; }).join("") + "</ul>";
     if(x[2]) h += '<p class="tn-h">Фармакотерапевтическая группа</p><p>' + esc(x[2]) + "</p>";
+    h += compBlock(k, tn);
     if(x[1].length){
       var any = x[1].some(function(r){ return instr && instr.r[r]; });
       h += '<p class="tn-h">Регистрационные удостоверения и инструкции</p><ul class="tn-regs">' + x[1].map(regLine).join("") + "</ul>"

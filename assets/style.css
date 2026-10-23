@@ -21,8 +21,9 @@
 html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hd) + 64px)}
 body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t3)/var(--l3) var(--font)}
 /* переносы по слогам в тексте (узкая колонка телефона); заголовки, кнопки, коды и номера не переносятся */
-main p,main li,main td,main dd{-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word}
-h1,h2,h3,h4,h5,button,code,.tn-reg,em.key{-webkit-hyphens:manual;hyphens:manual}
+main p,main li,main dd{-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word}
+/* в таблицах, названиях препаратов и терминах не переносить: «дек-саметазон» в узкой колонке не читается */
+h1,h2,h3,h4,h5,button,code,.tn-reg,em.key,table,table *,.drug,.term,b.lt{-webkit-hyphens:manual;hyphens:manual}
 h1,h2,h3,h4,h5{margin:0;font-weight:600;text-wrap:balance}
 p,ul,ol,dl,figure,blockquote{margin:0}
 a{color:var(--ac);text-decoration:none}
@@ -146,6 +147,7 @@ table{border-collapse:collapse;width:100%;font-size:var(--t3);line-height:var(--
 th{color:var(--fg2);font-weight:400;font-size:var(--t4);text-align:left;padding:var(--s2) var(--s3) var(--s2) 0;border-bottom:1px solid var(--line);vertical-align:bottom}
 td{padding:var(--s3) var(--s3) var(--s3) 0;border-bottom:1px solid var(--line);vertical-align:top}
 td:last-child,th:last-child{padding-right:0}
+td.nw{white-space:nowrap}
 td[colspan]{color:var(--fg2);font-size:var(--t4);padding-top:var(--s4)}
 td[colspan] b{font-weight:400}
 @media (max-width:640px){
@@ -184,6 +186,7 @@ td[colspan] b{font-weight:400}
 .tn-regs{list-style:none;padding:0;margin:var(--s1) 0 0;display:grid;gap:var(--s1)}
 .tn-regs li{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) var(--s3)}
 .tn-regs .tn-ext{font-size:.92em}
+.tn-comp{white-space:pre-line;font-size:var(--t4);line-height:var(--l4);background:var(--bg2);border-radius:var(--r);padding:var(--s2) var(--s3);margin-top:var(--s1)}
 .tn-more{color:var(--ac);margin-top:var(--s2)}
 .tn-note{color:var(--fg2);margin-top:var(--s2)}
 
