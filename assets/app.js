@@ -291,6 +291,8 @@ document.addEventListener("click", function(e){
     var sec = /^\d/.test(d.sec) ? "раздел " + d.sec : "«" + d.sec + "»";
     pop.innerHTML = '<div class="sheet-h"><h3>' + esc(d.t) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>'
       + '<p class="term-def">' + esc(d.q) + "</p>"
+      + (d.img ? '<figure class="gl-fig"><img src="' + esc(d.img.src) + '" alt="' + esc(d.img.caption) + '"><figcaption>' + esc(d.img.caption) + (d.img.star ? "*" : "")
+          + '<span class="fig-src">Источник' + (d.img.star ? "*" : "") + ": " + esc(d.img.by) + "</span></figcaption></figure>" : "")
       + '<p class="vnote">' + (d.book ? "Не из клинических рекомендаций: пересказ по книге " + esc(d.book) + "."
           : "Дословно из КР «" + esc(d.kr || (DOC ? DOC.title : VER.cv)) + "», " + sec + (d.page ? ", страница " + d.page : "") + ".") + "</p>"
       + '<ul class="list" style="margin-top:12px">' + row(glossaryHref(key.replace(/^[ad]:/, "")), "Открыть в словаре", "все термины и сокращения рекомендаций") + "</ul>";

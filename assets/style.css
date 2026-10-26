@@ -566,3 +566,9 @@ html{scrollbar-gutter:stable}
 .fc .fc-lbg{fill:var(--bg);stroke:none}
 .fc .fc-e{stroke-width:1.3}
 .fc .fc-q{stroke-width:1.3}
+
+/* рисунок к термину — в окне термина и в словаре: небольшой, с отступами (просьба 26.10.2026) */
+.gl-fig{margin:12px 0 0;max-width:340px}
+.gl-fig img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--line);background:#fff}
+.gl-fig figcaption{font-size:.88em;color:var(--fg2);margin-top:6px;line-height:1.4}
+.gl-fig .fig-src{display:block;margin-top:2px}
