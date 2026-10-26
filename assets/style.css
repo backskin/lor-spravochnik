@@ -679,8 +679,8 @@ html{scrollbar-gutter:stable}
 
 /* Современная векторная блок-схема (.fc) и фиксированный наконечник активной стрелки */
 .alg-open{margin-top:var(--s1)}
-.fc .fc-t{font-size:13px;cursor:pointer}
-.fc .fc-n{cursor:pointer;stroke-width:1.4;transition:stroke-width .15s ease,filter .15s ease}
+.fc .fc-t{font-size:13px}
+.fc .fc-n{stroke-width:1.4;transition:stroke-width .15s ease,filter .15s ease}
 .fc .fc-n:hover{stroke-width:2.2;filter:brightness(.97)}
 .fc .fc-n.fc-active{stroke:var(--ac);stroke-width:2.8}
 .fc .fc-l{font-size:12px;font-weight:600}
@@ -1691,3 +1691,11 @@ html[data-anim="off"]::view-transition-group(*),html[data-anim="off"]::view-tran
 /* меню: никакого сдвига вбок при касании */
 .drawer{overflow-x:hidden!important;touch-action:pan-y;overscroll-behavior:contain}
 .drawer *{max-width:100%}
+
+/* блоки схемы не нажимаются: без указателя-руки и без реакции на наведение */
+.fc .fc-n,.fc .fc-t{cursor:inherit!important;pointer-events:none}
+/* карточка шага в режиме «По шагам»: ситуация и вопрос врачу */
+.as-card{display:none}
+.aw-body .as-sit{margin:0;line-height:1.55}
+.aw-body .as-sit + .as-sit{margin-top:8px}
+.aw-body .as-ask{margin:12px 0 0;font-weight:700;line-height:1.4}

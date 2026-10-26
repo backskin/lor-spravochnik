@@ -282,16 +282,7 @@ function figClose(fromPop){
 }
 document.addEventListener("click", function(e){
   if(e.target.closest(".fig-x")){ figClose(); return; }
-  /* нажатие на блок внутри SVG-схемы: если не во весь экран и есть шаг — можно перейти к этому шагу или подсветить его */
-  var fcNode = e.target.closest(".fc-n[data-step], .fc-t[data-step]");
-  if(fcNode){
-    var figAlg = fcNode.closest(".fig-alg");
-    if(figAlg && !figAlg.classList.contains("fig-full") && figAlg._lorGoStep){
-      e.stopPropagation();
-      figAlg._lorGoStep(+fcNode.dataset.step, true);
-      return;
-    }
-  }
+  /* блоки схемы не нажимаются (просьба 26.10.2026): нажатие на схему только открывает её во весь экран */
   var ao = e.target.closest(".alg-open");  /* строка «Открыть схему целиком» открывает схему во весь экран */
   var f = ao ? ao.parentNode.querySelector(".fig-scroll") : e.target.closest(".fig-scroll");
   if(!f) return;
@@ -1231,8 +1222,9 @@ function lorAlgorithms(){
       var num = +(li.dataset.step || (idx + 1));
       li.dataset.step = String(num);
       var cls = (li.className.match(/as-(?:start|step|q|warn|end)/) || ["as-step"])[0];
-      var tEl = li.querySelector(".as-t");
-      var textHtml = tEl ? tEl.innerHTML : "";
+      var tEl = li.querySelector(".as-t"), cEl = li.querySelector(".as-card");
+      /* в режиме «По шагам» — литературная карточка ситуации с вопросом (verify/alg/<код>.cards.json), иначе текст блока схемы */
+      var textHtml = cEl ? cEl.innerHTML : (tEl ? tEl.innerHTML : "");
       var textPlain = tEl ? tEl.textContent.replace(/\s+/g, " ").trim() : "";
       var btns = [].map.call(li.querySelectorAll(".as-go"), function(b){
         return {
@@ -1303,7 +1295,8 @@ function lorAlgorithms(){
           var targetNum = idToNum[b.toId] || 1;
           var targetStep = stepsMap[targetNum];
           var mainLbl = b.label.replace(/\s*→\s*шаг\s*\d+$/i, "").replace(/\s*\(шаг\s*\d+\)\s*→$/i, "").trim();
-          var subTxt = targetStep ? ("Шаг " + targetNum + ": " + targetStep.plain) : "";
+          /* у ответа-варианта подпись уже говорит сама за себя; «Шаг N: …» — только под безымянным «Далее» */
+          var subTxt = targetStep && /^Далее$/i.test(mainLbl) ? ("Шаг " + targetNum + ": " + targetStep.plain) : "";
           actHtml += '<button type="button" class="aw-btn ' + b.cls + '" data-gonum="' + targetNum + '">'
             + '<span><span class="aw-btn-main">' + mainLbl + '</span>'
             + (subTxt ? '<span class="aw-btn-sub">' + subTxt + '</span>' : '')
