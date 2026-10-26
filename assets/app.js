@@ -582,7 +582,7 @@ if(home){
     throat: '<path d="M4 7.5h16v3.2a8 8 0 0 1-16 0z"/><path d="M12 7.5v3.6"/><circle cx="12" cy="12.4" r="1.1"/><path d="M7 12.2c1.2.2 1.7 1.3 1.6 2.6M17 12.2c-1.2.2-1.7 1.3-1.6 2.6"/>',
     larynx: '<path d="M12 3.8c3.9 0 6.7 3.9 6.7 8.6S16 20.2 12 20.2s-6.7-3.1-6.7-7.8S8.1 3.8 12 3.8z"/><path d="M12 8.2 9.6 17.4M12 8.2l2.4 9.2"/>',
     trauma: '<path d="m5 14.6 9.6-9.6a2.8 2.8 0 0 1 4 4L9 18.6a2.8 2.8 0 0 1-4-4z"/><path d="M10.3 10.3h.01M13.7 10.3h.01M10.3 13.7h.01M13.7 13.7h.01"/>',
-    ari: '<circle cx="12" cy="12" r="4.6"/><path d="M12 3.5v3.9M12 16.6v3.9M3.5 12h3.9M16.6 12h3.9M6 6l2.7 2.7M15.3 15.3 18 18M6 18l2.7-2.7M15.3 8.7 18 6"/>',
+    ari: '<circle cx="12" cy="12" r="4.4"/><path d="M12 5v2.6M12 16.4V19M5 12h2.6M16.4 12H19M7.1 7.1l1.8 1.8M15.1 15.1l1.8 1.8M7.1 16.9l1.8-1.8M15.1 8.9l1.8-1.8"/><circle cx="12" cy="4" r="1.1"/><circle cx="12" cy="20" r="1.1"/><circle cx="4" cy="12" r="1.1"/><circle cx="20" cy="12" r="1.1"/><circle cx="6.3" cy="6.3" r="1.1"/><circle cx="17.7" cy="17.7" r="1.1"/><circle cx="6.3" cy="17.7" r="1.1"/><circle cx="17.7" cy="6.3" r="1.1"/>',
     related: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'
   };
   function gicon(id){ return GICON[id] ? '<svg class="gh-ico" viewBox="0 0 24 24" aria-hidden="true">' + GICON[id] + "</svg>" : ""; }
