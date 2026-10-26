@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Препараты · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=d23df54aab3b">
+<link rel="stylesheet" href="assets/style.css?v=fad2d3ad1767">
 <style>
 .dz-abc{display:flex;flex-wrap:wrap;gap:2px;margin-top:var(--s3)}
 .dz-abc button{min-width:34px;height:34px;padding:0 6px;font:inherit;font-weight:600;border:0;border-radius:6px;background:none;color:var(--ac);cursor:pointer}
@@ -26,7 +26,7 @@
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body data-page="drugs">
-<script src="assets/shell.js?v=d23df54aab3b"></script>
+<script src="assets/shell.js?v=fad2d3ad1767"></script>
 
 <main class="page">
   <h1 class="pt">Препараты</h1>
@@ -46,9 +46,9 @@
   <p class="src-of">Источник: Государственный реестр лекарственных средств Минздрава России · <a href="https://grls.rosminzdrav.ru/" target="_blank" rel="noopener">grls.rosminzdrav.ru ↗</a></p>
 </main>
 
-<script src="assets/data.js?v=d23df54aab3b"></script>
-<script src="assets/grls.js?v=d23df54aab3b"></script>
-<script src="assets/app.js?v=d23df54aab3b"></script>
+<script src="assets/data.js?v=fad2d3ad1767"></script>
+<script src="assets/grls.js?v=fad2d3ad1767"></script>
+<script src="assets/app.js?v=fad2d3ad1767"></script>
 <script>
 (function(){
   var q = document.getElementById("q"), res = document.getElementById("dres"), st = document.getElementById("dstatus"), homeEl = document.getElementById("dhome"), E = GRLS.esc;
@@ -86,8 +86,12 @@
       abcEl.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
       if(!on){ letEl.hidden = true; return; }
       b.setAttribute("aria-pressed", "true");
-      letEl.innerHTML = '<div class="dz-chips small">' + abc[b.dataset.c].map(chip).join("") + "</div>"
-        + '<p class="dz-sub">Вещества из КР на «' + E(b.dataset.c) + '». Остальные вещества реестра — через поиск вверху.</p>';
+      letEl.innerHTML = '<ul class="dz-top">' + abc[b.dataset.c].map(function(x){
+        var inf = DINFO[x.k];
+        return '<li class="dz-card-li"><div class="dz-card-main"><div class="dz-card-head"><button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n) + '</button></div>'
+          + (inf ? '<div class="dz-meta-grid"><div class="dz-m-ind"><b>Показания:</b> ' + E(inf.ind) + '</div><div class="dz-m-con"><b>Противопоказания:</b> ' + E(inf.contra) + '</div></div>' : '')
+          + '</div></li>';
+      }).join("") + '</ul><p class="dz-sub">Вещества из КР на «' + E(b.dataset.c) + '». Нажмите на вещество для просмотра всех торговых названий и инструкций ГРЛС.</p>';
       letEl.hidden = false;
     });
     document.getElementById("dCommon").innerHTML = P.common.map(chip).join("");
@@ -97,16 +101,25 @@
       var d = P.dirs.filter(function(x){ return x.id === id; })[0] || P.dirs[0];
       dirsEl.querySelectorAll("button").forEach(function(b){ b.setAttribute("aria-selected", String(b.dataset.id === d.id)); });
       dirEl.innerHTML = '<ul class="dz-top">' + d.top.map(function(x){
-          return '<li><span><button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n) + "</button><small>" + E(x.why) + "</small></span>"
-            + (x.href ? '<a href="' + E(x.href) + '">КР ›</a>' : "") + "</li>";
+          var inf = DINFO[x.k];
+          return '<li class="dz-card-li"><div class="dz-card-main">'
+            + '<div class="dz-card-head"><button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n) + '</button>'
+            + (x.href ? '<a class="dz-kr-link" href="' + E(x.href) + '">Разбор КР ›</a>' : "") + '</div>'
+            + '<small class="dz-why">В КР: ' + E(x.why) + '</small>'
+            + (inf ? '<div class="dz-meta-grid"><div class="dz-m-ind"><b>Показания:</b> ' + E(inf.ind) + '</div><div class="dz-m-con"><b>Противопоказания:</b> ' + E(inf.contra) + '</div></div>' : '')
+            + '</div></li>';
         }).join("") + "</ul>"
-        + (d.more.length ? '<p class="dz-sub">Ещё в КР по направлению</p><div class="dz-chips small">' + d.more.map(chip).join("") + "</div>" : "");
+        + (d.more.length ? '<p class="dz-sub">Ещё в КР по направлению (нажмите для показаний, противопоказаний и торговых названий)</p><div class="dz-chips small">' + d.more.map(chip).join("") + "</div>" : "");
       store("lor-drug-dir", d.id);
     }
     dirsEl.addEventListener("click", function(e){ var b = e.target.closest("button"); if(b) showDir(b.dataset.id); });
     showDir(store("lor-drug-dir") || P.dirs[0].id);
   }
-  fetch("data/drug-picks.json").then(function(r){ return r.json(); }).then(home, function(){ homeEl.hidden = true; });
+  var DINFO = {};
+  Promise.all([
+    fetch("data/drug-picks.json").then(function(r){ return r.json(); }),
+    fetch("data/drug-info.json").then(function(r){ return r.ok ? r.json() : {}; }, function(){ return {}; })
+  ]).then(function(arr){ DINFO = arr[1] || {}; home(arr[0]); }, function(){ homeEl.hidden = true; });
   GRLS.load().then(function(d){
     st.textContent = "Государственный реестр лекарственных средств от " + d.date.split("-").reverse().join(".") + ": " + Object.keys(d.inn).length + " веществ, " + d.all.length + " торговых названий.";
     /* обработчик снимается при уходе с экрана (переход без перезагрузки) */

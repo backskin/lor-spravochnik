@@ -1,21 +1,26 @@
 /* Торговые названия из ГРЛС (data/grls.json, собирается tools/build_grls.py из официальной выгрузки реестра).
    Данные грузятся только по требованию — страницы от них не тяжелеют. */
 (function(){
-  var data = null, wait = null;
+  var data = null, dinfo = {}, wait = null;
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
   function low(s){ return String(s || "").toLowerCase().replace(/ё/g, "е"); }
   /* ключ действующего вещества: состав без порядка компонентов — «флутиказон+азеластин» = «азеластин+флутиказон» */
   function setKey(k){ return k.split("+").map(function(x){ return x.trim(); }).filter(Boolean).sort().join("+"); }
   function load(){
     if(data) return Promise.resolve(data);
-    if(!wait) wait = fetch("data/grls.json").then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
-      d.bySet = {}; d.all = [];
-      Object.keys(d.inn).forEach(function(k){
-        d.bySet[setKey(k)] = k;
-        d.inn[k].tn.forEach(function(t){ d.all.push({tn:t[0], l:low(t[0]), inn:k, t:t}); });
+    if(!wait){
+      var p1 = fetch("data/grls.json").then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+      var p2 = fetch("data/drug-info.json").then(function(r){ return r.ok ? r.json() : {}; }, function(){ return {}; });
+      wait = Promise.all([p1, p2]).then(function(res){
+        var d = res[0]; dinfo = res[1] || {};
+        d.bySet = {}; d.all = [];
+        Object.keys(d.inn).forEach(function(k){
+          d.bySet[setKey(k)] = k;
+          d.inn[k].tn.forEach(function(t){ d.all.push({tn:t[0], l:low(t[0]), inn:k, t:t}); });
+        });
+        data = d; return d;
       });
-      data = d; return d;
-    });
+    }
     return wait;
   }
   /* «Амоксициллин + клавулановая кислота внутрь³ (в начале еды)», «Азеластин и флутиказон», «Кромоглициевая кислота, спрей» */
@@ -34,9 +39,31 @@
     return '<li><button class="tn-row" type="button" aria-expanded="false" data-inn="' + esc(k) + '" data-tn="' + esc(low(t[0])) + '"><span class="tn-t"><b>' + esc(t[0]) + "</b>"
       + (meta ? "<small>" + esc(meta) + "</small>" : "") + "</span></button></li>";
   }
+  function infoBlock(k, name){
+    var inf = dinfo[k] || dinfo[setKey(k)];
+    if(!inf){
+      return '<div class="drg-clinical">'
+        + '<div class="drg-sec drg-ind"><span class="drg-lbl">Показания</span><p>По официальной инструкции ГРЛС для действующего вещества «' + esc(name) + '» (раскройте торговое название ниже для просмотра фармакотерапевтической группы, дозировок и PDF-инструкции).</p></div>'
+        + '<div class="drg-sec drg-contra"><span class="drg-lbl">Противопоказания</span><p>Гиперчувствительность к действующему веществу или вспомогательным компонентам; возрастные ограничения, беременность и сопутствующие патологии — согласно официальной инструкции ГРЛС.</p></div>'
+        + '</div>';
+    }
+    var krHtml = "";
+    if(inf.kr && inf.kr.length){
+      krHtml = '<div class="drg-krs"><span class="drg-lbl">Применение в разобранных КР Минздрава:</span><div class="drg-kr-links">'
+        + inf.kr.map(function(x){ return '<a class="drg-kr-a" href="' + esc(x[1]) + '">' + esc(x[0]) + ' ›</a>'; }).join("")
+        + '</div></div>';
+    }
+    return '<div class="drg-clinical">'
+      + '<div class="drg-sec drg-ind"><span class="drg-lbl">Показания к применению</span><p>' + esc(inf.ind) + '</p></div>'
+      + '<div class="drg-sec drg-contra"><span class="drg-lbl">Противопоказания и ограничения</span><p>' + esc(inf.contra) + '</p></div>'
+      + krHtml
+      + '</div>';
+  }
   function card(k, limit){
     var e = data.inn[k], list = e.tn, n = list.length, cut = limit && n > limit ? list.slice(0, limit) : list;
-    return '<div class="tn-card"><h5><span class="tn-name">' + esc(e.n) + '</span> <span class="tn-cnt">' + n + " " + plural(n, "торговое название", "торговых названия", "торговых названий") + "</span></h5>"
+    return '<div class="tn-card">'
+      + infoBlock(k, e.n)
+      + '<h5><span class="tn-name">' + esc(e.n) + '</span> <span class="tn-cnt">' + n + " " + plural(n, "торговое название", "торговых названия", "торговых названий") + " в ГРЛС</span></h5>"
       + '<ul class="tn-list">' + cut.map(function(t){ return tnLine(t, k); }).join("") + "</ul>"
       + (cut.length < n ? '<button class="tn-more" type="button" data-inn="' + esc(k) + '">Показать все ' + n + "</button>" : "")
       + '<p class="tn-note">ГРЛС от ' + esc(data.date.split("-").reverse().join(".")) + ". Порядок — по числу действующих регистраций, это не данные о продажах.</p></div>";
@@ -131,5 +158,5 @@
     loadForms().then(function(){ box.innerHTML = detail(b.dataset.inn, b.dataset.tn); },
       function(err){ box.textContent = err && err.message === "old" ? "Браузер не умеет распаковывать данные реестра — обновите его." : "Данные реестра не загрузились. Проверьте интернет."; });
   });
-  window.GRLS = {load:load, findInn:findInn, card:card, search:search, esc:esc, loadForms:loadForms, get data(){ return data; }};
+  window.GRLS = {load:load, findInn:findInn, card:card, info:function(k){ return dinfo[k] || dinfo[setKey(k)] || null; }, search:search, esc:esc, loadForms:loadForms, get data(){ return data; }};
 })();

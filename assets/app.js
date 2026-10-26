@@ -627,56 +627,192 @@ if(!HOME && B.page !== "sources" && B.page !== "textbook"){  /* «Учебник
     + "<span>Только клинические рекомендации Минздрава, ГРЛС и справочник МКБ-10. Не заменяет полный текст рекомендации.</span></footer>");
 }
 
-/* ---------- главная: список болезней по разделам ---------- */
+/* ---------- Богатые многослойные анатомические и клинические иконки (48×48, адаптивная детализация .ico-det) ---------- */
+var LOR_ICONS = {
+  nose: '<path class="ico-fill-2" d="M8.5 21.5C8.5 17.2 12.6 15.8 17.5 17.6L18 29.2C13.4 30.8 8.5 27.8 8.5 21.5ZM39.5 21.5C39.5 17.2 35.4 15.8 30.5 17.6L30 29.2C34.6 30.8 39.5 27.8 39.5 21.5Z"/>'
+    + '<path class="ico-fill-1" d="M13.5 11.2C13.5 7.4 18.5 6.8 22.5 10.2V14.2C18 14.2 13.5 13.4 13.5 11.2ZM34.5 11.2C34.5 7.4 29.5 6.8 25.5 10.2V14.2C30 14.2 34.5 13.4 34.5 11.2Z"/>'
+    + '<path class="ico-fill-hi" d="M24 12C20.2 19 16.2 26.2 16.2 33.5C16.2 37.5 19.8 39.5 24 37.8C28.2 39.5 31.8 37.5 31.8 33.5C31.8 26.2 27.8 19 24 12Z"/>'
+    + '<path class="ico-det" d="M13.5 11.2C13.5 7.4 18.5 6.8 22.2 10.2V14C18 14 13.5 13.4 13.5 11.2ZM34.5 11.2C34.5 7.4 29.5 6.8 25.8 10.2V14C30 14 34.5 13.4 34.5 11.2ZM16.8 18C12 16.5 8.5 18.2 8.5 22C8.5 27.5 12.8 30.2 16.8 29M31.2 18C36 16.5 39.5 18.2 39.5 22C39.5 27.5 35.2 30.2 31.2 29"/>'
+    + '<path class="ico-det" d="M24 21.5C21.2 21.5 19.2 23.5 19.2 25.8M24 21.5C26.8 21.5 28.8 23.5 28.8 25.8M24 27.2C20.5 27.2 18.2 29.5 18.2 32.2M24 27.2C27.5 27.2 29.8 29.5 29.8 32.2"/>'
+    + '<path class="ico-str" d="M21 8.5C21 17 14.5 24.5 14.5 32.8C14.5 36.8 18.2 39.2 21.5 37.2M27 8.5C27 17 33.5 24.5 33.5 32.8C33.5 36.8 29.8 39.2 26.5 37.2M20.5 36.8C22 38.6 26 38.6 27.5 36.8M24 9.5V36.5"/>',
+  ear: '<path class="ico-fill-1" d="M9.5 19.5C9.5 11.2 15.8 6.8 22.8 8.8C28.2 10.3 30.5 16 28.2 22.2C26.4 26.8 24 29.2 22.6 34C21.5 37.8 18.5 40.2 14.8 39.4C11.8 38.8 10.8 35.8 12 33Z"/>'
+    + '<circle class="ico-fill-hi" cx="35.5" cy="24.5" r="5.5"/>'
+    + '<path class="ico-det" d="M24.2 25.2H30.8M31.8 21.2L29.8 29.2M35.5 24.5m-1.1 0a1.1 1.1 0 1 0 2.2 0a2.5 2.5 0 1 0 -5 0a4 4 0 1 0 8 0a5.3 5.3 0 0 0 -8.8 -3.8"/>'
+    + '<path class="ico-str" d="M9.5 19.5C9.5 11.2 15.8 6.8 22.8 8.8C28.2 10.3 30.5 16 28.2 22.2C26.4 26.8 24 29.2 22.6 34C21.5 37.8 18.5 40.2 14.8 39.4C11.8 38.8 10.8 35.8 12 33"/>'
+    + '<path class="ico-str" d="M14.2 18.8C14.8 13.8 19.2 11.8 22.8 13.8C25.5 15.4 25.8 19.5 23.5 22.8C21.5 25.5 19.5 27.2 19.2 30.8M13.2 24.2C15.4 24 16.8 25.8 15.2 27.8"/>',
+  throat: '<path class="ico-fill-1" d="M6.5 23.5C9.5 11.8 17.2 8.8 24 8.8C30.8 8.8 38.5 11.8 41.5 23.5C39 35.2 32 40.2 24 40.2C16 40.2 9 35.2 6.5 23.5Z"/>'
+    + '<ellipse class="ico-fill-hi" cx="14.2" cy="24.6" rx="3.4" ry="5.4"/><ellipse class="ico-fill-hi" cx="33.8" cy="24.6" rx="3.4" ry="5.4"/>'
+    + '<path class="ico-fill-2" d="M10.5 34.5C14.5 29.5 19.8 29.2 24 31.2C28.2 29.2 33.5 29.5 37.5 34.5C34 38.5 29.2 40.2 24 40.2C18.8 40.2 14 38.5 10.5 34.5Z"/>'
+    + '<path class="ico-det" d="M18.2 22.2C19.6 24.4 20.2 27 20 29.8M29.8 22.2C28.4 24.4 27.8 27 28 29.8M24 31.2V37.8M14.5 12.6C17.5 14 20.8 14.6 24 14.6C27.2 14.6 30.5 14 33.5 12.6"/>'
+    + '<circle class="ico-det" cx="14.2" cy="22.8" r="0.7"/><circle class="ico-det" cx="15" cy="25.2" r="0.7"/><circle class="ico-det" cx="13.8" cy="27.2" r="0.7"/>'
+    + '<circle class="ico-det" cx="33.8" cy="22.8" r="0.7"/><circle class="ico-det" cx="33" cy="25.2" r="0.7"/><circle class="ico-det" cx="34.2" cy="27.2" r="0.7"/>'
+    + '<path class="ico-str" d="M6.5 23.5C9.5 11.8 17.2 8.8 24 8.8C30.8 8.8 38.5 11.8 41.5 23.5C39 35.2 32 40.2 24 40.2C16 40.2 9 35.2 6.5 23.5Z"/>'
+    + '<path class="ico-str" d="M9.5 20.5C13.5 16 19.2 16.2 21.8 20.2L22.2 24.2C22.4 26.2 23.1 27.2 24 27.2C24.9 27.2 25.6 26.2 25.8 24.2L26.2 20.2C28.8 16.2 34.5 16 38.5 20.5"/>'
+    + '<path class="ico-str" d="M13.5 19.2C16.2 19.8 17.8 22.2 17.5 25.2C17.2 27.8 15.5 29.8 13.2 30.2M34.5 19.2C31.8 19.8 30.2 22.2 30.5 25.2C30.8 27.8 32.5 29.8 34.8 30.2"/>'
+    + '<path class="ico-str" d="M10.5 34.5C14.5 29.5 19.8 29.2 24 31.2C28.2 29.2 33.5 29.5 37.5 34.5"/>',
+  larynx: '<path class="ico-fill-1" d="M11.5 14.5C11.5 12 16.5 11.5 20.5 14.2L24 16.8L27.5 14.2C31.5 11.5 36.5 12 36.5 14.5L35 28.5C34.2 32.5 29.5 35 24 35C18.5 35 13.8 32.5 13 28.5Z"/>'
+    + '<path class="ico-fill-hi" d="M24 17.5L18.5 30.5H29.5Z"/>'
+    + '<path class="ico-det" d="M17.5 37.2C21.5 38.4 26.5 38.4 30.5 37.2M17.5 40.5C21.5 41.7 26.5 41.7 30.5 40.5M24 17.5L16 28.5M24 17.5L32 28.5M8 19.5C6.5 22 6.5 25.5 8 28M40 19.5C41.5 22 41.5 25.5 40 28"/>'
+    + '<path class="ico-str" d="M19.5 13.2C19.2 8.2 21.2 5.8 24 5.8C26.8 5.8 28.8 8.2 28.5 13.2"/>'
+    + '<path class="ico-str" d="M11.5 14.5C11.5 12 16.5 11.5 20.5 14.2L24 16.8L27.5 14.2C31.5 11.5 36.5 12 36.5 14.5L35 28.5C34.2 32.5 29.5 35 24 35C18.5 35 13.8 32.5 13 28.5Z"/>'
+    + '<path class="ico-str" d="M24 17.5L18.5 30.5M24 17.5L29.5 30.5M17.5 34.2V42M30.5 34.2V42"/>',
+  trauma: '<path class="ico-fill-1" d="M24 6.5L38.5 12V24.5C38.5 33.2 32.2 39.5 24 42C15.8 39.5 9.5 33.2 9.5 24.5V12L24 6.5Z"/>'
+    + '<path class="ico-fill-hi" d="M22 13H26V17H30V21H26V25H22V21H18V17H22Z"/>'
+    + '<path class="ico-det" d="M18 27.5L21.5 32.5M26.5 27L30 32M13 14.5L24 10.2L35 14.5"/>'
+    + '<path class="ico-str" d="M24 6.5L38.5 12V24.5C38.5 33.2 32.2 39.5 24 42C15.8 39.5 9.5 33.2 9.5 24.5V12L24 6.5Z"/>'
+    + '<path class="ico-str" d="M14.5 31.5L20.5 28.5L23.5 33L28.5 27.5L33.5 30.5M24 14V24M19 19H29"/>',
+  ari: '<circle class="ico-fill-1" cx="24" cy="24" r="15.5"/><circle class="ico-fill-2" cx="24" cy="24" r="9.5"/><circle class="ico-fill-hi" cx="24" cy="24" r="4.2"/>'
+    + '<polygon class="ico-det" points="24,17.5 29.6,20.8 29.6,27.2 24,30.5 18.4,27.2 18.4,20.8"/>'
+    + '<circle class="ico-str" cx="24" cy="24" r="9.5"/>'
+    + '<path class="ico-str" d="M24 8.5V14.5M24 33.5V39.5M8.5 24H14.5M33.5 24H39.5M13 13L17.3 17.3M30.7 30.7L35 35M13 35L17.3 30.7M30.7 17.3L35 13"/>'
+    + '<circle class="ico-str" cx="24" cy="7" r="1.8"/><circle class="ico-str" cx="24" cy="41" r="1.8"/><circle class="ico-str" cx="7" cy="24" r="1.8"/><circle class="ico-str" cx="41" cy="24" r="1.8"/>'
+    + '<circle class="ico-str" cx="11.8" cy="11.8" r="1.8"/><circle class="ico-str" cx="36.2" cy="36.2" r="1.8"/><circle class="ico-str" cx="11.8" cy="36.2" r="1.8"/><circle class="ico-str" cx="36.2" cy="11.8" r="1.8"/>',
+  related: '<path class="ico-fill-1" d="M11 10.5H27V20C27 24.8 23.4 28.5 19 28.5C14.6 28.5 11 24.8 11 20Z"/><circle class="ico-fill-hi" cx="35.5" cy="28.5" r="5.2"/>'
+    + '<path class="ico-det" d="M16.5 17H21.5M19 14.5V19.5"/><circle class="ico-det" cx="35.5" cy="28.5" r="2"/>'
+    + '<path class="ico-str" d="M13.5 9.5H10.5V19.5C10.5 24.5 14.3 28.5 19 28.5C23.7 28.5 27.5 24.5 27.5 19.5V9.5H24.5M19 28.5V33.5C19 37.8 22.5 41 26.8 41C31.2 41 35.5 37.8 35.5 33.5"/><circle class="ico-str" cx="35.5" cy="28.5" r="5.2"/>',
+  textbook: '<path class="ico-fill-1" d="M7 11.5C11.5 9.5 18.5 10 24 13C29.5 10 36.5 9.5 41 11.5V36.5C36.5 34.5 29.5 35 24 38C18.5 35 11.5 34.5 7 36.5Z"/>'
+    + '<circle class="ico-fill-hi" cx="15.5" cy="22.5" r="4"/><path class="ico-det" d="M28.5 18.5H36.5M28.5 23H36.5M28.5 27.5H34.5"/>'
+    + '<path class="ico-str" d="M7 11.5C11.5 9.5 18.5 10 24 13C29.5 10 36.5 9.5 41 11.5V36.5C36.5 34.5 29.5 35 24 38C18.5 35 11.5 34.5 7 36.5ZM24 13V38"/>',
+  drugs: '<rect class="ico-fill-1" x="8" y="15" width="32" height="18" rx="9" transform="rotate(-35 24 24)"/><path class="ico-fill-hi" d="M24 15L31.4 27.7A9 9 0 0 0 34.3 15.3A9 9 0 0 0 21.8 12.6Z"/>'
+    + '<path class="ico-det" d="M16 26L20 23M32 14V20M29 17H35"/>'
+    + '<rect class="ico-str" x="8" y="15" width="32" height="18" rx="9" transform="rotate(-35 24 24)"/><path class="ico-str" d="M18.8 16.6L29.2 31.4"/>',
+  mkb: '<rect class="ico-fill-1" x="9" y="8" width="30" height="32" rx="4"/><path class="ico-fill-hi" d="M14 14H24V20H14Z"/>'
+    + '<path class="ico-det" d="M14 25H34M14 30H28M14 35H24"/><path class="ico-str" d="M9 12A4 4 0 0 1 13 8H35A4 4 0 0 1 39 12V36A4 4 0 0 1 35 40H13A4 4 0 0 1 9 36ZM16 17H22M19 14V20"/>',
+  glossary: '<rect class="ico-fill-1" x="10" y="7" width="28" height="34" rx="3.5"/><path class="ico-fill-hi" d="M16 14H32V22H16Z"/>'
+    + '<path class="ico-det" d="M16 27H32M16 32H26"/><path class="ico-str" d="M10 10.5A3.5 3.5 0 0 1 13.5 7H34.5A3.5 3.5 0 0 1 38 10.5V37.5A3.5 3.5 0 0 1 34.5 41H13.5A3.5 3.5 0 0 1 10 37.5ZM18 21L21.5 13L25 21M19 19H24"/>'
+};
+function gicon(id){ return LOR_ICONS[id] ? '<span class="gh-ico-wrap" data-ico-type="' + id + '"><svg class="gh-ico" viewBox="0 0 48 48" aria-hidden="true">' + LOR_ICONS[id] + "</svg></span>" : ""; }
+
+/* ---------- главная: интерактивное меню со сворачиваемыми разделами ---------- */
 home = $("home");
 if(home){
-  var h = "", core = L.groups.filter(function(g){ return !g.related; }), rel = L.groups.filter(function(g){ return g.related; });
+  var core = L.groups.filter(function(g){ return !g.related; }), rel = L.groups.filter(function(g){ return g.related; });
   function fullRows(list){
-    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(shortName(d.name)), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
+    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(shortName(d.name)), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
   }
-  /* порядок по востребованности в амбулаторной ЛОР-практике; в разделе показываются первые пять */
   var TOP = {nose:["313_3","261_2","955_1","977_1","890_1","1082_1","913_1","956_1","756_1"],
              ear:["314_3","663_2","698_2","518_3","18_2","21_3","22_3","315_4","311_2","304_2","609_2"],
              throat:["306_3","683_2","662_2","664_2"], larynx:["309_2","352_3","305_2"],
              trauma:["815_1","812_1","813_1"], ari:["724_2","25_3","943_1"]};
-  /* пиктограммы разделов: линейные значки органов в цвете акцента (24×24, stroke = currentColor) */
-  var GICON = {
-    nose: '<path d="M10.3 3.5c0 4.6-3.6 7.8-3.6 11.3a2.6 2.6 0 0 0 4.2 2.1M13.7 3.5c0 4.6 3.6 7.8 3.6 11.3a2.6 2.6 0 0 1-4.2 2.1"/><path d="M10.9 16.9c.7.5 1.5.5 2.2 0"/>',
-    ear: '<path d="M7.5 9.5a5 5 0 0 1 10 0c0 3-2.2 4.3-3.2 5.8-.9 1.4-.6 3.9-3 4.2-1.6.2-2.6-.9-2.6-.9"/><path d="M10.4 10.2a2.2 2.2 0 0 1 4.2-.6c.4 1.5-1.5 2.3-1.6 3.8"/>',
-    throat: '<path d="M4 7.5h16v3.2a8 8 0 0 1-16 0z"/><path d="M12 7.5v3.6"/><circle cx="12" cy="12.4" r="1.1"/><path d="M7 12.2c1.2.2 1.7 1.3 1.6 2.6M17 12.2c-1.2.2-1.7 1.3-1.6 2.6"/>',
-    larynx: '<path d="M12 3.8c3.9 0 6.7 3.9 6.7 8.6S16 20.2 12 20.2s-6.7-3.1-6.7-7.8S8.1 3.8 12 3.8z"/><path d="M12 8.2 9.6 17.4M12 8.2l2.4 9.2"/>',
-    trauma: '<path d="m5 14.6 9.6-9.6a2.8 2.8 0 0 1 4 4L9 18.6a2.8 2.8 0 0 1-4-4z"/><path d="M10.3 10.3h.01M13.7 10.3h.01M10.3 13.7h.01M13.7 13.7h.01"/>',
-    ari: '<circle cx="12" cy="12" r="4.4"/><path d="M12 5v2.6M12 16.4V19M5 12h2.6M16.4 12H19M7.1 7.1l1.8 1.8M15.1 15.1l1.8 1.8M7.1 16.9l1.8-1.8M15.1 8.9l1.8-1.8"/><circle cx="12" cy="4" r="1.1"/><circle cx="12" cy="20" r="1.1"/><circle cx="4" cy="12" r="1.1"/><circle cx="20" cy="12" r="1.1"/><circle cx="6.3" cy="6.3" r="1.1"/><circle cx="17.7" cy="17.7" r="1.1"/><circle cx="6.3" cy="17.7" r="1.1"/><circle cx="17.7" cy="6.3" r="1.1"/>',
-    related: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'
+  var SUB_PREV = {
+    nose: "Острый и хронический синусит · Аллергический и вазомоторный ринит · Полипоз · Носовое кровотечение · Перегородка",
+    ear: "Острый, хронический, наружный и грибковый отит · Нейросенсорная тугоухость · Болезнь Меньера · Отосклероз · Мастоидит",
+    throat: "Острый тонзиллофарингит (ангина) · Хронический тонзиллит · Аденоиды и гипертрофия миндалин · Паратонзиллярный абсцесс",
+    larynx: "Острый ларингит · Обструктивный ларингит (круп), эпиглоттит и стеноз гортани · Парезы и параличи гортани",
+    trauma: "Травма носа и околоносовых пазух · Травма наружного и среднего уха · Травма гортани и трахеи",
+    ari: "ОРВИ у взрослых · ОРВИ и фебрильная лихорадка у детей · Респираторно-синцитиальная инфекция"
   };
-  function gicon(id){ return GICON[id] ? '<svg class="gh-ico" viewBox="0 0 24 24" aria-hidden="true">' + GICON[id] + "</svg>" : ""; }
   function rank(g, d){ var i = (TOP[g] || []).indexOf(d.cv); return i < 0 ? 99 : i; }
-  function oneRow(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : fullRows([d]); }
-  core.forEach(function(g){
+  function oneRow(d){
+    var sub = [codesShort(d.codes), d.age, d.y ? d.y + " г." : ""].filter(Boolean).join(" · ");
+    return d.href ? row(d.href, esc(d.name), esc(sub)) : fullRows([d]);
+  }
+
+  /* Быстрая панель ключевых разделов справочника */
+  var qnav = '<nav class="home-qnav" aria-label="Быстрый доступ к разделам справочника">'
+    + '<a class="hq-card" href="uchebnik.html">' + gicon("textbook") + '<span class="hq-txt"><b>Учебник</b><small>17 глав · анатомия и клиника</small></span></a>'
+    + '<a class="hq-card" href="preparaty.html">' + gicon("drugs") + '<span class="hq-txt"><b>Препараты ГРЛС</b><small>показания, противопоказания, ТН</small></span></a>'
+    + '<a class="hq-card" href="mkb.html">' + gicon("mkb") + '<span class="hq-txt"><b>Коды МКБ-10</b><small>ЛОР-рубрики в 1 касание</small></span></a>'
+    + '<a class="hq-card" href="slovar.html">' + gicon("glossary") + '<span class="hq-txt"><b>Словарь КР</b><small>термины и сокращения</small></span></a>'
+    + '</nav>';
+
+  var h = qnav
+    + '<div class="home-head-bar">'
+    + '<div><h1 class="pt">Клинические рекомендации</h1><p class="home-sub">Выберите раздел, чтобы раскрыть список клинических рекомендаций</p></div>'
+    + '<button type="button" class="home-exp-btn" id="toggleAllGrps" aria-pressed="false">Развернуть все</button>'
+    + '</div><div class="grps">';
+
+  var savedOpen = {};
+  try{ savedOpen = JSON.parse(sessionStorage.getItem("lor-home-open") || "{}"); }catch(e){}
+
+  core.forEach(function(g, idx){
     var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
-    var top = all.slice(0, 5), more = all.slice(5).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
-    h += '<section class="grp"><h2 class="gh">' + gicon(g.id) + esc(g.title) + '</h2><ul class="list">' + top.map(oneRow).join("");
-    if(more.length) h += '<li><button class="row toggle dim" aria-expanded="false"><span class="rt">Ещё ' + more.length + " "
-      + plural(more.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></button>"
-      + '<ul class="list sublist" hidden>' + more.map(oneRow).join("") + "</ul></li>";
-    h += "</ul></section>";
+    var isOpen = !!savedOpen[g.id];
+    h += '<section class="grp grp-card' + (isOpen ? ' is-open' : '') + '" data-sec-id="' + g.id + '" style="--stagger:' + idx + '">'
+      + '<button type="button" class="grp-head" aria-expanded="' + String(isOpen) + '" data-grp-toggle="' + g.id + '">'
+      + gicon(g.id)
+      + '<span class="grp-title-box"><span class="grp-title">' + esc(g.title) + '</span>'
+      + '<span class="grp-preview">' + esc(SUB_PREV[g.id] || "") + '</span></span>'
+      + '<span class="grp-meta"><span class="grp-cnt">' + all.length + '</span><span class="grp-chev" aria-hidden="true">⌄</span></span>'
+      + '</button>'
+      + '<div class="grp-body"><div class="grp-body-in"><ul class="list">' + all.map(oneRow).join("") + '</ul></div></div>'
+      + '</section>';
   });
-  h += '<section class="grp"><h2 class="gh">' + gicon("related") + 'Смежные специальности</h2><ul class="list">' + rel.map(function(g){
-    var all = L.diseases.filter(function(d){ return d.g === g.id; });
-    return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
-      + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"
-      + '<ul class="list sublist" hidden>' + all.map(function(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), esc(shortName(d.name)), "только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("") + "</ul></li>";
-  }).join("") + "</ul></section>";
-  h = '<div class="grps">' + h + "</div>";
+
+  /* Смежные специальности — также раскрываемой карточкой со вложенными направлениями */
+  var relTotal = 0, relReady = 0;
+  rel.forEach(function(g){
+    var ds = L.diseases.filter(function(d){ return d.g === g.id; });
+    relTotal += ds.length;
+    relReady += ds.filter(function(d){ return d.href; }).length;
+  });
+  var relOpen = !!savedOpen["related"];
+  h += '<section class="grp grp-card grp-wide' + (relOpen ? ' is-open' : '') + '" data-sec-id="related" style="--stagger:6">'
+    + '<button type="button" class="grp-head" aria-expanded="' + String(relOpen) + '" data-grp-toggle="related">'
+    + gicon("related")
+    + '<span class="grp-title-box"><span class="grp-title">Смежные специальности</span>'
+    + '<span class="grp-preview">Онкология головы и шеи · ЧЛХ · Неврология · Инфекции · Пульмонология · Пищевод · Иммунология (' + relReady + ' с разбором, ' + (relTotal - relReady) + ' по ссылкам Минздрава)</span></span>'
+    + '<span class="grp-meta"><span class="grp-cnt">' + relTotal + '</span><span class="grp-chev" aria-hidden="true">⌄</span></span>'
+    + '</button>'
+    + '<div class="grp-body"><div class="grp-body-in"><ul class="list rel-subgrid">' + rel.map(function(g){
+      var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
+      var rCnt = all.filter(function(d){ return d.href; }).length;
+      return '<li class="rel-item"><button class="row toggle" type="button" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
+        + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций")
+        + (rCnt ? " · разобрано на сайте: " + rCnt : " · ссылки на Минздрав") + "</span></span></button>"
+        + '<ul class="list sublist" hidden>' + all.map(oneRow).join("") + "</ul></li>";
+    }).join("") + '</ul></div></div></section>';
+
+  h += "</div>";
   home.innerHTML = h;
+
+  function syncAllBtn(){
+    var cards = home.querySelectorAll(".grp-card");
+    var allOpen = [].every.call(cards, function(c){ return c.classList.contains("is-open"); });
+    var btn = $("toggleAllGrps");
+    if(btn){
+      btn.setAttribute("aria-pressed", String(allOpen));
+      btn.textContent = allOpen ? "Свернуть все" : "Развернуть все";
+    }
+  }
+  syncAllBtn();
+
   home.addEventListener("click", function(e){
+    var expBtn = e.target.closest("#toggleAllGrps");
+    if(expBtn){
+      var cards = home.querySelectorAll(".grp-card");
+      var wantOpen = expBtn.getAttribute("aria-pressed") !== "true";
+      cards.forEach(function(c){
+        var id = c.dataset.secId;
+        c.classList.toggle("is-open", wantOpen);
+        var hb = c.querySelector(".grp-head");
+        if(hb) hb.setAttribute("aria-expanded", String(wantOpen));
+        savedOpen[id] = wantOpen ? 1 : 0;
+      });
+      try{ sessionStorage.setItem("lor-home-open", JSON.stringify(savedOpen)); }catch(err){}
+      syncAllBtn();
+      return;
+    }
+    var gh = e.target.closest("[data-grp-toggle]");
+    if(gh){
+      var card = gh.closest(".grp-card"), id = gh.dataset.grpToggle;
+      var open = !card.classList.contains("is-open");
+      card.classList.toggle("is-open", open);
+      gh.setAttribute("aria-expanded", String(open));
+      savedOpen[id] = open ? 1 : 0;
+      try{ sessionStorage.setItem("lor-home-open", JSON.stringify(savedOpen)); }catch(err){}
+      syncAllBtn();
+      return;
+    }
     var b = e.target.closest(".toggle"); if(!b) return;
-    var open = b.getAttribute("aria-expanded") !== "true";
-    b.setAttribute("aria-expanded", String(open)); b.nextElementSibling.hidden = !open;
+    var openSub = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", String(openSub)); b.nextElementSibling.hidden = !openSub;
   });
+
   var ready = L.diseases.filter(function(d){ return d.href; }).length;
-  $("stat").textContent = "Минздрав РФ, оториноларингология. Разобрано " + ready + " из " + L.diseases.length + " " + plural(L.diseases.length, "рекомендации", "рекомендаций", "рекомендаций")
-    + ", список сверен " + L.updated.split("-").reverse().join(".");
+  var statEl = $("stat");
+  if(statEl) statEl.textContent = "Минздрав РФ, оториноларингология и смежные рубрики. Полностью разобрано на сайте: " + ready + " из " + L.diseases.length + " " + plural(L.diseases.length, "рекомендации", "рекомендаций", "рекомендаций")
+    + " (все 33 профильные ЛОР-рекомендации + 18 смежных; остальные 46 смежных КР доступны по прямым ссылкам на рубрикатор Минздрава). Список сверен " + L.updated.split("-").reverse().join(".");
 }
 
 tabbar = $("tabbar"); TABS = tabbar ? Array.prototype.map.call(tabbar.querySelectorAll("[data-tab]"), function(b){ return b.dataset.tab; }) : [];
@@ -812,6 +948,9 @@ if(VER && vlog){
 
 if(typeof lorTables === "function") lorTables();
 if(typeof lorAlgorithms === "function") lorAlgorithms();
+if(typeof lorTextbook === "function") lorTextbook();
+window.LOR_ICONS = LOR_ICONS;
+window.lorIcon = gicon;
 }
 
 /* ---------- переходы без перезагрузки ---------- */
@@ -1217,5 +1356,168 @@ function lorAlgorithms(){
     setMode(savedMode, false);
   });
 }
+
+/* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех 17 глав (uchebnik-*.html) ---------- */
+function lorTextbook(){
+  var ICONS = window.LOR_ICONS || {};
+  document.querySelectorAll("[data-ico]").forEach(function(el){
+    var id = el.dataset.ico;
+    if(id && ICONS[id] && !el.querySelector("svg")){
+      el.dataset.icoType = id;
+      el.innerHTML = '<svg class="gh-ico" viewBox="0 0 48 48" aria-hidden="true">' + ICONS[id] + '</svg>';
+    }
+  });
+
+  var filters = document.getElementById("tbFilters");
+  if(filters && !filters.dataset.ready){
+    filters.dataset.ready = "1";
+    filters.addEventListener("click", function(e){
+      var b = e.target.closest("[data-tbf],[data-tb-filter]");
+      if(!b) return;
+      var f = b.dataset.tbf || b.dataset.tbFilter;
+      filters.querySelectorAll("[data-tbf],[data-tb-filter]").forEach(function(btn){
+        btn.setAttribute("aria-selected", String(btn === b));
+      });
+      document.querySelectorAll(".tb-grp[data-tb-grp],.tb-grp[data-tb-cat]").forEach(function(grp){
+        var c = grp.dataset.tbGrp || grp.dataset.tbCat;
+        grp.hidden = !(f === "all" || c === f);
+      });
+    });
+  }
+
+  /* Если открыта одна из 17 глав учебника — преобразуем плоский текст в удобные карточки разделов с оглавлением и навигацией */
+  if(document.body.dataset.page !== "textbook" || document.body.classList.contains("tb-hub")) return;
+  var main = document.querySelector("main.page");
+  var bodyEl = main && main.querySelector(".tb-body");
+  if(!main || !bodyEl || main.dataset.tbReady) return;
+  main.dataset.tbReady = "1";
+
+  var TB_CHAPTERS = [
+    {href:"uchebnik-nos-anatomiya.html", num:"01", title:"Анатомия носа", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Анатомия"},
+    {href:"uchebnik-onp-anatomiya.html", num:"02", title:"Анатомия и физиология околоносовых пазух", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Анатомия"},
+    {href:"uchebnik-nos-metody.html", num:"03", title:"Методы исследования носа и околоносовых пазух", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Диагностика"},
+    {href:"uchebnik-bolezni-polosti-nosa.html", num:"04", title:"Заболевания полости носа", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Клиника"},
+    {href:"uchebnik-sinusity.html", num:"05", title:"Синуситы", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Клиника"},
+    {href:"uchebnik-ukho-naruzhnoe-srednee.html", num:"06", title:"Наружное и среднее ухо", cat:"ear", catTitle:"Ухо и слуховой анализатор", badge:"Анатомия"},
+    {href:"uchebnik-ukho-vnutrennee.html", num:"07", title:"Внутреннее ухо", cat:"ear", catTitle:"Ухо и слуховой анализатор", badge:"Анатомия"},
+    {href:"uchebnik-ukho-metody.html", num:"08", title:"Методы исследования уха и слуха", cat:"ear", catTitle:"Ухо и слуховой анализатор", badge:"Диагностика"},
+    {href:"uchebnik-bolezni-naruzhnogo-ukha.html", num:"09", title:"Заболевания наружного уха", cat:"ear", catTitle:"Ухо и слуховой анализатор", badge:"Клиника"},
+    {href:"uchebnik-ostryi-otit-mastoidit.html", num:"10", title:"Острый и экссудативный средний отит, мастоидит", cat:"ear", catTitle:"Ухо и слуховой анализатор", badge:"Клиника"},
+    {href:"uchebnik-hronicheskii-otit-oslozhneniya.html", num:"11", title:"Хронический гнойный средний отит и отогенные осложнения", cat:"ear", catTitle:"Ухо и слуховой анализатор", badge:"Клиника"},
+    {href:"uchebnik-tugoukhost-vnutrennee-ukho.html", num:"12", title:"Тугоухость и заболевания внутреннего уха", cat:"ear", catTitle:"Ухо и слуховой анализатор", badge:"Клиника"},
+    {href:"uchebnik-glotka-anatomiya.html", num:"13", title:"Анатомия и физиология глотки", cat:"throat", catTitle:"Глотка и лимфоэпителиальное кольцо", badge:"Анатомия"},
+    {href:"uchebnik-bolezni-glotki.html", num:"14", title:"Ангины, тонзиллит и фарингит", cat:"throat", catTitle:"Глотка и лимфоэпителиальное кольцо", badge:"Клиника"},
+    {href:"uchebnik-gortan-anatomiya.html", num:"15", title:"Анатомия и физиология гортани", cat:"larynx", catTitle:"Гортань, трахея и голосообразование", badge:"Анатомия"},
+    {href:"uchebnik-glotka-gortan-metody.html", num:"16", title:"Методы исследования глотки и гортани", cat:"larynx", catTitle:"Гортань, трахея и голосообразование", badge:"Диагностика"},
+    {href:"uchebnik-bolezni-gortani.html", num:"17", title:"Заболевания гортани", cat:"larynx", catTitle:"Гортань, трахея и голосообразование", badge:"Клиника"}
+  ];
+
+  var fname = (location.pathname.split("/").pop() || "");
+  var curIdx = 0;
+  TB_CHAPTERS.forEach(function(ch, idx){ if(ch.href === fname) curIdx = idx; });
+  var cur = TB_CHAPTERS[curIdx] || TB_CHAPTERS[0];
+
+  /* Верхняя панель навигации по учебнику */
+  var h1 = main.querySelector("h1");
+  var srcP = main.querySelector(".tb-src");
+  var bar = document.createElement("div");
+  bar.className = "tb-ch-bar";
+  var selOpts = TB_CHAPTERS.map(function(ch, i){
+    return '<option value="' + ch.href + '"' + (i === curIdx ? ' selected' : '') + '>' + ch.num + '. ' + ch.title + ' (' + ch.catTitle + ')</option>';
+  }).join("");
+  bar.innerHTML = '<div class="tb-ch-bar-left">'
+    + '<a class="tb-back-btn" href="uchebnik.html">← Все главы учебника</a>'
+    + '<span class="tb-ch-meta"><span class="tb-badge">' + cur.badge + '</span><span>Глава ' + cur.num + ' из 17 · ' + cur.catTitle + '</span></span>'
+    + '</div>'
+    + '<label class="tb-ch-jump"><span>Быстрый переход:</span><select class="tb-ch-sel" aria-label="Выберите главу учебника">' + selOpts + '</select></label>';
+
+  var hero = document.createElement("header");
+  hero.className = "tb-ch-hero";
+  var icoHtml = window.lorIcon ? window.lorIcon(cur.cat) : "";
+  var heroTitleWrap = document.createElement("div");
+  heroTitleWrap.className = "tb-ch-hero-in";
+  if(icoHtml){
+    var icoBox = document.createElement("div");
+    icoBox.innerHTML = icoHtml;
+    if(icoBox.firstChild) hero.appendChild(icoBox.firstChild);
+  }
+  if(h1){
+    main.insertBefore(bar, h1);
+    main.insertBefore(hero, h1);
+    heroTitleWrap.appendChild(h1);
+  }
+  if(srcP) heroTitleWrap.appendChild(srcP);
+  hero.appendChild(heroTitleWrap);
+
+  bar.querySelector(".tb-ch-sel").addEventListener("change", function(){
+    if(this.value) location.href = this.value;
+  });
+
+  /* Оборачиваем каждый раздел <h2> + его абзацы в аккуратную карточку .tb-sec */
+  var h2s = [].slice.call(bodyEl.querySelectorAll(":scope > h2"));
+  var secList = [];
+  h2s.forEach(function(h2, idx){
+    var secNum = (idx + 1 < 10 ? "0" : "") + (idx + 1);
+    var secId = h2.id || ("r" + (idx + 1));
+    h2.removeAttribute("id");
+    var sec = document.createElement("section");
+    sec.className = "tb-sec";
+    sec.id = secId;
+
+    var head = document.createElement("div");
+    head.className = "tb-sec-head";
+    var numBadge = document.createElement("span");
+    numBadge.className = "tb-sec-num";
+    numBadge.textContent = secNum;
+    head.appendChild(numBadge);
+
+    var content = document.createElement("div");
+    content.className = "tb-sec-content";
+
+    bodyEl.insertBefore(sec, h2);
+    head.appendChild(h2);
+    sec.appendChild(head);
+    sec.appendChild(content);
+
+    var next = sec.nextSibling;
+    while(next && !(next.nodeType === 1 && next.tagName === "H2")){
+      var moveNode = next;
+      next = next.nextSibling;
+      content.appendChild(moveNode);
+    }
+    secList.push({id: secId, num: secNum, title: h2.textContent.trim()});
+  });
+
+  /* Встроенное оглавление главы + боковое оглавление на широком экране */
+  if(secList.length > 1){
+    var inlineToc = document.createElement("nav");
+    inlineToc.className = "tb-inline-toc";
+    inlineToc.setAttribute("aria-label", "Содержание главы");
+    inlineToc.innerHTML = '<div class="tb-itoc-head">Содержание главы (' + secList.length + ' ' + (secList.length < 5 ? 'раздела' : 'разделов') + ')</div>'
+      + '<div class="tb-itoc-grid">'
+      + secList.map(function(s){
+        return '<a class="tb-itoc-link" href="#' + s.id + '"><span class="tb-itoc-n">' + s.num + '</span><span>' + s.title + '</span></a>';
+      }).join("")
+      + '</div>';
+    main.insertBefore(inlineToc, bodyEl);
+  }
+
+  /* Листалка Предыдущая / Следующая глава и плашка связанных КР */
+  var prev = curIdx > 0 ? TB_CHAPTERS[curIdx - 1] : null;
+  var nextCh = curIdx < TB_CHAPTERS.length - 1 ? TB_CHAPTERS[curIdx + 1] : null;
+  var navFoot = document.createElement("nav");
+  navFoot.className = "tb-prevnext";
+  navFoot.setAttribute("aria-label", "Переход между главами учебника");
+  navFoot.innerHTML = (prev
+      ? '<a class="tb-pn-card tb-pn-prev" href="' + prev.href + '"><span class="tb-pn-dir">← Предыдущая глава (' + prev.num + ')</span><b>' + prev.title + '</b><small>' + prev.catTitle + '</small></a>'
+      : '<a class="tb-pn-card tb-pn-prev" href="uchebnik.html"><span class="tb-pn-dir">← К оглавлению</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>')
+    + (nextCh
+      ? '<a class="tb-pn-card tb-pn-next" href="' + nextCh.href + '"><span class="tb-pn-dir">Следующая глава (' + nextCh.num + ') →</span><b>' + nextCh.title + '</b><small>' + nextCh.catTitle + '</small></a>'
+      : '<a class="tb-pn-card tb-pn-next" href="uchebnik.html"><span class="tb-pn-dir">К оглавлению →</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>');
+  var noteEl = main.querySelector(".tb-note");
+  if(noteEl) main.insertBefore(navFoot, noteEl);
+  else main.appendChild(navFoot);
+}
+
 
 

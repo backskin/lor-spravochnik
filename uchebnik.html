@@ -4,29 +4,100 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Учебник · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=d23df54aab3b">
-<style data-page>
-.tb-src{font-size:.9em;color:var(--fg2);margin:4px 0 18px;max-width:68ch}
-.tb-body h2{font-size:var(--t2);line-height:var(--l2);margin:var(--s6) 0 var(--s2)}
-.tb-body p+p{margin-top:var(--s3)}
-.tb-body figure{margin:var(--s4) 0}
-.tb-body p{max-width:68ch;line-height:1.6}
-.tb-list{list-style:none;padding:0;margin:0}
-.tb-list li{border-bottom:1px solid var(--line)}
-.tb-list a{display:block;padding:12px 0;text-decoration:none;color:inherit}
-.tb-list small{display:block;color:var(--fg2);margin-top:2px}
-.tb-note{font-size:.9em;color:var(--fg2);max-width:68ch}
-</style>
+<link rel="stylesheet" href="assets/style.css?v=fad2d3ad1767">
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
-<body data-page="textbook">
-<script src="assets/shell.js?v=d23df54aab3b"></script>
+<body data-page="textbook" class="tb-hub">
+<script src="assets/shell.js?v=fad2d3ad1767"></script>
 
-<main class="page"><nav class="crumbs"><a href="index.html">Главная</a> › <span>Учебник</span></nav><h1>Учебник</h1><p class="tb-note">Анатомия, физиология и теория ЛОР-органов — пересказ по учебникам и руководствам, у каждой главы указан источник. Это не клинические рекомендации: тактика ведения — в разборах КР.</p><h2>Нос и околоносовые пазухи</h2><ul class="tb-list"><li><a href="uchebnik-nos-anatomiya.html">Анатомия носа</a></li><li><a href="uchebnik-onp-anatomiya.html">Анатомия и физиология околоносовых пазух</a></li><li><a href="uchebnik-nos-metody.html">Методы исследования носа и околоносовых пазух</a></li><li><a href="uchebnik-bolezni-polosti-nosa.html">Заболевания полости носа</a></li><li><a href="uchebnik-sinusity.html">Синуситы</a></li></ul><h2>Глотка</h2><ul class="tb-list"><li><a href="uchebnik-glotka-anatomiya.html">Анатомия и физиология глотки</a></li><li><a href="uchebnik-bolezni-glotki.html">Ангины, тонзиллит и фарингит</a></li></ul><h2>Гортань</h2><ul class="tb-list"><li><a href="uchebnik-gortan-anatomiya.html">Анатомия и физиология гортани</a></li><li><a href="uchebnik-glotka-gortan-metody.html">Методы исследования глотки и гортани</a></li><li><a href="uchebnik-bolezni-gortani.html">Заболевания гортани</a></li></ul><h2>Ухо</h2><ul class="tb-list"><li><a href="uchebnik-ukho-naruzhnoe-srednee.html">Наружное и среднее ухо</a></li><li><a href="uchebnik-ukho-vnutrennee.html">Внутреннее ухо</a></li><li><a href="uchebnik-ukho-metody.html">Методы исследования уха и слуха</a></li><li><a href="uchebnik-bolezni-naruzhnogo-ukha.html">Заболевания наружного уха</a></li><li><a href="uchebnik-ostryi-otit-mastoidit.html">Острый и экссудативный средний отит, мастоидит</a></li><li><a href="uchebnik-hronicheskii-otit-oslozhneniya.html">Хронический гнойный средний отит и отогенные осложнения</a></li><li><a href="uchebnik-tugoukhost-vnutrennee-ukho.html">Тугоухость и заболевания внутреннего уха</a></li></ul></main>
+<main class="page">
+  <div class="tb-hero">
+    <div class="tb-hero-top">
+      <a class="tb-back-pill" href="index.html">← На главную</a>
+      <span class="tb-kicker">Базовая теория · 17 глав · 4 раздела</span>
+    </div>
+    <h1 class="pt">Учебник оториноларингологии</h1>
+    <p class="tb-lead">Функциональная анатомия, методы исследования и классическая клиника ЛОР-органов по базовым руководствам (И. В. Гайворонский, В. Т. Пальчун). Каждая глава снабжена быстрой навигацией по подразделам, иллюстрациями и ссылками на действующие клинические рекомендации.</p>
+    <div class="tb-filters" id="tbFilters" role="tablist" aria-label="Разделы учебника">
+      <button type="button" role="tab" data-tbf="all" aria-selected="true">Все разделы <span>17</span></button>
+      <button type="button" role="tab" data-tbf="nose" aria-selected="false">Нос и пазухи <span>5</span></button>
+      <button type="button" role="tab" data-tbf="ear" aria-selected="false">Ухо и слух <span>7</span></button>
+      <button type="button" role="tab" data-tbf="throat" aria-selected="false">Глотка <span>2</span></button>
+      <button type="button" role="tab" data-tbf="larynx" aria-selected="false">Гортань <span>3</span></button>
+    </div>
+  </div>
 
-<script src="assets/data.js?v=d23df54aab3b"></script>
-<script src="assets/grls.js?v=d23df54aab3b"></script>
-<script src="assets/app.js?v=d23df54aab3b"></script>
+  <div class="tb-sections" id="tbSections">
+    <section class="tb-grp" data-tb-grp="nose" data-sec-id="nose">
+      <header class="tb-grp-h">
+        <span class="gh-ico-wrap" data-ico="nose"></span>
+        <div class="tb-grp-meta">
+          <h2>Нос и околоносовые пазухи</h2>
+          <p>Клиническая анатомия пирамиды и полости носа, остиомеатальный комплекс, риноскопия и синуситы · 5 глав</p>
+        </div>
+      </header>
+      <ul class="tb-cards">
+        <li><a class="tb-card" href="uchebnik-nos-anatomiya.html"><span class="tb-num">01</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Анатомия носа</span><span class="tb-c-tag">Анатомия</span></span><span class="tb-c-sub">Наружный нос · Стенки полости носа и перегородка · Преддверие и 4 носовых хода · Слизистая оболочка и функции</span><span class="tb-c-src">Гайворонский И. В. и соавт., 2022 · 5 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-onp-anatomiya.html"><span class="tb-num">02</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Анатомия и физиология околоносовых пазух</span><span class="tb-c-tag">Анатомия</span></span><span class="tb-c-sub">Верхнечелюстная пазуха и отношение к зубам · Лобная и клиновидная пазухи · Решётчатый лабиринт · Кровоснабжение и иннервация</span><span class="tb-c-src">Гайворонский И. В. и соавт., 2022 · 8 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-nos-metody.html"><span class="tb-num">03</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Методы исследования носа и околоносовых пазух</span><span class="tb-c-tag tb-tag-diag">Диагностика</span></span><span class="tb-c-sub">Передняя, средняя и задняя риноскопия · Эндоскопия полости носа · Оценка дыхательной и обонятельной функции · Лучевая диагностика</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 7 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-bolezni-polosti-nosa.html"><span class="tb-num">04</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Заболевания полости носа</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Фурункул носа · Острый и хронический (катаральный, гипертрофический, атрофический, вазомоторный) ринит · Искривление перегородки · Кровотечения</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 9 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-sinusity.html"><span class="tb-num">05</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Синуситы</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Острый верхнечелюстной синусит, фронтит, этмоидит, сфеноидит · Хронические и полипозные синуситы · Риногенные орбитальные и внутричерепные осложнения</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 9 разделов</span></span></a></li>
+      </ul>
+    </section>
+
+    <section class="tb-grp" data-tb-grp="ear" data-sec-id="ear">
+      <header class="tb-grp-h">
+        <span class="gh-ico-wrap" data-ico="ear"></span>
+        <div class="tb-grp-meta">
+          <h2>Ухо и слуховой анализатор</h2>
+          <p>Звукопроводящая и звуковоспринимающая системы, камертональные пробы, аудиометрия, тимпанометрия и отиты · 7 глав</p>
+        </div>
+      </header>
+      <ul class="tb-cards">
+        <li><a class="tb-card" href="uchebnik-ukho-naruzhnoe-srednee.html"><span class="tb-num">06</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Наружное и среднее ухо</span><span class="tb-c-tag">Анатомия</span></span><span class="tb-c-sub">Ушная раковина и слуховой проход · Барабанная перепонка и опознавательные знаки · Этажи и стенки барабанной полости · Слуховые косточки, слуховая труба и сосцевидный отросток</span><span class="tb-c-src">Гайворонский И. В. и соавт., 2022 · 9 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-ukho-vnutrennee.html"><span class="tb-num">07</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Внутреннее ухо</span><span class="tb-c-tag">Анатомия</span></span><span class="tb-c-sub">Костный и перепончатый лабиринт · Перилимфа и эндолимфа · Улитка и кортиев орган · Преддверие, полукружные каналы и проводящие пути</span><span class="tb-c-src">Гайворонский И. В. и соавт., 2022 · 9 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-ukho-metody.html"><span class="tb-num">08</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Методы исследования уха и слуха</span><span class="tb-c-tag tb-tag-diag">Диагностика</span></span><span class="tb-c-sub">Отоскопия · Пробы проходимости слуховой трубы · Камертональные пробы (Вебера, Ринне, Швабаха, Желле) · Тональная аудиометрия и тимпанометрия (типы A, B, C)</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 9 разделов · Схемы и графики</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-bolezni-naruzhnogo-ukha.html"><span class="tb-num">09</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Заболевания наружного уха</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Серная пробка и инородные тела · Ограниченный (фурункул) и диффузный наружный отит · Злокачественный наружный отит · Отомикоз и перихондрит</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 10 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-ostryi-otit-mastoidit.html"><span class="tb-num">10</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Острый и экссудативный средний отит, мастоидит</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Стадии острого среднего отита и отоскопическая картина · Показания к парацентезу · Особенности у грудных детей · Экссудативный отит · Острый мастоидит и антрит</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 10 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-hronicheskii-otit-oslozhneniya.html"><span class="tb-num">11</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Хронический гнойный средний отит и отогенные осложнения</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Мезотимпанит и эпитимпанит · Холестеатома · Лабиринтит · Отогенный менингит, абсцессы мозга и синус-тромбоз · Парез лицевого нерва</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 9 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-tugoukhost-vnutrennee-ukho.html"><span class="tb-num">12</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Тугоухость и заболевания внутреннего уха</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Нейросенсорная тугоухость (острая и хроническая) · Отосклероз · Болезнь Меньера · Доброкачественное пароксизмальное позиционное головокружение (ДППГ)</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 10 разделов</span></span></a></li>
+      </ul>
+    </section>
+
+    <section class="tb-grp" data-tb-grp="throat" data-sec-id="throat">
+      <header class="tb-grp-h">
+        <span class="gh-ico-wrap" data-ico="throat"></span>
+        <div class="tb-grp-meta">
+          <h2>Глотка и лимфоэпителиальное кольцо</h2>
+          <p>Носоглотка, ротоглотка и гортаноглотка, кольцо Пирогова — Вальдейера, окологлоточные пространства, ангины и тонзиллит · 2 главы</p>
+        </div>
+      </header>
+      <ul class="tb-cards">
+        <li><a class="tb-card" href="uchebnik-glotka-anatomiya.html"><span class="tb-num">13</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Анатомия и физиология глотки</span><span class="tb-c-tag">Анатомия</span></span><span class="tb-c-sub">Три этажа глотки · Слуховая труба и глоточная миндалина · Нёбные миндалины и паратонзиллярная клетчатка · Кольцо Вальдейера — Пирогова · Заглоточное и боковое пространства</span><span class="tb-c-src">Гайворонский И. В. и соавт., 2022 · 8 разделов · Иллюстрации</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-bolezni-glotki.html"><span class="tb-num">14</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Ангины, тонзиллит и фарингит</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Катаральная, фолликулярная, лакунарная и язвенно-плёнчатая ангины · Дифференциальная диагностика с дифтерией и мононуклеозом · Паратонзиллярный абсцесс · Хронический тонзиллит</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 10 разделов</span></span></a></li>
+      </ul>
+    </section>
+
+    <section class="tb-grp" data-tb-grp="larynx" data-sec-id="larynx">
+      <header class="tb-grp-h">
+        <span class="gh-ico-wrap" data-ico="larynx"></span>
+        <div class="tb-grp-meta">
+          <h2>Гортань, трахея и голосообразование</h2>
+          <p>Хрящевой скелет, мышцы и связки гортани, ларингоскопия, ларингиты и острые стенозы гортани · 3 главы</p>
+        </div>
+      </header>
+      <ul class="tb-cards">
+        <li><a class="tb-card" href="uchebnik-gortan-anatomiya.html"><span class="tb-num">15</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Анатомия и физиология гортани</span><span class="tb-c-tag">Анатомия</span></span><span class="tb-c-sub">Хрящи, суставы и связки гортани · Наружные и внутренние мышцы (расширители и суживатели голосовой щели) · Три этажа полости гортани · Механизм фонации</span><span class="tb-c-src">Гайворонский И. В. и соавт., 2022 · 8 разделов · Иллюстрации</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-glotka-gortan-metody.html"><span class="tb-num">16</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Методы исследования глотки и гортани</span><span class="tb-c-tag tb-tag-diag">Диагностика</span></span><span class="tb-c-sub">Фарингоскопия и оценка нёбных миндалин · Задняя риноскопия · Непрямая и прямая ларингоскопия · Видеоэндоларингостробоскопия</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 8 разделов</span></span></a></li>
+        <li><a class="tb-card" href="uchebnik-bolezni-gortani.html"><span class="tb-num">17</span><span class="tb-c-body"><span class="tb-c-top"><span class="tb-c-title">Заболевания гортани</span><span class="tb-c-tag tb-tag-clin">Клиника</span></span><span class="tb-c-sub">Острый катаральный и подскладочный ларингит (ложный круп) · Эпиглоттит и флегмонозный ларингит · Хронические ларингиты · Острый и хронический стеноз гортани</span><span class="tb-c-src">Пальчун В. Т., Крюков А. И., 2022 · 8 разделов</span></span></a></li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script src="assets/data.js?v=fad2d3ad1767"></script>
+<script src="assets/grls.js?v=fad2d3ad1767"></script>
+<script src="assets/app.js?v=fad2d3ad1767"></script>
 <script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;sw.addEventListener("controllerchange",function(){if(had&&!done){done=true;location.reload();}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
 </html>
