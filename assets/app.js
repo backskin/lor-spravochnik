@@ -59,29 +59,35 @@ document.body.insertAdjacentHTML("beforeend",
   + '<details><summary>Полный текст, который получит ИИ</summary><pre id="promptPreview"></pre></details></aside>'
   + '<div class="toast" id="toast" role="status"></div>'
   + '<nav class="drawer" id="menu" aria-label="Меню" hidden>'
-  /* размер текста — самым верхним: над ним ничего не растёт, поэтому регулятор не уезжает из-под пальца */
-  + '<div class="tsize" role="group" aria-label="Размер текста"><div class="tsize-h"><span>Размер текста</span><button class="x" data-close aria-label="Закрыть">✕</button></div>'
-  + '<div class="tsize-row"><button class="tsize-b" id="sizeDown" type="button" aria-label="Мельче"><span style="font-size:14px">А</span></button>'
+  + '<div class="drawer-top"><div class="drawer-brand"><span class="drawer-t">ЛОР-справочник</span><span class="drawer-sub">Клинические рекомендации Минздрава РФ</span></div><button class="x drawer-x" type="button" data-close aria-label="Закрыть меню">✕</button></div>'
+  + '<ul class="list drawer-nav">'
+  + row("index.html", "Главная", "все рекомендации по разделам")
+  + row("uchebnik.html", "Учебник", "17 глав · анатомия, диагностика и клиника")
+  + row("preparaty.html", "Препараты и торговые названия", "показания, противопоказания и реестр ГРЛС")
+  + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
+  + row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций")
+  + row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
+  + row("kak-polzovatsya.html", "Как пользоваться", "краткая справка по возможностям")
+  + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
+  + "</ul>"
+  + '<div class="drawer-settings">'
+  + '<div class="d-sec"><div class="d-sec-h"><span>Размер текста</span><span class="tsize-val" id="sizeVal">100%</span></div>'
+  + '<div class="tsize-row">'
+  + '<button class="tsize-b" id="sizeDown" type="button" aria-label="Уменьшить шрифт"><span class="tsize-aSm">А−</span><small>Мельче</small></button>'
   + '<input type="range" id="sizeRange" min="0.7" max="1.3" step="0.05" aria-label="Размер текста">'
-  + '<button class="tsize-b" id="sizeUp" type="button" aria-label="Крупнее"><span style="font-size:22px">А</span></button></div></div>'
-  /* тема — сразу под размером текста, компактной строкой: видна без прокрутки меню */
+  + '<button class="tsize-b" id="sizeUp" type="button" aria-label="Увеличить шрифт"><span class="tsize-aLg">А+</span><small>Крупнее</small></button>'
+  + '</div></div>'
+  + '<div class="d-sec"><div class="d-sec-h"><span>Тема оформления</span></div>'
   + '<div class="themes" id="themeSeg" role="group" aria-label="Тема оформления">'
   + '<button data-th="light"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><span>Светлая</span></button>'
   + '<button data-th=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg><span>Системная</span></button>'
-  + '<button data-th="dark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg><span>Тёмная</span></button></div>'
-  + '<div class="drawer-h"><span class="drawer-t">ЛОР-справочник</span></div>'
-  + '<ul class="list">'
-  + row("index.html", "Главная", "все рекомендации по разделам")
-  + row("preparaty.html", "Препараты и торговые названия", "Государственный реестр лекарственных средств")
-  + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
-  + row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций")
-  + row("uchebnik.html", "Учебник", "анатомия и физиология по учебникам, со ссылками")
-  + row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
-  + row("kak-polzovatsya.html", "Как пользоваться", "")
-  + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
-  + "</ul>"
-  + '<p class="drawer-l">Подсказки по справочнику</p><label class="switch"><span>Показывать подсказки при первом открытии</span><input type="checkbox" id="helpToggle"></label>'
-  + '<ul class="list"><li><button class="row" id="helpReset"><span class="rt">Показать подсказки заново</span></button></li></ul>'
+  + '<button data-th="dark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg><span>Тёмная</span></button>'
+  + '</div></div>'
+  + '<div class="d-sec"><div class="d-sec-h"><span>Интерфейс и подсказки</span></div>'
+  + '<label class="switch"><span>Плавные анимации интерфейса</span><input type="checkbox" id="animToggle" checked></label>'
+  + '<label class="switch"><span>Показывать подсказки при первом открытии</span><input type="checkbox" id="helpToggle"></label>'
+  + '<ul class="list drawer-reset-list"><li><button class="row" id="helpReset" type="button"><span class="rt">Показать подсказки заново</span></button></li></ul>'
+  + '</div></div>'
   + "</nav>");
 
 var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
@@ -92,7 +98,7 @@ var menu = $("menu"), menuBtn = $("menuBtn");
 /* пока меню открыто, страница под ним не прокручивается */
 function lockPage(on){ root.classList.toggle("menu-lock", on); }
 function openMenu(){ lockPage(true); menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
-function closeMenu(){ if(!menu || menu.hidden) return; lockPage(false); menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, 200); }
+function closeMenu(){ if(!menu || menu.hidden) return; lockPage(false); menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, root.dataset.anim === "off" ? 0 : 200); }
 menuBtn.onclick = function(){ if(menu.classList.contains("on")){ closeMenu(); scrim.classList.remove("on"); } else openMenu(); };
 /* тема: светлая / как в системе / тёмная */
 function themeSync(){ var t = root.dataset.theme || ""; $("themeSeg").querySelectorAll("button").forEach(function(b){ b.type = "button"; b.setAttribute("aria-selected", String(b.dataset.th === t)); }); }
@@ -100,7 +106,7 @@ $("themeSeg").addEventListener("click", function(e){ var b = e.target.closest("b
   function apply(){ if(b.dataset.th){ root.dataset.theme = b.dataset.th; store("lor-theme", b.dataset.th); } else { delete root.dataset.theme; store("lor-theme", ""); } themeSync(); }
   /* смена темы — мягким перетеканием, где браузер это умеет */
   /* при открытом меню — без перетекания: снимок страницы рисовал шапку поверх меню (баг на телефоне 24.10.2026) */
-  if(document.startViewTransition && !menu.classList.contains("on") && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply); else apply(); });
+  if(document.startViewTransition && !menu.classList.contains("on") && root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply); else apply(); });
 themeSync();
 /* шторка выезжает снизу — и закрывается свайпом вниз (когда её содержимое прокручено к началу) */
 document.querySelectorAll(".sheet").forEach(function(sh){
@@ -111,12 +117,24 @@ document.querySelectorAll(".sheet").forEach(function(sh){
   sh.addEventListener("touchend", function(){ sh.style.transition = ""; sh.style.transform = ""; if(y0 !== null && dy > 80) closeSheets(); y0 = null; });
 });
 /* размер текста: плавный множитель шрифтовой шкалы от 0,7 до 1,3 — обычный ровно посередине, мельче нужнее, чем крупнее; применяется сразу и запоминается */
-var sizeRange = $("sizeRange");
-function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; store("lor-k", String(k)); }
+var sizeRange = $("sizeRange"), sizeVal = $("sizeVal");
+function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; if(sizeVal) sizeVal.textContent = Math.round(k * 100) + "%"; store("lor-k", String(k)); }
 sizeRange.addEventListener("input", function(){ setK(+sizeRange.value); });
 $("sizeDown").onclick = function(){ setK(+sizeRange.value - 0.05); };
 $("sizeUp").onclick = function(){ setK(+sizeRange.value + 0.05); };
-(function(){ var k = Math.min(1.3, Math.max(0.7, +(store("lor-k") || 1))); root.style.setProperty("--k", k); sizeRange.value = k; })();
+(function(){ var k = Math.min(1.3, Math.max(0.7, +(store("lor-k") || 1))); root.style.setProperty("--k", k); sizeRange.value = k; if(sizeVal) sizeVal.textContent = Math.round(k * 100) + "%"; })();
+/* переключатель плавных анимаций интерфейса */
+(function(){
+  var animTg = $("animToggle");
+  if(!animTg) return;
+  var isOff = store("lor-anim") === "off";
+  if(isOff) root.dataset.anim = "off"; else delete root.dataset.anim;
+  animTg.checked = !isOff;
+  animTg.addEventListener("change", function(){
+    if(animTg.checked){ delete root.dataset.anim; store("lor-anim", "on"); }
+    else { root.dataset.anim = "off"; store("lor-anim", "off"); }
+  });
+})();
 scrim.onclick = closeSheets;
 document.addEventListener("click", function(e){ if(e.target.closest("[data-close]")) closeSheets(); });
 function say(t){ var x = $("toast"); x.textContent = t; x.classList.add("on"); clearTimeout(say.t); say.t = setTimeout(function(){ x.classList.remove("on"); }, 1600); }
@@ -274,7 +292,7 @@ document.addEventListener("click", function(e){
   var ao = e.target.closest(".alg-open");  /* строка «Открыть схему целиком» открывает схему во весь экран */
   var f = ao ? ao.parentNode.querySelector(".fig-scroll") : e.target.closest(".fig-scroll");
   if(!f) return;
-  var fig = f.parentNode;
+  var fig = f.closest(".fig") || f.parentNode;
   if(fig.classList.contains("fig-full")){ figClose(); return; }
   fig.classList.add("fig-full"); figOpen = fig;
   document.documentElement.style.overflow = "hidden";
@@ -1018,7 +1036,7 @@ function go(url, push){
       if(!u.hash) window.scrollTo(0, 0);
       return p;
     };
-    if(document.startViewTransition && document.visibilityState === "visible") document.startViewTransition(run);
+    if(document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off") document.startViewTransition(run);
     else run();
   }).catch(function(){ if(my === navSeq) location.href = u.href; });
 }
@@ -1165,6 +1183,12 @@ function lorAlgorithms(){
 
   document.querySelectorAll("figure.fig-alg").forEach(function(fig){
     if(fig.dataset.algReady) return;
+    /* Для тривиальных (формальных) схем 3 вкладки («По шагам / Все шаги / Схема-граф») не создаются:
+       в разметке уже показан краткий клинический пересказ и свёрнутый спойлер с оригинальной схемой */
+    if(fig.dataset.trivial === "1" || fig.classList.contains("fig-alg-trivial")){
+      fig.dataset.algReady = "1";
+      return;
+    }
     var ol = fig.querySelector("ol.alg-steps");
     if(!ol) return;
     var items = [].slice.call(ol.querySelectorAll(":scope > li"));
@@ -1217,7 +1241,11 @@ function lorAlgorithms(){
         n.classList.toggle("fc-active", +n.dataset.step === num);
       });
       fig.querySelectorAll(".fc-e[data-from]").forEach(function(e){
-        e.classList.toggle("fc-active-edge", +e.dataset.from === num || +e.dataset.to === num);
+        var isAct = +e.dataset.from === num || +e.dataset.to === num;
+        e.classList.toggle("fc-active-edge", isAct);
+        if(e.hasAttribute("marker-end")){
+          e.setAttribute("marker-end", isAct ? "url(#fc-arr-act)" : "url(#fc-arr)");
+        }
       });
     }
 
