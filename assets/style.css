@@ -504,3 +504,23 @@ html{scrollbar-gutter:stable}
 .tn-more{display:flex;align-items:center;min-height:44px;margin-top:0}
 /* 10: «подушка» под липкими вкладками — текст не обрезается вплотную к рамке */
 .tabbar{box-shadow:0 -9px 0 var(--bg),0 8px 0 var(--bg)}
+/* ---- ревизия дизайна 26.10.2026, вторая очередь ---- */
+/* п. 4: строка-иллюстрация — того же вида, что «Подробнее ›»: без «пилюли», текст переносится, шеврон показывает открыто/закрыто */
+.fig-fold>summary,.alg-open{display:flex;align-items:center;gap:var(--s2);min-height:44px;width:100%;padding:0 var(--s2);margin-left:calc(-1*var(--s2));border:0;border-radius:var(--r);background:none;color:var(--ac);font-size:var(--t4);line-height:var(--l4);text-align:left;cursor:pointer}
+.fig-fold>summary:hover,.alg-open:hover{background:var(--bg2)}
+.fig-fold>summary .fig-sum,.fig-fold[open]>summary .fig-sum,.alg-open .fig-sum{white-space:normal;overflow:visible;flex:1}
+.fig-chev{flex:none;font-size:1.2em;line-height:1;transition:transform .15s ease}
+.fig-fold[open]>summary .fig-chev{transform:rotate(90deg)}
+.alg-open .fig-ico{flex:none;width:1.1em;height:1.1em;background:currentColor;-webkit-mask:var(--ico-alg) center/contain no-repeat;mask:var(--ico-alg) center/contain no-repeat}
+:root{--ico-alg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8' y='2.5' width='8' height='5' rx='1'/%3E%3Crect x='2.5' y='16.5' width='8' height='5' rx='1'/%3E%3Crect x='13.5' y='16.5' width='8' height='5' rx='1'/%3E%3Cpath d='M12 7.5v4M6.5 16.5v-5h11v5'/%3E%3C/svg%3E")}
+.fig-fold[open]>summary{border:0}
+/* фото без двойной рамки */
+.fig-pic .fig-scroll{border:0;padding:0;background:none}
+.fig-pic .fig-scroll img{border-radius:var(--r)}
+/* п. 6: на широком экране схема видна сразу, строка «открыть» не нужна; на телефоне — наоборот */
+.alg-open{display:none}
+@media (max-width:600px){
+  .fig-alg:not(.fig-full) .alg-open{display:flex}
+  .fig-alg:not(.fig-full)>.fig-scroll,.fig-alg:not(.fig-full)>figcaption{display:none}
+}
+@media (prefers-reduced-motion:reduce){.fig-chev{transition:none}}

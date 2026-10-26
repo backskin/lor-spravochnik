@@ -261,7 +261,8 @@ function figClose(fromPop){
 }
 document.addEventListener("click", function(e){
   if(e.target.closest(".fig-x")){ figClose(); return; }
-  var f = e.target.closest(".fig-scroll");
+  var ao = e.target.closest(".alg-open");  /* телефон: строка «Алгоритм…» открывает схему сразу во весь экран */
+  var f = ao ? ao.parentNode.querySelector(".fig-scroll") : e.target.closest(".fig-scroll");
   if(!f) return;
   var fig = f.parentNode;
   if(fig.classList.contains("fig-full")){ figClose(); return; }
@@ -690,7 +691,8 @@ if(DOC){
 document.querySelectorAll(".block").forEach(function(block){
   var n = Array.prototype.filter.call(block.querySelectorAll(".more"), function(m){ return !m.parentNode.closest(".more"); }).length; if(!n) return;
   var p = block.querySelector(".more-hint");
-  if(!p){ p = document.createElement("p"); p.className = "more-hint"; (block.querySelector(".body") || block).appendChild(p); }
+  if(!p){ p = document.createElement("p"); p.className = "more-hint"; }
+  (block.querySelector(".body") || block).appendChild(p);  /* всегда последним в блоке — не посреди «Лечения» перед алгоритмом (ревизия 26.10.2026, п. 7) */
   p.innerHTML = '<button class="more-btn" type="button">Подробнее <span class="chev" aria-hidden="true">›</span></button>';
   p.querySelector("button").onclick = function(){ openMore(block); };
 });
