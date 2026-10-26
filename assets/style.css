@@ -477,3 +477,6 @@ html.sheet-lock,html.sheet-lock body{overflow:hidden;overscroll-behavior-y:none}
 .offl{font-size:.68em;font-style:italic;color:var(--fg2);font-weight:400;margin-left:2px;letter-spacing:.01em;white-space:nowrap}
 .offl-note{margin:0 0 var(--s3);padding:var(--s2) var(--s3);border-left:3px solid var(--fg2);background:var(--bg2);color:var(--fg2);font-size:var(--t4);line-height:1.45}
 .offl-note b{color:var(--fg)}
+.ch .ch-curve2{fill:none;stroke:var(--fg2);stroke-width:1.6;stroke-dasharray:5 2}
+.ch .ch-curve2-dot{fill:var(--fg2)}
+.ch .ch-curve-dot{fill:var(--ac)}
