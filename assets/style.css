@@ -1699,3 +1699,63 @@ html[data-anim="off"]::view-transition-group(*),html[data-anim="off"]::view-tran
 .aw-body .as-sit{margin:0;line-height:1.55}
 .aw-body .as-sit + .as-sit{margin-top:8px}
 .aw-body .as-ask{margin:12px 0 0;font-weight:700;line-height:1.4}
+
+/* ===== Главная: карточки разделов (просьба 26.10.2026) =====
+   Значок — не отдельная «кнопка» с вращением, а цветная полоса слева на всю высоту карточки, цвета верхней панели,
+   со скошенным краем; значок белый. Телефон: только крупное название (перечень мелким текстом не читался).
+   Компьютер: карточки выше, перечень целиком и крупнее. */
+.grp-head{position:relative;min-height:68px;padding-left:calc(var(--band,66px) + 14px)}
+.grp-head .gh-ico-wrap{
+  position:absolute;left:0;top:0;bottom:0;width:var(--band,66px);height:auto;
+  border:0;border-radius:0;box-shadow:none;background:var(--top-bg,#0b6b53);
+  clip-path:polygon(0 0,100% 0,76% 100%,0 100%);
+  justify-content:flex-start;padding-left:14px;
+  --ico-c:#fff;color:#fff;transform:none!important;transition:none!important}
+.grp-head .gh-ico-wrap .gh-ico{width:30px;height:30px}
+.grp-head .gh-ico .ico-det{opacity:.55}
+.grp-head:hover .gh-ico-wrap,.hq-card:hover .gh-ico-wrap{transform:none!important}
+html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff}
+@media (max-width:859px){
+  .grp-head .grp-preview{display:none}
+  .grp-head .grp-title{font-size:calc(var(--t2) * 1.08)}
+}
+@media (min-width:860px){
+  .grp-head{--band:96px;min-height:132px;padding-top:var(--s4);padding-bottom:var(--s4);padding-left:calc(96px + 22px);align-items:center}
+  .grp-head .gh-ico-wrap{padding-left:22px}
+  .grp-head .gh-ico-wrap .gh-ico{width:40px;height:40px}
+  .grp-head .grp-title{font-size:calc(var(--t2) * 1.15)}
+  .grp-head .grp-preview{display:block;-webkit-line-clamp:unset;overflow:visible;font-size:var(--t3);line-height:1.45;margin-top:4px}
+  .grp-head .grp-title-box{gap:4px}
+}
+.grp-head .gh-ico-wrap .gh-ico{background:none!important;padding:0!important;border-radius:0!important;box-shadow:none!important}
+.grp-head .gh-ico-wrap[data-ico-type],html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff!important;color:#fff!important}
+
+/* ===== Меню: настройки «клавишами» (просьба 26.10.2026) =====
+   Кнопки — не отдельные плашки с отступами, а части самой панели: доходят до её краёв, разделены тонкой линией,
+   при нажатии «проминаются», как клавиши фортепиано. */
+.d-sec{padding:0;overflow:hidden}
+.d-sec-h{padding:12px 16px 10px;margin:0}
+.themes,.tsize-row{display:flex;gap:0!important;border-top:1px solid var(--line);margin:0}
+.themes button,.tsize-row .tsize-b{
+  flex:1 1 0;min-width:0;margin:0;border:0!important;border-radius:0!important;box-shadow:none!important;
+  border-right:1px solid var(--line)!important;background:var(--bg);min-height:58px;
+  transition:transform .09s ease,box-shadow .09s ease,background .15s ease,color .15s ease}
+.themes button:last-child,.tsize-row .tsize-b:last-child{border-right:0!important}
+.themes button:active,.tsize-row .tsize-b:active{transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.16)!important;background:var(--bg2)}
+.themes button[aria-selected="true"]{background:var(--ac)!important;color:#fff!important;box-shadow:inset 0 2px 5px rgba(0,0,0,.18)!important;transform:translateY(1px)}
+.themes button svg{transform:none!important}
+.tsize-row{align-items:stretch}
+.tsize-row .tsize-b{flex:0 0 74px}
+.tsize-row .tsize-b:first-child{border-right:1px solid var(--line)!important}
+.tsize-row .tsize-b:last-child{border-left:1px solid var(--line)!important}
+.tsize-row input[type="range"]{flex:1 1 auto;min-width:0;margin:0 12px;align-self:center}
+.d-sec .switch{padding-inline:16px}
+.d-sec .drawer-reset-list{padding-inline:16px}
+html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .tsize-b:active{transform:none}
+/* срез полосы — под постоянным углом при любой высоте карточки: наклонённая подложка вместо обрезки в процентах */
+.grp-head .gh-ico-wrap{clip-path:none!important;background:none!important;overflow:visible;z-index:0}
+.grp-head .gh-ico-wrap::before{content:"";position:absolute;top:0;bottom:0;left:-60px;right:0;background:var(--top-bg,#0b6b53);
+  transform:skewX(-12deg);transform-origin:0 0;z-index:-1}
+.grp-head .gh-ico-wrap .gh-ico{position:relative;z-index:1}
+.grp-head{isolation:isolate}
+.grp-head .gh-ico-wrap .gh-ico{color:#fff!important}
