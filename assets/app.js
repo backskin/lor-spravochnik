@@ -767,7 +767,7 @@ if(home){
   core.forEach(function(g, idx){
     var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
     var isOpen = !!savedOpen[g.id];
-    var cardTitle = g.id === "nose" ? "Нос и его пазухи" : g.title;
+    var cardTitle = g.id === "nose" ? "Нос и ОНП" : g.title;
     h += '<section class="grp grp-card' + (isOpen ? ' is-open' : '') + '" data-sec-id="' + g.id + '" style="--stagger:' + idx + '">'
       + '<button type="button" class="grp-head" aria-expanded="' + String(isOpen) + '" data-grp-toggle="' + g.id + '">'
       + gicon(g.id)
@@ -1003,7 +1003,56 @@ window.LOR_ICONS = LOR_ICONS;  /* до вызова lorTextbook: значки р
 if(typeof lorTables === "function") lorTables();
 if(typeof lorAlgorithms === "function") lorAlgorithms();
 if(typeof lorTextbook === "function") lorTextbook();
+if(typeof lorHubHero === "function") lorHubHero();
 window.lorIcon = gicon;
+}
+
+/* ---------- Единая шапка-пространство (.tb-hero) для 4 главных экранов (Учебник, Препараты, МКБ-10, Словарь) ---------- */
+function lorHubHero(){
+  var main = document.querySelector("main.page");
+  if(!main) return;
+  var fname = (location.pathname.split("/").pop() || "");
+  /* На главной странице учебника (uchebnik.html) добавляем чистую иконку раздела рядом с заголовком h1 */
+  if(document.body.classList.contains("tb-hub")){
+    var tbHero = main.querySelector(".tb-hero");
+    var tbH1 = tbHero && tbHero.querySelector("h1.pt");
+    if(tbHero && tbH1 && !tbHero.querySelector(".tb-hero-title-row")){
+      var rowWrap = document.createElement("div");
+      rowWrap.className = "tb-hero-title-row";
+      rowWrap.innerHTML = window.lorIcon ? window.lorIcon("textbook") : "";
+      tbHero.insertBefore(rowWrap, tbH1);
+      rowWrap.appendChild(tbH1);
+    }
+    return;
+  }
+  var cfg = null;
+  if(B.page === "drugs" || fname === "preparaty.html"){
+    cfg = {ico:"drugs", kicker:"Госреестр Минздрава РФ · ГРЛС · 175 веществ"};
+  } else if(fname === "mkb.html"){
+    cfg = {ico:"mkb", kicker:"Классификатор Минздрава РФ · ЛОР-рубрики"};
+  } else if(B.page === "glossary" || /^slovar/.test(fname)){
+    cfg = {ico:"glossary", kicker:"51 клиническая рекомендация · 1764 термина"};
+  }
+  if(!cfg || main.querySelector(".tb-hero")) return;
+  var h1 = main.querySelector(":scope > h1.pt");
+  if(!h1) return;
+  var metaP = main.querySelector(":scope > p.meta-line");
+  var hero = document.createElement("div");
+  hero.className = "tb-hero";
+  var topBar = document.createElement("div");
+  topBar.className = "tb-hero-top";
+  topBar.innerHTML = '<a class="tb-back-pill" href="index.html">← На главную</a><span class="tb-kicker">' + cfg.kicker + '</span>';
+  var titleRow = document.createElement("div");
+  titleRow.className = "tb-hero-title-row";
+  if(window.lorIcon) titleRow.innerHTML = window.lorIcon(cfg.ico);
+  main.insertBefore(hero, h1);
+  hero.appendChild(topBar);
+  titleRow.appendChild(h1);
+  hero.appendChild(titleRow);
+  if(metaP){
+    metaP.classList.add("tb-lead");
+    hero.appendChild(metaP);
+  }
 }
 
 /* ---------- переходы без перезагрузки ---------- */
@@ -1083,6 +1132,15 @@ document.addEventListener("click", function(e){
   if(u.origin !== location.origin || !/\.html$|\/$/.test(u.pathname)) return;
   if(u.pathname === location.pathname && u.search === location.search) return;  /* якорь на этой же странице — как обычно */
   e.preventDefault();
+  var hq = a.closest(".hq-card");
+  if(hq && root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+    hq.classList.add("is-pressed");
+    setTimeout(function(){
+      hq.classList.remove("is-pressed");
+      go(u.href, true);
+    }, 70);
+    return;
+  }
   go(u.href, true);
 });
 addEventListener("popstate", function(){ go(location.href, false); });
@@ -1588,8 +1646,7 @@ function lorTextbook(){
 
 
 
-/* Словарь: буквы и «← / →» меняют экран без новой записи в истории — «Назад» выходит из словаря туда,
-   откуда в него пришли, а не перебирает пролистанные буквы (просьба 26.10.2026) */
+/* Словарь: буквы и «← / →» плавно переключают экран через SPA без создания лишних записей в истории («Назад» возвращает из словаря) и без белой вспышки перезагрузки */
 document.addEventListener("click", function(e){
   if(document.body.dataset.page !== "glossary") return;
   var a = e.target.closest(".gl-strip a, .gl-pn a");
@@ -1597,5 +1654,18 @@ document.addEventListener("click", function(e){
   var href = a.getAttribute("href");
   if(!href || !/^slovar/.test(href)) return;
   e.preventDefault();
-  location.replace(href);
+  var u = new URL(href, location.href);
+  history.replaceState({lor:1}, "", u.href);
+  go(u.href, false);
+});
+
+/* Тактильный отклик на нажатие букв в Препаратах и Словаре */
+document.addEventListener("pointerdown", function(e){
+  var btn = e.target.closest(".dz-abc button, .gl-strip a");
+  if(!btn) return;
+  btn.classList.add("is-pressed");
+  var clear = function(){ setTimeout(function(){ btn.classList.remove("is-pressed"); }, 120); };
+  btn.addEventListener("pointerup", clear, {once:true});
+  btn.addEventListener("pointercancel", function(){ btn.classList.remove("is-pressed"); }, {once:true});
+  btn.addEventListener("pointerleave", function(){ btn.classList.remove("is-pressed"); }, {once:true});
 });

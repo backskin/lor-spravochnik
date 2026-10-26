@@ -1739,34 +1739,78 @@ html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff}
 .grp-head .gh-ico-wrap .gh-ico{background:none!important;padding:0!important;border-radius:0!important;box-shadow:none!important}
 .grp-head .gh-ico-wrap[data-ico-type],html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff!important;color:#fff!important}
 
-/* ===== Быстрые кнопки 2×2 (.hq-card) и кнопки разделов: одинаковая высота и чёткий отклик нажатия на телефоне ===== */
-.home-qnav{align-items:stretch}
+/* ===== Быстрые кнопки 2×2 (.hq-card): единая высота по наибольшей карточке, чистая иконка БЕЗ вложенной «кнопки в кнопке» и материальное раскрытие в экран ===== */
+.home-qnav{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  grid-auto-rows:1fr;
+  align-items:stretch;
+}
+@media (min-width:768px){
+  .home-qnav{grid-template-columns:repeat(4, minmax(0, 1fr))}
+}
 .hq-card{
-  height:100%;
-  min-height:calc(78px * var(--k));
+  position:relative;
+  height:calc(88px * var(--k));
+  min-height:calc(88px * var(--k));
   box-sizing:border-box;
+  padding:12px 13px;
+  gap:11px;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
-  transition:transform .1s ease, background-color .12s ease, border-color .12s ease, box-shadow .12s ease!important;
+  transition:transform .14s cubic-bezier(.2,.8,.2,1), background-color .14s ease, border-color .14s ease, box-shadow .14s ease!important;
+}
+@media (min-width:768px){
+  .hq-card{
+    height:calc(94px * var(--k));
+    min-height:calc(94px * var(--k));
+    padding:14px 16px;
+    gap:13px;
+  }
+}
+/* Убираем «кнопку внутри кнопки»: иконка рисуется прямо на полотне самой карточки без квадратной рамки и подложки */
+.hq-card .gh-ico-wrap{
+  width:32px!important;
+  height:32px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  box-shadow:none!important;
+  padding:0!important;
+  flex:none;
+  color:var(--ac)!important;
+  --ico-c:var(--ac)!important;
+  transition:transform .16s cubic-bezier(.2,.8,.2,1), color .14s ease!important;
+}
+.hq-card .gh-ico{
+  width:30px!important;
+  height:30px!important;
+}
+@media (min-width:768px){
+  .hq-card .gh-ico-wrap{width:36px!important;height:36px!important}
+  .hq-card .gh-ico{width:34px!important;height:34px!important}
 }
 @media (hover:none){
   .hq-card:hover{transform:none!important;box-shadow:0 2px 6px rgba(0,0,0,.03)!important;background:var(--bg)!important;border-color:var(--line)!important}
 }
+/* Цельный отклик всей кнопки при нажатии */
 .hq-card:active,.hq-card.is-pressed{
-  transform:scale(.96) translateY(1.5px)!important;
-  background:color-mix(in srgb, var(--ac) 18%, var(--bg))!important;
-  border-color:var(--ac)!important;
-  box-shadow:inset 0 2px 6px rgba(11,107,83,.22)!important;
-}
-.hq-card:active .gh-ico-wrap,.hq-card.is-pressed .gh-ico-wrap{
+  transform:scale(.965)!important;
   background:var(--ac)!important;
   border-color:var(--ac)!important;
+  box-shadow:0 4px 14px rgba(11,107,83,.28)!important;
+}
+.hq-card:active .gh-ico-wrap,.hq-card.is-pressed .gh-ico-wrap{
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
   --ico-c:#fff!important;
   color:#fff!important;
-  transform:scale(.95)!important;
+  transform:scale(1.06)!important;
 }
-.hq-card:active .hq-txt b,.hq-card.is-pressed .hq-txt b{
-  color:var(--ac)!important;
+.hq-card:active .hq-txt b,.hq-card.is-pressed .hq-txt b,
+.hq-card:active .hq-txt small,.hq-card.is-pressed .hq-txt small{
+  color:#fff!important;
 }
 .grp-head:active,.grp-head.is-pressed{
   background:color-mix(in srgb, var(--ac) 14%, var(--bg))!important;
@@ -1775,6 +1819,49 @@ html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff}
   transform:scale(.96) translateY(1px)!important;
   background:color-mix(in srgb, var(--ac) 18%, var(--bg))!important;
   border-color:var(--ac)!important;
+}
+
+
+@keyframes lorHubSpaceIn{
+  from{opacity:0;transform:translateY(14px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes lorHubHeroIn{
+  from{opacity:.35;transform:scale(.97)}
+  to{opacity:1;transform:scale(1)}
+}
+main.page.hub-entering > .tb-hero{
+  animation:lorHubHeroIn .28s cubic-bezier(.22,1,.36,1) both;
+}
+main.page.hub-entering > :not(.tb-hero){
+  animation:lorHubSpaceIn .34s cubic-bezier(.22,1,.36,1) .05s both;
+}
+
+/* Единая шапка-пространство (.tb-hero) для всех 4 разделов: Учебник, Препараты, Коды МКБ-10, Словарь */
+.tb-hero-title-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:2px 0;
+}
+.tb-hero-title-row .gh-ico-wrap{
+  width:36px!important;
+  height:36px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  box-shadow:none!important;
+  padding:0!important;
+  flex:none;
+  color:var(--ac)!important;
+  --ico-c:var(--ac)!important;
+}
+.tb-hero-title-row .gh-ico{
+  width:34px!important;
+  height:34px!important;
+}
+.tb-hero-title-row h1.pt{
+  margin:0;
 }
 
 /* ===== Кнопка «Источники и проверка» в блоке .trust: нормальные внутренние отступы и аккуратная рамка ===== */
@@ -1827,9 +1914,10 @@ html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff}
 .d-sec .drawer-reset-list{padding-inline:16px}
 .d-sec .drawer-reset-list .row{padding:10px 0!important}
 html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .tsize-b:active{transform:none}
-/* срез полосы — под постоянным углом при любой высоте карточки: наклонённая подложка вместо обрезки в процентах */
+/* срез полосы — под постоянным углом при любой высоте карточки: наклонённая подложка вместо обрезки в процентах.
+   Перекрываем с запасом вверх (-3px), вниз (-4px) и влево (-80px), исключая любые белые горизонтальные щели */
 .grp-head .gh-ico-wrap{clip-path:none!important;background:none!important;overflow:visible;z-index:0}
-.grp-head .gh-ico-wrap::before{content:"";position:absolute;top:0;bottom:0;left:-60px;right:0;background:var(--top-bg,#0b6b53);
+.grp-head .gh-ico-wrap::before{content:"";position:absolute;top:-3px;bottom:-4px;left:-80px;right:0;background:var(--top-bg,#0b6b53);
   transform:skewX(-12deg);transform-origin:0 0;z-index:-1}
 .grp-head .gh-ico-wrap .gh-ico{position:relative;z-index:1}
 .grp-head{isolation:isolate}
@@ -1849,3 +1937,54 @@ html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .ts
 .grp-card.is-open .grp-chev svg{transform:rotate(180deg)}
 .grp-cnt{transition:none!important}
 
+/* ===== Единые алфавитные кнопки (Препараты и Словарь): золотая середина дизайна и центрирования ===== */
+.dz-abc, .gl-strip{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+  margin-top:var(--s3)!important;
+  padding:0!important;
+  align-items:center!important;
+}
+.dz-abc button, .gl-strip a{
+  min-width:42px!important;
+  height:42px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0 8px!important;
+  box-sizing:border-box!important;
+  text-align:center!important;
+  font:inherit!important;
+  font-size:var(--t3)!important;
+  font-weight:600!important;
+  border:1px solid var(--line)!important;
+  border-radius:9px!important;
+  background:var(--bg)!important;
+  color:var(--ac)!important;
+  cursor:pointer!important;
+  text-decoration:none!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.025)!important;
+  transition:background .14s ease, color .14s ease, border-color .14s ease, transform .1s ease, box-shadow .14s ease!important;
+  -webkit-tap-highlight-color:transparent!important;
+  user-select:none!important;
+}
+.dz-abc button:hover, .gl-strip a:hover{
+  border-color:var(--ac)!important;
+  background:color-mix(in srgb, var(--ac) 8%, var(--bg))!important;
+  color:var(--ac)!important;
+  text-decoration:none!important;
+}
+.dz-abc button:active, .dz-abc button.is-pressed,
+.gl-strip a:active, .gl-strip a.is-pressed{
+  transform:scale(.93) translateY(1px)!important;
+  background:color-mix(in srgb, var(--ac) 20%, var(--bg))!important;
+  border-color:var(--ac)!important;
+}
+.dz-abc button[aria-pressed="true"], .gl-strip a[aria-current]{
+  background:var(--ac)!important;
+  color:#fff!important;
+  border-color:var(--ac)!important;
+  box-shadow:0 2px 8px rgba(11,107,83,.24)!important;
+  transform:none!important;
+}
