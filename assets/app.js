@@ -575,18 +575,29 @@ if(home){
              ear:["314_3","663_2","698_2","518_3","18_2","21_3","22_3","315_4","311_2","304_2","609_2"],
              throat:["306_3","683_2","662_2","664_2"], larynx:["309_2","352_3","305_2"],
              trauma:["815_1","812_1","813_1"], ari:["724_2","25_3","943_1"]};
+  /* пиктограммы разделов: линейные значки органов в цвете акцента (24×24, stroke = currentColor) */
+  var GICON = {
+    nose: '<path d="M10.3 3.5c0 4.6-3.6 7.8-3.6 11.3a2.6 2.6 0 0 0 4.2 2.1M13.7 3.5c0 4.6 3.6 7.8 3.6 11.3a2.6 2.6 0 0 1-4.2 2.1"/><path d="M10.9 16.9c.7.5 1.5.5 2.2 0"/>',
+    ear: '<path d="M7.5 9.5a5 5 0 0 1 10 0c0 3-2.2 4.3-3.2 5.8-.9 1.4-.6 3.9-3 4.2-1.6.2-2.6-.9-2.6-.9"/><path d="M10.4 10.2a2.2 2.2 0 0 1 4.2-.6c.4 1.5-1.5 2.3-1.6 3.8"/>',
+    throat: '<path d="M4 7.5h16v3.2a8 8 0 0 1-16 0z"/><path d="M12 7.5v3.6"/><circle cx="12" cy="12.4" r="1.1"/><path d="M7 12.2c1.2.2 1.7 1.3 1.6 2.6M17 12.2c-1.2.2-1.7 1.3-1.6 2.6"/>',
+    larynx: '<path d="M12 3.8c3.9 0 6.7 3.9 6.7 8.6S16 20.2 12 20.2s-6.7-3.1-6.7-7.8S8.1 3.8 12 3.8z"/><path d="M12 8.2 9.6 17.4M12 8.2l2.4 9.2"/>',
+    trauma: '<path d="m5 14.6 9.6-9.6a2.8 2.8 0 0 1 4 4L9 18.6a2.8 2.8 0 0 1-4-4z"/><path d="M10.3 10.3h.01M13.7 10.3h.01M10.3 13.7h.01M13.7 13.7h.01"/>',
+    ari: '<circle cx="12" cy="12" r="4.6"/><path d="M12 3.5v3.9M12 16.6v3.9M3.5 12h3.9M16.6 12h3.9M6 6l2.7 2.7M15.3 15.3 18 18M6 18l2.7-2.7M15.3 8.7 18 6"/>',
+    related: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'
+  };
+  function gicon(id){ return GICON[id] ? '<svg class="gh-ico" viewBox="0 0 24 24" aria-hidden="true">' + GICON[id] + "</svg>" : ""; }
   function rank(g, d){ var i = (TOP[g] || []).indexOf(d.cv); return i < 0 ? 99 : i; }
   function oneRow(d){ return d.href ? row(d.href, esc(d.name), esc(codesShort(d.codes))) : fullRows([d]); }
   core.forEach(function(g){
     var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
     var top = all.slice(0, 5), more = all.slice(5).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
-    h += '<section class="grp"><h2 class="gh">' + esc(g.title) + '</h2><ul class="list">' + top.map(oneRow).join("");
+    h += '<section class="grp"><h2 class="gh">' + gicon(g.id) + esc(g.title) + '</h2><ul class="list">' + top.map(oneRow).join("");
     if(more.length) h += '<li><button class="row toggle dim" aria-expanded="false"><span class="rt">Ещё ' + more.length + " "
       + plural(more.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></button>"
       + '<ul class="list sublist" hidden>' + more.map(oneRow).join("") + "</ul></li>";
     h += "</ul></section>";
   });
-  h += '<section class="grp"><h2 class="gh">Смежные специальности</h2><ul class="list">' + rel.map(function(g){
+  h += '<section class="grp"><h2 class="gh">' + gicon("related") + 'Смежные специальности</h2><ul class="list">' + rel.map(function(g){
     var all = L.diseases.filter(function(d){ return d.g === g.id; });
     return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(g.title.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }))
       + '<span class="rs">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + "</span></span></button>"

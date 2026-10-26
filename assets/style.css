@@ -480,3 +480,6 @@ html.sheet-lock,html.sheet-lock body{overflow:hidden;overscroll-behavior-y:none}
 .ch .ch-curve2{fill:none;stroke:var(--fg2);stroke-width:1.6;stroke-dasharray:5 2}
 .ch .ch-curve2-dot{fill:var(--fg2)}
 .ch .ch-curve-dot{fill:var(--ac)}
+.tb-link{margin:var(--s4) 0 0;color:var(--fg2);font-size:var(--t4)}
+.grp .gh{display:flex;align-items:center;gap:10px}
+.gh-ico{flex:none;width:26px;height:26px;padding:5px;box-sizing:content-box;border-radius:10px;background:var(--bg2);color:var(--ac);fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
