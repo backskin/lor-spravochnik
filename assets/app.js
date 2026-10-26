@@ -275,6 +275,13 @@ document.addEventListener("click", function(e){
   if(st){ var b = st.getBoundingClientRect(), fb = fig.getBoundingClientRect(); fig.scrollLeft += b.left + b.width / 2 - fb.width / 2; fig.scrollTop = 0; }
 });
 addEventListener("popstate", function(){ figClose(true); });
+/* алгоритм по шагам: «Да → шаг 4» прокручивает к шагу и подсвечивает его */
+document.addEventListener("click", function(e){
+  var b = e.target.closest(".as-go"); if(!b) return;
+  var li = document.getElementById(b.dataset.to); if(!li) return;
+  li.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+  li.classList.add("as-flash"); setTimeout(function(){ li.classList.remove("as-flash"); }, 1200);
+});
 document.addEventListener("click", function(e){
   var ev = e.target.closest(".ev");
   if(ev && DOC){ e.preventDefault(); openSource(ev.closest("[data-v]"), ev); return; }
