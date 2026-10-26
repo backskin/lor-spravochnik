@@ -524,3 +524,17 @@ html{scrollbar-gutter:stable}
   .fig-alg:not(.fig-full)>.fig-scroll,.fig-alg:not(.fig-full)>figcaption{display:none}
 }
 @media (prefers-reduced-motion:reduce){.fig-chev{transition:none}}
+/* п. 9: подчёркивание терминов тише — абзац не «рябит», пороги-маркеры заметнее */
+.term{text-decoration-color:color-mix(in srgb,var(--ac) 55%,transparent);text-decoration-thickness:1px}
+
+/* п. 19: шторка препарата без вложенных коробок; название не повторяет заголовок шторки; торговые названия — строками */
+.tn-name+.tn-cnt::before{content:"— "}
+.sheet .tn-box{background:none;padding:0;margin-top:0}
+.sheet .tn-card h5 .tn-name{display:none}
+.sheet .tn-card h5 .tn-cnt::before{content:none}
+.tn-list{gap:0}
+.tn-list>li{border-bottom:1px solid var(--line)}
+.tn-row{display:flex;align-items:center;gap:var(--s2);min-height:44px;padding:var(--s2) 0}
+.tn-row>:first-child{flex:1}
+.tn-row::after{content:"›";color:var(--fg2);font-size:1.2em;transition:transform .15s ease}
+.tn-row[aria-expanded="true"]::after{transform:rotate(90deg)}

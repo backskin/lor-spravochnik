@@ -517,8 +517,13 @@ function render(){
   /* текст разборов; если искали торговое название — ищем его действующее вещество */
   var hits = textHits(ws), via = "";
   if(!hits.length && drugWords.length){ var w2 = words(drugWords[0].split(/\s+/)[0]); hits = textHits(w2); if(hits.length){ via = drugWords[0]; ws = ws.concat(w2); } }
-  if(hits.length){ total += hits.length; h += '<h2 class="gh">Найдено в разборах' + (via ? " по действующему веществу «" + esc(via) + "»" : "") + "</h2><ul class=\"list\">" + hits.map(function(x){
-    return row(x.p.s + ".html#" + x.it[0], esc(x.p.t) + ", " + esc(x.it[1].toLowerCase()), (x.it[2] ? esc(x.it[2]) + ": " : "") + mark(snippet(x.it[3], ws), ws));
+  /* одна строка на раздел страницы: «Отит средний острый — Лечение», лучший фрагмент и «ещё N совпадений» (ревизия дизайна 26.10.2026, п. 13) */
+  var groups = [], gi = {};
+  hits.forEach(function(x){ var k = x.p.s + "|" + x.it[1]; if(gi[k] === undefined){ gi[k] = groups.length; groups.push({p: x.p, sec: x.it[1], items: []}); } groups[gi[k]].items.push(x.it); });
+  if(groups.length){ total += groups.length; h += '<h2 class="gh">Найдено в разборах' + (via ? " по действующему веществу «" + esc(via) + "»" : "") + "</h2><ul class=\"list\">" + groups.map(function(g){
+    var it = g.items[0], more = g.items.length - 1;
+    return row(g.p.s + ".html#" + it[0], esc(g.p.t) + " — " + esc(g.sec.charAt(0).toUpperCase() + g.sec.slice(1)),
+      (it[2] ? esc(it[2]) + ": " : "") + mark(snippet(it[3], ws), ws) + (more ? " · ещё " + more + " " + plural(more, "совпадение", "совпадения", "совпадений") : ""));
   }).join("") + "</ul>"; }
   /* коды МКБ */
   if(IDX){

@@ -31,16 +31,15 @@
   var RX = {otc:"без рецепта", rx:"по рецепту", mix:"есть формы и по рецепту, и без"};
   function tnLine(t, k){
     var meta = [RX[t[2]], t[3] ? "в перечне ЖНВЛП" : "", t[4] && t[4][0]].filter(Boolean).join(" · ");
-    return '<li><button class="tn-row" type="button" aria-expanded="false" data-inn="' + esc(k) + '" data-tn="' + esc(low(t[0])) + '"><b>' + esc(t[0]) + "</b>"
-      + (meta ? "<small>" + esc(meta) + "</small>" : "") + "</button></li>";
+    return '<li><button class="tn-row" type="button" aria-expanded="false" data-inn="' + esc(k) + '" data-tn="' + esc(low(t[0])) + '"><span class="tn-t"><b>' + esc(t[0]) + "</b>"
+      + (meta ? "<small>" + esc(meta) + "</small>" : "") + "</span></button></li>";
   }
   function card(k, limit){
     var e = data.inn[k], list = e.tn, n = list.length, cut = limit && n > limit ? list.slice(0, limit) : list;
-    return '<div class="tn-card"><h5>' + esc(e.n) + ' <span class="tn-cnt">— ' + n + " " + plural(n, "торговое название", "торговых названия", "торговых названий") + "</span></h5>"
+    return '<div class="tn-card"><h5><span class="tn-name">' + esc(e.n) + '</span> <span class="tn-cnt">' + n + " " + plural(n, "торговое название", "торговых названия", "торговых названий") + "</span></h5>"
       + '<ul class="tn-list">' + cut.map(function(t){ return tnLine(t, k); }).join("") + "</ul>"
       + (cut.length < n ? '<button class="tn-more" type="button" data-inn="' + esc(k) + '">Показать все ' + n + "</button>" : "")
-      + '<p class="tn-note">ГРЛС от ' + esc(data.date.split("-").reverse().join(".")) + ". Порядок — по числу действующих регистраций, это не данные о продажах. "
-      + "Нажмите на название: откроются лекарственные формы и дозировки, номера регистрационных удостоверений и фармакотерапевтическая группа.</p></div>";
+      + '<p class="tn-note">ГРЛС от ' + esc(data.date.split("-").reverse().join(".")) + ". Порядок — по числу действующих регистраций, это не данные о продажах.</p></div>";
   }
   /* формы, дозировки и номера РУ — data/grls-forms.json.gz, распаковывается в браузере при первом раскрытии */
   var forms = null, fwait = null;
