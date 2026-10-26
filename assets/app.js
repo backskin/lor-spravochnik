@@ -451,6 +451,8 @@ function loadIndex(){
   if(!idxWait) idxWait = fetch("data/search.json").then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
     d.pages.forEach(function(p){ p.i.forEach(function(it){ it.l = low(it[3] + " " + it[2] + " " + p.t + " " + it[1]); }); });
     d.mkb.forEach(function(m){ m.l = low(m[0] + " " + m[1] + " " + m[2]); });
+    (d.tb || []).forEach(function(t){ t.l = low(t[2] + " " + t[1] + " " + t[4]); t.h = low(t[2]); });
+    (d.gl || []).forEach(function(g){ g.h = low(g[0]); });
     IDX = d; return d;
   });
   return idxWait;
@@ -489,15 +491,17 @@ function snippet(text, ws, n){
 function textHits(ws){
   var out = [];
   if(!IDX) return out;
+  var cnt = {};
   IDX.pages.forEach(function(p){
-    var n = 0;
-    p.i.forEach(function(it){ if(n < 4 && has(it.l, ws)){ n++; out.push({p:p, it:it}); } });
+    var n = {};  /* до 4 совпадений на вкладку: иначе «Лечение» терялось за «Обзором» и «Клиникой» */
+    p.i.forEach(function(it){ if(has(it.l, ws)){ cnt[p.s] = (cnt[p.s] || 0) + 1; if((n[it[1]] || 0) < 4 || has(low(it[2]), ws)){ n[it[1]] = (n[it[1]] || 0) + 1; out.push({p:p, it:it}); } } });
   });
   /* сначала «Лечение», потом «Обзор», потом остальное — порядок страниц сохраняется */
   var rank = {"Лечение":0, "Обзор":1};
   /* выше всего — пункты со страницы болезни, в названии которой есть искомое слово */
   function score(x){ var t = low(x.p.t), own = ws.some(function(alts){ return alts.some(function(w){ return atWord(t, w) >= 0; }); });
-    return (own ? 0 : 10) + (rank[x.it[1]] === undefined ? 2 : rank[x.it[1]]); }
+    /* страница, где слово встречается много раз, — о нём (12 упоминаний «репозиции» в «Травме носа» против одного в «Расщелине нёба») */
+    return (own ? 0 : 10) - Math.min(cnt[x.p.s], 8) + (rank[x.it[1]] === undefined ? 2 : rank[x.it[1]]) / 10; }
   return out.map(function(x, i){ return [x, i]; }).sort(function(a, b){ return score(a[0]) - score(b[0]) || a[1] - b[1]; })
     .map(function(x){ return x[0]; }).slice(0, 24);
 }
@@ -511,6 +515,14 @@ function render(){
   if(dz.length){ total += dz.length; h += '<h2 class="gh">Заболевания</h2><ul class="list">' + dz.map(function(d){
     return d.href ? row(d.href, mark(d.name, ws), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(shortName(d.name), ws), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
   }).join("") + "</ul>"; }
+  /* словарь: термин, в названии которого есть все слова запроса, — короткое определение сразу под заболеваниями */
+  if(IDX && IDX.gl){
+    var gl = IDX.gl.filter(function(g){ return has(g.h, ws); }).sort(function(a, b){ return a[0].length - b[0].length; }).slice(0, 4);
+    if(gl.length){ total += gl.length; h += '<h2 class="gh">Словарь</h2><ul class="list">' + gl.map(function(g){
+      var i = g[1].indexOf("#");
+      return row(g[1].slice(0, i) + "#" + encodeURIComponent(g[1].slice(i + 1)), mark(g[0], ws), esc(snippet(g[2], ws, 120)));
+    }).join("") + "</ul>"; }
+  }
   /* препараты из ГРЛС: вещество или торговое название */
   var drugWords = [];
   if(window.GRLS && GRLS.data && q.length >= 3){
@@ -530,10 +542,21 @@ function render(){
   var groups = [], gi = {};
   hits.forEach(function(x){ var k = x.p.s + "|" + x.it[1]; if(gi[k] === undefined){ gi[k] = groups.length; groups.push({p: x.p, sec: x.it[1], items: []}); } groups[gi[k]].items.push(x.it); });
   if(groups.length){ total += groups.length; h += '<h2 class="gh">Найдено в разборах' + (via ? " по действующему веществу «" + esc(via) + "»" : "") + "</h2><ul class=\"list\">" + groups.map(function(g){
-    var it = g.items[0], more = g.items.length - 1;
+    /* показываем пункт из раздела, в названии которого есть искомое слово, иначе тот, где слово стоит ближе к началу (о нём, а не упоминание) */
+    function pos(x){ var l = low(x[3]), m = 1e9; [].concat.apply([], ws).forEach(function(w){ var i = atWord(l, w); if(i >= 0 && i < m) m = i; }); return m; }
+    var it = g.items.filter(function(x){ return has(low(x[2]), ws); })[0]
+      || g.items.slice().sort(function(a, b){ return pos(a) - pos(b); })[0], more = g.items.length - 1;
     return row(g.p.s + ".html#" + it[0], esc(g.p.t) + " — " + esc(g.sec.charAt(0).toUpperCase() + g.sec.slice(1)),
       (it[2] ? esc(it[2]) + ": " : "") + mark(snippet(it[3], ws), ws) + (more ? " · ещё " + more + " " + plural(more, "совпадение", "совпадения", "совпадений") : ""));
   }).join("") + "</ul>"; }
+  /* учебник: подразделы глав — сначала те, в заголовке которых есть искомое слово */
+  if(IDX && IDX.tb){
+    var tb = IDX.tb.filter(function(t){ return has(t.l, ws); }).map(function(t, i){ return [t, i]; })
+      .sort(function(a, b){ return (has(b[0].h, ws) ? 1 : 0) - (has(a[0].h, ws) ? 1 : 0) || a[1] - b[1]; }).map(function(x){ return x[0]; }).slice(0, 6);
+    if(tb.length){ total += tb.length; h += '<h2 class="gh">Учебник</h2><ul class="list">' + tb.map(function(t){
+      return row(t[0] + "#" + t[3], esc(t[1]) + " — " + mark(t[2], ws), mark(snippet(t[4], ws), ws));
+    }).join("") + "</ul>"; }
+  }
   /* коды МКБ */
   if(IDX){
     var ql = low(q), mk = IDX.mkb.filter(function(m){ return low(m[0]).indexOf(ql) === 0 || has(m.l, ws); }).slice(0, 8);
