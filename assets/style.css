@@ -856,6 +856,7 @@ html[data-theme="dark"] .gh-ico-wrap[data-ico-type="glossary"]{--ico-c:#deb07c}
 /* ==========================================================================
    2. ГЛАВНАЯ СТРАНИЦА: БЫСТРЫЙ ДОСТУП И РАСКРЫВАЮЩИЕСЯ РАЗДЕЛЫ (.grp-card)
    ========================================================================== */
+@keyframes lorFade{from{opacity:0}to{opacity:1}}
 @keyframes lorFadeUp{
   from{opacity:0;transform:translateY(8px)}
   to{opacity:1;transform:translateY(0)}
@@ -954,8 +955,7 @@ body.home .grps{
   background:var(--bg);
   box-shadow:0 2px 8px rgba(0,0,0,.035);
   overflow:hidden;
-  animation:lorFadeUp .32s cubic-bezier(.2,.8,.2,1) both;
-  animation-delay:calc(var(--stagger, 0) * 35ms);
+  animation:lorFade .18s ease-out both;  /* спокойнее: без сдвига и без поочерёдного «выезда» карточек */
   transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 .grp-card:hover{
@@ -1640,10 +1640,45 @@ html[data-theme="dark"] .tb-tag-clin,html[data-theme="dark"] .tb-badge-clin{colo
 .dz-contra .dz-meta-lbl,.dz-m-con b{color:var(--warn)}
 
 /* Отключение всех анимаций по переключателю в меню (#animToggle -> html[data-anim="off"]) */
+/* Не transition:none — код шторок и меню ждёт события transitionend, без него окна застревали и дёргались (жалоба 26.10.2026):
+   переходы мгновенные (0,01 мс), события срабатывают. То же при системной настройке «уменьшить движение». */
 html[data-anim="off"],html[data-anim="off"] *,html[data-anim="off"] *::before,html[data-anim="off"] *::after{
-  transition:none!important;
-  animation:none!important;
+  transition-duration:.01ms!important;transition-delay:0s!important;
+  animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;
   scroll-behavior:auto!important;
+}
+html[data-anim="off"]::view-transition-group(*),html[data-anim="off"]::view-transition-old(*),html[data-anim="off"]::view-transition-new(*){animation:none!important}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important;scroll-behavior:auto!important}
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
 }
 
 
+/* масштаб схемы во весь экран: кнопки «−», «По ширине», «+» внизу (26.10.2026) */
+.fig-full .fig-scroll{cursor:default;touch-action:pan-x pan-y}
+.fig-full svg,.fig-full .fig-scroll img{max-width:none}
+.fig-zoom{display:none}
+.fig-full .fig-zoom{display:flex;position:fixed;z-index:1001;bottom:max(12px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);gap:4px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--bg);box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.fig-zoom button{min-width:44px;min-height:44px;padding:0 12px;border:0;border-radius:8px;background:var(--bg2);color:var(--fg);font:inherit;font-size:18px;font-weight:600}
+.fig-zoom button[data-z="fit"]{font-size:14px}
+.fig-full{padding-bottom:84px}
+.fig-zoom button{white-space:nowrap}
+/* во весь экран — только сама схема, без шагов и строки «Открыть схему целиком» */
+.fig-full .alg-steps,.fig-full .as-title,.fig-full .alg-open{display:none!important}
+.fig-full.fig-alg>.fig-scroll{display:block!important}
+.fig-full .fig-hint{display:none}
+
+/* во весь экран — только схема и масштаб: без переключателя режимов алгоритма */
+.fig-full .alg-toolbar,.fig-full .alg-wiz{display:none!important}
+.fig-full{margin:0!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;border-radius:0!important;transform:none!important}
+/* переключатель режимов алгоритма помещается в ширину телефона */
+.alg-modes{display:flex;gap:2px;min-width:0}
+.alg-modes button{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline:8px}
+/* выдвижное меню на телефоне не шире экрана: блок настроек (grid) растягивался кнопками тем и меню «шаталось» вбок (26.10.2026) */
+.drawer{overflow-x:hidden}
+.drawer-settings{grid-template-columns:minmax(0,1fr)}
+.d-sec,.tsize-row,.themes{min-width:0}
+.themes{display:flex;gap:6px}
+.themes button{flex:1 1 0;min-width:0}
+.tsize-row .tsize-b{min-width:0;flex:1 1 0}
+.tb-c-tag.tb-tag-op{background:color-mix(in srgb,#b5472a 12%,var(--bg));color:#b5472a}

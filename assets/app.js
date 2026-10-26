@@ -62,7 +62,7 @@ document.body.insertAdjacentHTML("beforeend",
   + '<div class="drawer-top"><div class="drawer-brand"><span class="drawer-t">ЛОР-справочник</span><span class="drawer-sub">Клинические рекомендации Минздрава РФ</span></div><button class="x drawer-x" type="button" data-close aria-label="Закрыть меню">✕</button></div>'
   + '<ul class="list drawer-nav">'
   + row("index.html", "Главная", "все рекомендации по разделам")
-  + row("uchebnik.html", "Учебник", "17 глав · анатомия, диагностика и клиника")
+  + row("uchebnik.html", "Учебник", "20 глав · анатомия, клиника и операции")
   + row("preparaty.html", "Препараты и торговые названия", "показания, противопоказания и реестр ГРЛС")
   + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
   + row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций")
@@ -267,7 +267,7 @@ function openSource(host, ev){
   pop.innerHTML = h; openSheet(pop);
   $("askFrom").onclick = function(){ openAsk("", textOf(host), secOf(host)); };
 }
-/* рисунок или блок-схема: нажатие открывает во весь экран в натуральном размере, повторное — закрывает */
+/* рисунок или блок-схема: нажатие открывает во весь экран целиком по ширине экрана */
 /* закрывается кнопкой ✕, Escape, жестом «Назад» (history) и повторным нажатием — ревизия дизайна 26.10.2026, B2 */
 var figOpen = null;
 function figClose(fromPop){
@@ -275,6 +275,9 @@ function figClose(fromPop){
   var fig = figOpen; figOpen = null;
   fig.classList.remove("fig-full"); document.documentElement.style.overflow = "";
   var x = fig.querySelector(".fig-x"); if(x) x.remove();
+  var zb = fig.querySelector(".fig-zoom"); if(zb) zb.remove();
+  if(fig._home){ fig._home.parentNode.replaceChild(fig, fig._home); fig._home = null; }
+  var el = figEl(fig); if(el){ el.style.width = ""; el.style.height = ""; }
   if(!fromPop && history.state && history.state.fig) history.back();
 }
 document.addEventListener("click", function(e){
@@ -293,15 +296,42 @@ document.addEventListener("click", function(e){
   var f = ao ? ao.parentNode.querySelector(".fig-scroll") : e.target.closest(".fig-scroll");
   if(!f) return;
   var fig = f.closest(".fig") || f.parentNode;
-  if(fig.classList.contains("fig-full")){ figClose(); return; }
+  if(fig.classList.contains("fig-full")) return;  /* во весь экран касание не закрывает: им листают и масштабируют */
+  /* во весь экран схема переносится прямо в <body>: внутри блоков страницы (анимации, contain) position:fixed
+     отсчитывался от блока, и схема съезжала, открывая полосу шапки (жалоба 26.10.2026); при закрытии — на место */
+  fig._home = document.createComment("fig"); fig.parentNode.replaceChild(fig._home, fig); document.body.appendChild(fig);
   fig.classList.add("fig-full"); figOpen = fig;
   document.documentElement.style.overflow = "hidden";
-  fig.insertAdjacentHTML("afterbegin", '<button type="button" class="x fig-x" aria-label="Закрыть">✕</button>');
+  fig.insertAdjacentHTML("afterbegin", '<button type="button" class="x fig-x" aria-label="Закрыть">✕</button>'
+    + '<div class="fig-zoom"><button type="button" data-z="out" aria-label="Уменьшить">−</button><button type="button" data-z="fit">По ширине</button><button type="button" data-z="in" aria-label="Увеличить">+</button></div>');
   try{ history.pushState({fig: 1}, ""); }catch(err){}
-  /* к началу схемы или активному блоку: по центру экрана */
-  var st = fig.querySelector(".fc-active") || fig.querySelector(".fc-start") || fig.querySelector(".fc-n");
-  if(st){ var b = st.getBoundingClientRect(), fb = fig.getBoundingClientRect(); fig.scrollLeft += b.left + b.width / 2 - fb.width / 2; fig.scrollTop = 0; }
+  figZoom(fig, "fit");
 });
+/* масштаб во весь экран (врач: «схема нормально назад не зумится», 26.10.2026): открывается целиком по ширине экрана,
+   дальше — щипок двумя пальцами или кнопки «−», «По ширине», «+»; масштабируется сам рисунок, а не страница */
+function figEl(fig){ return fig.querySelector(".fig-scroll svg, .fig-scroll img"); }
+function figNat(el){ return el.tagName === "IMG" ? (el.naturalWidth || el.width) : (el.viewBox && el.viewBox.baseVal && el.viewBox.baseVal.width) || +el.getAttribute("width") || el.getBoundingClientRect().width; }
+function figZoom(fig, how, ratio){
+  var el = figEl(fig); if(!el) return;
+  var nat = figNat(el), fit = Math.min(1, (fig.clientWidth - 32) / nat);
+  var z = how === "fit" ? fit : how === "in" ? (fig._z || fit) * 1.4 : how === "out" ? (fig._z || fit) / 1.4 : (fig._z0 || fit) * ratio;
+  z = Math.max(fit * 0.9, Math.min(3, z)); fig._z = z;
+  el.style.width = Math.round(nat * z) + "px"; el.style.height = "auto";
+  if(how === "fit"){ fig.scrollLeft = 0; fig.scrollTop = 0; }
+}
+document.addEventListener("click", function(e){
+  var b = e.target.closest(".fig-zoom button"); if(b && figOpen) figZoom(figOpen, b.dataset.z);
+});
+document.addEventListener("touchstart", function(e){
+  if(!figOpen || e.touches.length !== 2) return;
+  var t = e.touches; figOpen._d0 = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); figOpen._z0 = figOpen._z;
+}, {passive: true});
+document.addEventListener("touchmove", function(e){
+  if(!figOpen || e.touches.length !== 2 || !figOpen._d0) return;
+  e.preventDefault();
+  var t = e.touches; figZoom(figOpen, "pinch", Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY) / figOpen._d0);
+}, {passive: false});
+document.addEventListener("touchend", function(e){ if(figOpen && e.touches.length < 2) figOpen._d0 = 0; });
 addEventListener("popstate", function(){ figClose(true); });
 /* алгоритм по шагам: «Да → шаг 4» прокручивает к шагу и подсвечивает его (в режиме «Все шаги») */
 document.addEventListener("click", function(e){
@@ -728,7 +758,7 @@ if(home){
 
   /* Быстрая панель ключевых разделов справочника */
   var qnav = '<nav class="home-qnav" aria-label="Быстрый доступ к разделам справочника">'
-    + '<a class="hq-card" href="uchebnik.html">' + gicon("textbook") + '<span class="hq-txt"><b>Учебник</b><small>17 глав · анатомия и клиника</small></span></a>'
+    + '<a class="hq-card" href="uchebnik.html">' + gicon("textbook") + '<span class="hq-txt"><b>Учебник</b><small>20 глав · анатомия, клиника, операции</small></span></a>'
     + '<a class="hq-card" href="preparaty.html">' + gicon("drugs") + '<span class="hq-txt"><b>Препараты ГРЛС</b><small>показания, противопоказания, ТН</small></span></a>'
     + '<a class="hq-card" href="mkb.html">' + gicon("mkb") + '<span class="hq-txt"><b>Коды МКБ-10</b><small>ЛОР-рубрики в 1 касание</small></span></a>'
     + '<a class="hq-card" href="slovar.html">' + gicon("glossary") + '<span class="hq-txt"><b>Словарь КР</b><small>термины и сокращения</small></span></a>'
@@ -964,10 +994,10 @@ if(VER && vlog){
   vlog.addEventListener("click", function(e){ var b = e.target.closest("[data-fix]"); if(b) reveal(fixes[+b.dataset.fix].el); });
 }
 
+window.LOR_ICONS = LOR_ICONS;  /* до вызова lorTextbook: значки разделов учебника берутся отсюда */
 if(typeof lorTables === "function") lorTables();
 if(typeof lorAlgorithms === "function") lorAlgorithms();
 if(typeof lorTextbook === "function") lorTextbook();
-window.LOR_ICONS = LOR_ICONS;
 window.lorIcon = gicon;
 }
 
@@ -1549,3 +1579,15 @@ function lorTextbook(){
 
 
 
+
+/* Словарь: буквы и «← / →» меняют экран без новой записи в истории — «Назад» выходит из словаря туда,
+   откуда в него пришли, а не перебирает пролистанные буквы (просьба 26.10.2026) */
+document.addEventListener("click", function(e){
+  if(document.body.dataset.page !== "glossary") return;
+  var a = e.target.closest(".gl-strip a, .gl-pn a");
+  if(!a || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  var href = a.getAttribute("href");
+  if(!href || !/^slovar/.test(href)) return;
+  e.preventDefault();
+  location.replace(href);
+});
