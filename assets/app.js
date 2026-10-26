@@ -1250,8 +1250,8 @@ function lorAlgorithms(){
     toolbar.className = "alg-toolbar";
     toolbar.innerHTML = '<div class="alg-modes" role="tablist" aria-label="Режим просмотра алгоритма">'
       + '<button type="button" role="tab" data-amode="wiz" aria-selected="true">По шагам</button>'
-      + '<button type="button" role="tab" data-amode="steps" aria-selected="false">Все шаги (' + items.length + ')</button>'
-      + '<button type="button" role="tab" data-amode="graph" aria-selected="false">Схема-граф</button>'
+      + '<button type="button" role="tab" data-amode="steps" aria-selected="false">Все (' + items.length + ')</button>'
+      + '<button type="button" role="tab" data-amode="graph" aria-selected="false">Схема</button>'
       + '</div>';
 
     var wiz = document.createElement("div");

@@ -1682,3 +1682,12 @@ html[data-anim="off"]::view-transition-group(*),html[data-anim="off"]::view-tran
 .themes button{flex:1 1 0;min-width:0}
 .tsize-row .tsize-b{min-width:0;flex:1 1 0}
 .tb-c-tag.tb-tag-op{background:color-mix(in srgb,#b5472a 12%,var(--bg));color:#b5472a}
+
+/* переключатель режимов алгоритма — всегда в ширину карточки, при крупном тексте (130%) подпись переносится, а не уезжает за край */
+.alg-toolbar{min-width:0;max-width:100%}
+.alg-modes{display:flex!important;width:100%;box-sizing:border-box}
+.alg-modes button{flex:1 1 0!important;min-width:0!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  padding:6px 4px!important;line-height:1.15;text-align:center;overflow-wrap:anywhere}
+/* меню: никакого сдвига вбок при касании */
+.drawer{overflow-x:hidden!important;touch-action:pan-y;overscroll-behavior:contain}
+.drawer *{max-width:100%}
