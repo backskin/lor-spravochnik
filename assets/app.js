@@ -250,16 +250,30 @@ function openSource(host, ev){
   $("askFrom").onclick = function(){ openAsk("", textOf(host), secOf(host)); };
 }
 /* рисунок или блок-схема: нажатие открывает во весь экран в натуральном размере, повторное — закрывает */
+/* закрывается кнопкой ✕, Escape, жестом «Назад» (history) и повторным нажатием — ревизия дизайна 26.10.2026, B2 */
+var figOpen = null;
+function figClose(fromPop){
+  if(!figOpen) return;
+  var fig = figOpen; figOpen = null;
+  fig.classList.remove("fig-full"); document.documentElement.style.overflow = "";
+  var x = fig.querySelector(".fig-x"); if(x) x.remove();
+  if(!fromPop && history.state && history.state.fig) history.back();
+}
 document.addEventListener("click", function(e){
+  if(e.target.closest(".fig-x")){ figClose(); return; }
   var f = e.target.closest(".fig-scroll");
   if(!f) return;
-  var fig = f.parentNode, full = fig.classList.toggle("fig-full");
-  document.documentElement.style.overflow = full ? "hidden" : "";
-  if(full){  /* к началу схемы: первый блок — по центру экрана */
-    var st = fig.querySelector(".fc-start") || fig.querySelector(".fc-n");
-    if(st){ var b = st.getBoundingClientRect(), fb = fig.getBoundingClientRect(); fig.scrollLeft += b.left + b.width / 2 - fb.width / 2; fig.scrollTop = 0; }
-  }
+  var fig = f.parentNode;
+  if(fig.classList.contains("fig-full")){ figClose(); return; }
+  fig.classList.add("fig-full"); figOpen = fig;
+  document.documentElement.style.overflow = "hidden";
+  fig.insertAdjacentHTML("afterbegin", '<button type="button" class="x fig-x" aria-label="Закрыть">✕</button>');
+  try{ history.pushState({fig: 1}, ""); }catch(err){}
+  /* к началу схемы: первый блок — по центру экрана */
+  var st = fig.querySelector(".fc-start") || fig.querySelector(".fc-n");
+  if(st){ var b = st.getBoundingClientRect(), fb = fig.getBoundingClientRect(); fig.scrollLeft += b.left + b.width / 2 - fb.width / 2; fig.scrollTop = 0; }
 });
+addEventListener("popstate", function(){ figClose(true); });
 document.addEventListener("click", function(e){
   var ev = e.target.closest(".ev");
   if(ev && DOC){ e.preventDefault(); openSource(ev.closest("[data-v]"), ev); return; }
@@ -547,7 +561,7 @@ document.addEventListener("keydown", function(e){
   var tag = document.activeElement.tagName;
   if((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "л")){ e.preventDefault(); qIn.focus(); qIn.select(); }
   if(e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA"){ e.preventDefault(); qIn.focus(); }
-  if(e.key === "Escape") closeSheets();
+  if(e.key === "Escape"){ figClose(); closeSheets(); }
 });
 
 /* ---------- содержимое экрана: вызывается при загрузке и после каждого перехода без перезагрузки ---------- */
@@ -555,7 +569,7 @@ function initPage(){
 readPage();
 /* шапка общая для всех экранов: обновить то, что зависит от экрана */
 var hb = $("homeBtn"); if(hb){ if(HOME) hb.setAttribute("aria-current", "page"); else hb.removeAttribute("aria-current"); }
-$("q").placeholder = B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат");
+$("q").placeholder = B.page === "drugs" ? (innerWidth < 480 ? "Препарат" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат");
 /* внизу каждой страницы, кроме главной (там свой блок) — откуда данные */
 if(!HOME && B.page !== "sources" && B.page !== "textbook"){  /* «Учебник» — не КР, подпись про источники к нему не относится */
   var mainBox = document.querySelector(".page");
@@ -880,6 +894,7 @@ initPage();
     requestAnimationFrame(function(){
       var r = q.el.getBoundingClientRect(), pad = 6;
       if(!ring){ ring = document.createElement("div"); ring.className = "help-ring"; document.body.appendChild(ring); ring.onclick = next; }
+      pad = 0;  /* рамка по краю элемента, не поверх соседнего текста (ревизия 26.10.2026, B8) */
       ring.style.cssText = "top:" + (r.top - pad) + "px;left:" + (r.left - pad) + "px;width:" + (r.width + pad * 2) + "px;height:" + (r.height + pad * 2) + "px";
       if(!box){ box = document.createElement("div"); box.className = "help-box"; box.setAttribute("role", "dialog"); document.body.appendChild(box); }
       box.innerHTML = '<p class="help-t"></p><div class="help-a"><label class="help-off"><input type="checkbox" id="helpOffNow"> Больше не показывать подсказки</label>'
