@@ -668,12 +668,12 @@ if(!HOME && B.page !== "sources" && B.page !== "textbook"){  /* «Учебник
 
 /* ---------- Богатые многослойные анатомические и клинические иконки (48×48, адаптивная детализация .ico-det) ---------- */
 var LOR_ICONS = {
-  nose: '<path class="ico-fill-2" d="M8.5 21.5C8.5 17.2 12.6 15.8 17.5 17.6L18 29.2C13.4 30.8 8.5 27.8 8.5 21.5ZM39.5 21.5C39.5 17.2 35.4 15.8 30.5 17.6L30 29.2C34.6 30.8 39.5 27.8 39.5 21.5Z"/>'
-    + '<path class="ico-fill-1" d="M13.5 11.2C13.5 7.4 18.5 6.8 22.5 10.2V14.2C18 14.2 13.5 13.4 13.5 11.2ZM34.5 11.2C34.5 7.4 29.5 6.8 25.5 10.2V14.2C30 14.2 34.5 13.4 34.5 11.2Z"/>'
-    + '<path class="ico-fill-hi" d="M24 12C20.2 19 16.2 26.2 16.2 33.5C16.2 37.5 19.8 39.5 24 37.8C28.2 39.5 31.8 37.5 31.8 33.5C31.8 26.2 27.8 19 24 12Z"/>'
-    + '<path class="ico-det" d="M13.5 11.2C13.5 7.4 18.5 6.8 22.2 10.2V14C18 14 13.5 13.4 13.5 11.2ZM34.5 11.2C34.5 7.4 29.5 6.8 25.8 10.2V14C30 14 34.5 13.4 34.5 11.2ZM16.8 18C12 16.5 8.5 18.2 8.5 22C8.5 27.5 12.8 30.2 16.8 29M31.2 18C36 16.5 39.5 18.2 39.5 22C39.5 27.5 35.2 30.2 31.2 29"/>'
-    + '<path class="ico-det" d="M24 21.5C21.2 21.5 19.2 23.5 19.2 25.8M24 21.5C26.8 21.5 28.8 23.5 28.8 25.8M24 27.2C20.5 27.2 18.2 29.5 18.2 32.2M24 27.2C27.5 27.2 29.8 29.5 29.8 32.2"/>'
-    + '<path class="ico-str" d="M21 8.5C21 17 14.5 24.5 14.5 32.8C14.5 36.8 18.2 39.2 21.5 37.2M27 8.5C27 17 33.5 24.5 33.5 32.8C33.5 36.8 29.8 39.2 26.5 37.2M20.5 36.8C22 38.6 26 38.6 27.5 36.8M24 9.5V36.5"/>',
+  nose: '<path class="ico-fill-hi" d="M16.5 19.5C10.5 19.2 7.2 22.8 8 28.2C8.6 32.4 12.2 33.8 15.8 31.4C17.4 30.3 18 27.6 17.6 23.5ZM31.5 19.5C37.5 19.2 40.8 22.8 40 28.2C39.4 32.4 35.8 33.8 32.2 31.4C30.6 30.3 30 27.6 30.4 23.5Z"/>'
+    + '<path class="ico-fill-1" d="M21.8 13.8C17.2 13.8 13.2 12 13.8 8.6C14.3 5.8 18.8 5.8 21.8 9ZM26.2 13.8C30.8 13.8 34.8 12 34.2 8.6C33.7 5.8 29.2 5.8 26.2 9Z"/>'
+    + '<path class="ico-str" d="M16.5 19.5C10.5 19.2 7.2 22.8 8 28.2C8.6 32.4 12.2 33.8 15.8 31.4C17.4 30.3 18 27.6 17.6 23.5ZM31.5 19.5C37.5 19.2 40.8 22.8 40 28.2C39.4 32.4 35.8 33.8 32.2 31.4C30.6 30.3 30 27.6 30.4 23.5Z"/>'
+    + '<path class="ico-str" d="M21.8 13.8C17.2 13.8 13.2 12 13.8 8.6C14.3 5.8 18.8 5.8 21.8 9ZM26.2 13.8C30.8 13.8 34.8 12 34.2 8.6C33.7 5.8 29.2 5.8 26.2 9Z"/>'
+    + '<path class="ico-str" d="M21.8 10.5L20.2 26.2C16.8 27.8 15.8 32 18.4 34.6C19.8 35.8 21.5 35.3 22.5 34.3C23.3 35.6 24.7 35.6 25.5 34.3C26.5 35.3 28.2 35.8 29.6 34.6C32.2 32 31.2 27.8 27.8 26.2L26.2 10.5"/>'
+    + '<path class="ico-det" d="M24 14V31.5M19.2 32.8C20.2 32.2 21.4 32.4 22.2 33.2M28.8 32.8C27.8 32.2 26.6 32.4 25.8 33.2"/>',
   ear: '<path class="ico-fill-1" d="M9.5 19.5C9.5 11.2 15.8 6.8 22.8 8.8C28.2 10.3 30.5 16 28.2 22.2C26.4 26.8 24 29.2 22.6 34C21.5 37.8 18.5 40.2 14.8 39.4C11.8 38.8 10.8 35.8 12 33Z"/>'
     + '<circle class="ico-fill-hi" cx="35.5" cy="24.5" r="5.5"/>'
     + '<path class="ico-det" d="M24.2 25.2H30.8M31.8 21.2L29.8 29.2M35.5 24.5m-1.1 0a1.1 1.1 0 1 0 2.2 0a2.5 2.5 0 1 0 -5 0a4 4 0 1 0 8 0a5.3 5.3 0 0 0 -8.8 -3.8"/>'
@@ -767,10 +767,11 @@ if(home){
   core.forEach(function(g, idx){
     var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
     var isOpen = !!savedOpen[g.id];
+    var cardTitle = g.id === "nose" ? "Нос и его пазухи" : g.title;
     h += '<section class="grp grp-card' + (isOpen ? ' is-open' : '') + '" data-sec-id="' + g.id + '" style="--stagger:' + idx + '">'
       + '<button type="button" class="grp-head" aria-expanded="' + String(isOpen) + '" data-grp-toggle="' + g.id + '">'
       + gicon(g.id)
-      + '<span class="grp-title-box"><span class="grp-title">' + esc(g.title) + '</span>'
+      + '<span class="grp-title-box"><span class="grp-title">' + esc(cardTitle) + '</span>'
       + '<span class="grp-preview">' + esc(SUB_PREV[g.id] || "") + '</span></span>'
       + '<span class="grp-meta"><span class="grp-cnt">' + all.length + '</span><span class="grp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></span></span>'
       + '</button>'
@@ -815,6 +816,19 @@ if(home){
     }
   }
   syncAllBtn();
+
+  home.addEventListener("pointerdown", function(e){
+    var btn = e.target.closest(".hq-card, .grp-head, .home-exp-btn");
+    if(!btn) return;
+    btn.classList.add("is-pressed");
+    clearTimeout(btn._pTimer);
+    var clear = function(){
+      btn._pTimer = setTimeout(function(){ btn.classList.remove("is-pressed"); }, 160);
+    };
+    btn.addEventListener("pointerup", clear, {once:true});
+    btn.addEventListener("pointercancel", function(){ btn.classList.remove("is-pressed"); }, {once:true});
+    btn.addEventListener("pointerleave", function(){ btn.classList.remove("is-pressed"); }, {once:true});
+  });
 
   home.addEventListener("click", function(e){
     var expBtn = e.target.closest("#toggleAllGrps");
