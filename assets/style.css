@@ -1759,3 +1759,17 @@ html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .ts
 .grp-head .gh-ico-wrap .gh-ico{position:relative;z-index:1}
 .grp-head{isolation:isolate}
 .grp-head .gh-ico-wrap .gh-ico{color:#fff!important}
+
+/* карточка раздела: шапка не сдвигается при раскрытии (граница есть всегда, у закрытой — прозрачная);
+   стрелка — круглая кнопка постоянного размера с нарисованной стрелкой, при раскрытии заливается и стрелка разворачивается */
+.grp-head{border-bottom:1px solid transparent!important}
+.grp-card.is-open .grp-head{border-bottom-color:color-mix(in srgb,var(--ac) 28%,var(--line))!important}
+.grp-chev{width:36px!important;height:36px!important;flex:none;border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--ac) 30%,var(--line));background:var(--bg)!important;color:var(--ac)!important;
+  transform:none!important;transition:background .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.grp-chev svg{display:block;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.grp-head:hover .grp-chev{border-color:var(--ac)}
+.grp-card.is-open .grp-chev{background:var(--ac)!important;border-color:var(--ac);color:#fff!important;box-shadow:inset 0 2px 4px rgba(0,0,0,.18)}
+.grp-card.is-open .grp-chev svg{transform:rotate(180deg)}
+.grp-cnt{transition:none!important}

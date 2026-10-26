@@ -772,7 +772,7 @@ if(home){
       + gicon(g.id)
       + '<span class="grp-title-box"><span class="grp-title">' + esc(g.title) + '</span>'
       + '<span class="grp-preview">' + esc(SUB_PREV[g.id] || "") + '</span></span>'
-      + '<span class="grp-meta"><span class="grp-cnt">' + all.length + '</span><span class="grp-chev" aria-hidden="true">⌄</span></span>'
+      + '<span class="grp-meta"><span class="grp-cnt">' + all.length + '</span><span class="grp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></span></span>'
       + '</button>'
       + '<div class="grp-body"><div class="grp-body-in"><ul class="list">' + all.map(oneRow).join("") + '</ul></div></div>'
       + '</section>';
@@ -791,7 +791,7 @@ if(home){
     + gicon("related")
     + '<span class="grp-title-box"><span class="grp-title">Смежные специальности</span>'
     + '<span class="grp-preview">Онкология головы и шеи · ЧЛХ · Неврология · Инфекции · Пульмонология · Пищевод · Иммунология (' + relReady + ' с разбором, ' + (relTotal - relReady) + ' по ссылкам Минздрава)</span></span>'
-    + '<span class="grp-meta"><span class="grp-cnt">' + relTotal + '</span><span class="grp-chev" aria-hidden="true">⌄</span></span>'
+    + '<span class="grp-meta"><span class="grp-cnt">' + relTotal + '</span><span class="grp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></span></span>'
     + '</button>'
     + '<div class="grp-body"><div class="grp-body-in"><ul class="list rel-subgrid">' + rel.map(function(g){
       var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
@@ -1436,14 +1436,15 @@ function lorTextbook(){
     });
   }
 
-  /* Если открыта одна из 17 глав учебника — преобразуем плоский текст в удобные карточки разделов с оглавлением и навигацией */
+  /* Если открыта одна из глав учебника — преобразуем плоский текст в удобные карточки разделов с оглавлением и навигацией */
   if(document.body.dataset.page !== "textbook" || document.body.classList.contains("tb-hub")) return;
   var main = document.querySelector("main.page");
   var bodyEl = main && main.querySelector(".tb-body");
   if(!main || !bodyEl || main.dataset.tbReady) return;
   main.dataset.tbReady = "1";
 
-  var TB_CHAPTERS = [
+  /* список глав — из assets/tb-chapters.js (собирает tools/build_textbook.py); ниже — запасной, если файла нет */
+  var TB_CHAPTERS = window.LOR_TB || [
     {href:"uchebnik-nos-anatomiya.html", num:"01", title:"Анатомия носа", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Анатомия"},
     {href:"uchebnik-onp-anatomiya.html", num:"02", title:"Анатомия и физиология околоносовых пазух", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Анатомия"},
     {href:"uchebnik-nos-metody.html", num:"03", title:"Методы исследования носа и околоносовых пазух", cat:"nose", catTitle:"Нос и околоносовые пазухи", badge:"Диагностика"},
@@ -1478,7 +1479,7 @@ function lorTextbook(){
   }).join("");
   bar.innerHTML = '<div class="tb-ch-bar-left">'
     + '<a class="tb-back-btn" href="uchebnik.html">← Все главы учебника</a>'
-    + '<span class="tb-ch-meta"><span class="tb-badge">' + cur.badge + '</span><span>Глава ' + cur.num + ' из 17 · ' + cur.catTitle + '</span></span>'
+    + '<span class="tb-ch-meta"><span class="tb-badge">' + cur.badge + '</span><span>Глава ' + cur.num + ' из ' + TB_CHAPTERS.length + ' · ' + cur.catTitle + '</span></span>'
     + '</div>'
     + '<label class="tb-ch-jump"><span>Быстрый переход:</span><select class="tb-ch-sel" aria-label="Выберите главу учебника">' + selOpts + '</select></label>';
 
