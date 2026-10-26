@@ -517,12 +517,9 @@ html{scrollbar-gutter:stable}
 /* фото без двойной рамки */
 .fig-pic .fig-scroll{border:0;padding:0;background:none}
 .fig-pic .fig-scroll img{border-radius:var(--r)}
-/* п. 6: на широком экране схема видна сразу, строка «открыть» не нужна; на телефоне — наоборот */
-.alg-open{display:none}
-@media (max-width:600px){
-  .fig-alg:not(.fig-full) .alg-open{display:flex}
-  .fig-alg:not(.fig-full)>.fig-scroll,.fig-alg:not(.fig-full)>figcaption{display:none}
-}
+/* п. 6: кнопка «Открыть схему целиком» показывается в режимах По шагам / Все шаги */
+.alg-open{display:flex}
+.fig-alg.fig-full .alg-open{display:none!important}
 @media (prefers-reduced-motion:reduce){.fig-chev{transition:none}}
 /* п. 9: подчёркивание терминов тише — абзац не «рябит», пороги-маркеры заметнее */
 .term{text-decoration-color:color-mix(in srgb,var(--ac) 55%,transparent);text-decoration-thickness:1px}
@@ -538,34 +535,102 @@ html{scrollbar-gutter:stable}
 .tn-row>:first-child{flex:1}
 .tn-row::after{content:"›";color:var(--fg2);font-size:1.2em;transition:transform .15s ease}
 .tn-row[aria-expanded="true"]::after{transform:rotate(90deg)}
-/* алгоритм по шагам (tools/algsteps.py): на телефоне вместо схемы-графа; на широком экране скрыт */
-.as-title,.alg-steps{display:none}
-@media (max-width:600px){
-  .fig-alg:not(.fig-full) .as-title{display:block;font-weight:600;margin:0 0 var(--s2)}
-  .fig-alg:not(.fig-full) .alg-steps{display:block}
-}
-.alg-steps{list-style:none;padding:0;margin:0 0 var(--s2);counter-reset:none}
-.alg-steps>li{display:flex;gap:var(--s3);padding:var(--s2) 0;border-bottom:1px solid var(--line);scroll-margin-top:calc(var(--hd) + 64px)}
-.as-n{flex:none;min-width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:var(--t4);font-weight:600;background:var(--bg2);color:var(--fg2)}
-.as-q .as-n{background:var(--mark);color:var(--fg)}
-.as-start .as-n,.as-end .as-n{background:var(--ac);color:var(--bg)}
-.as-warn .as-n{background:var(--warn);color:var(--bg)}
+/* ---- Интерактивные алгоритмы: По шагам / Все шаги / Схема-граф ---- */
+.fig-alg{border:1px solid var(--line);border-radius:12px;padding:var(--s4);background:var(--bg);margin:var(--s4) 0 var(--s5)}
+.fig-alg.fig-full{border-radius:0;border:0;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.as-title{display:block;font-size:var(--t2);line-height:var(--l2);font-weight:600;margin:0 0 var(--s3);color:var(--fg)}
+.alg-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2);margin:0 0 var(--s3)}
+.alg-modes{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--bg2);padding:2px;gap:2px}
+.alg-modes button{min-height:36px;padding:0 var(--s3);border-radius:6px;font-size:var(--t4);line-height:1.2;color:var(--fg2);white-space:nowrap;transition:background .15s ease,color .15s ease}
+.alg-modes button[aria-selected="true"]{background:var(--bg);color:var(--fg);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .alg-modes button[aria-selected="true"]{background:var(--ac);color:var(--bg)}}
+:root[data-theme="dark"] .alg-modes button[aria-selected="true"]{background:var(--ac);color:var(--bg)}
+
+/* Режим 1: Интерактивный пошаговый навигатор (Мастер) */
+.alg-wiz{display:none;margin:0 0 var(--s2)}
+.fig-alg[data-mode="wiz"] .alg-wiz{display:block}
+.fig-alg[data-mode="wiz"] .alg-steps{display:none}
+.fig-alg[data-mode="wiz"]:not(.fig-full)>.fig-scroll,.fig-alg[data-mode="wiz"]:not(.fig-full)>figcaption{display:none}
+
+/* Режим 2: Все карточки списком */
+.fig-alg[data-mode="steps"] .alg-steps{display:grid;gap:var(--s2)}
+.fig-alg[data-mode="steps"]:not(.fig-full)>.fig-scroll,.fig-alg[data-mode="steps"]:not(.fig-full)>figcaption{display:none}
+
+/* Режим 3: Схема-граф */
+.fig-alg[data-mode="graph"] .alg-steps,.fig-alg[data-mode="graph"] .alg-wiz,.fig-alg[data-mode="graph"] .alg-open{display:none}
+.fig-alg[data-mode="graph"]>.fig-scroll,.fig-alg[data-mode="graph"]>figcaption{display:block}
+
+/* Хлебные крошки пройденного пути */
+.aw-trail{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 var(--s3);font-size:var(--t4);color:var(--fg2)}
+.aw-crumb{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:2px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg2);color:var(--fg);font-size:.9em}
+.aw-crumb:hover{border-color:var(--ac);color:var(--ac)}
+.aw-crumb-cur{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 12%,var(--bg));color:var(--ac);font-weight:600}
+.aw-sep{color:var(--fg2);font-size:.9em}
+
+/* Активная карточка шага */
+.aw-card{border:1px solid var(--line);border-radius:10px;padding:var(--s4);background:var(--bg2);transition:border-color .15s ease}
+.aw-card.as-start{border-color:color-mix(in srgb,var(--ac) 55%,var(--line));background:color-mix(in srgb,var(--ac) 6%,var(--bg))}
+.aw-card.as-q{border-color:color-mix(in srgb,var(--mark),var(--fg) 35%);background:color-mix(in srgb,var(--mark) 32%,var(--bg))}
+.aw-card.as-warn{border-color:color-mix(in srgb,var(--warn) 55%,var(--line));background:color-mix(in srgb,var(--warn) 7%,var(--bg))}
+.aw-card.as-end{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,var(--bg))}
+.aw-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);margin:0 0 var(--s2)}
+.aw-badge{display:inline-flex;align-items:center;gap:6px;font-size:var(--t4);font-weight:600;color:var(--fg2)}
+.aw-card.as-start .aw-badge,.aw-card.as-end .aw-badge{color:var(--ac)}
+.aw-card.as-warn .aw-badge{color:var(--warn)}
+.aw-card.as-q .aw-badge{color:var(--fg)}
+.aw-body{font-size:calc(17px*var(--k));line-height:calc(25px*var(--k));color:var(--fg);margin:0 0 var(--s3)}
+.aw-card.as-q .aw-body{font-weight:600}
+.aw-actions{display:grid;gap:var(--s2)}
+.aw-btn{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);min-height:46px;padding:var(--s2) var(--s3);border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--fg);font-size:var(--t3);line-height:1.35;text-align:left;transition:border-color .15s ease,transform .1s ease}
+.aw-btn:hover{border-color:var(--ac)}
+.aw-btn:active{transform:scale(.995)}
+.aw-btn-main{font-weight:600;color:var(--ac)}
+.aw-btn.as-yes{border-color:color-mix(in srgb,var(--ac) 65%,var(--line));background:color-mix(in srgb,var(--ac) 7%,var(--bg))}
+.aw-btn.as-yes .aw-btn-main{color:var(--ac)}
+.aw-btn.as-no{border-color:color-mix(in srgb,var(--warn) 55%,var(--line));background:color-mix(in srgb,var(--warn) 6%,var(--bg))}
+.aw-btn.as-no .aw-btn-main{color:var(--warn)}
+.aw-btn-sub{display:block;font-size:var(--t4);font-weight:400;color:var(--fg2);margin-top:2px}
+.aw-btn-arr{flex:none;font-size:1.2em;color:var(--fg2)}
+.aw-done{display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3);border-radius:var(--r);background:var(--bg);border:1px solid var(--line);font-size:var(--t4);color:var(--fg2)}
+.aw-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2);margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
+.aw-nav-btn{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 var(--s3);border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--fg2);font-size:var(--t4)}
+.aw-nav-btn:hover:not(:disabled){border-color:var(--ac);color:var(--ac)}
+.aw-nav-btn:disabled{opacity:.4;cursor:default}
+
+/* Список всех карточек (.alg-steps) */
+.alg-steps{list-style:none;padding:0;margin:0 0 var(--s2);counter-reset:none;display:grid;gap:var(--s2)}
+.alg-steps>li{display:flex;gap:var(--s3);padding:var(--s3);border:1px solid var(--line);border-radius:10px;background:var(--bg2);scroll-margin-top:calc(var(--hd) + 64px);transition:border-color .2s ease,background .3s ease}
+.alg-steps>li.as-start{border-color:color-mix(in srgb,var(--ac) 45%,var(--line));background:color-mix(in srgb,var(--ac) 4%,var(--bg))}
+.alg-steps>li.as-q{border-color:color-mix(in srgb,var(--mark),var(--fg) 30%);background:color-mix(in srgb,var(--mark) 24%,var(--bg))}
+.alg-steps>li.as-warn{border-color:color-mix(in srgb,var(--warn) 45%,var(--line));background:color-mix(in srgb,var(--warn) 5%,var(--bg))}
+.alg-steps>li.as-end{border-color:color-mix(in srgb,var(--ac) 60%,var(--line));background:color-mix(in srgb,var(--ac) 8%,var(--bg))}
+.alg-steps>li.as-active{outline:2px solid var(--ac);outline-offset:1px}
+.as-n{flex:none;min-width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:var(--t4);font-weight:600;background:var(--bg);border:1px solid var(--line);color:var(--fg2);cursor:pointer}
+.as-q .as-n{background:var(--mark);border-color:color-mix(in srgb,var(--mark),var(--fg) 35%);color:var(--fg)}
+.as-start .as-n,.as-end .as-n{background:var(--ac);border-color:var(--ac);color:var(--bg)}
+.as-warn .as-n{background:var(--warn);border-color:var(--warn);color:var(--bg)}
 .as-b{flex:1;min-width:0}
-.as-t{margin:0}
+.as-t{margin:0;line-height:1.45}
 .as-q .as-t{font-weight:600}
 .as-l{display:flex;flex-wrap:wrap;gap:var(--s2);margin:var(--s2) 0 0}
-.as-go{min-height:36px;padding:0 var(--s3);border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ac);font-size:var(--t4)}
-.as-go.as-yes{border-color:color-mix(in srgb,var(--ac) 50%,var(--line))}
-.as-go.as-no{border-color:color-mix(in srgb,var(--warn) 45%,var(--line));color:var(--warn)}
-.as-fin{display:block;margin-top:var(--s1);font-size:var(--t4);color:var(--fg2)}
-.alg-steps>li.as-flash{background:color-mix(in srgb,var(--mark) 60%,transparent);transition:background .6s ease}
-/* блок-схемы алгоритмов, раскладка для телефона (tools/flowchart.py, 26.10.2026): шрифт 13 px,
-   вопрос — шестиугольник с заливкой маркера, подписи ветвей «Да/Нет» — на подложке цвета фона */
-.fc .fc-t{font-size:13px}
+.as-go{min-height:38px;padding:4px var(--s3);border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ac);font-size:var(--t4);font-weight:600;transition:border-color .15s ease,background .15s ease}
+.as-go:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 8%,var(--bg))}
+.as-go.as-yes{border-color:color-mix(in srgb,var(--ac) 55%,var(--line));background:color-mix(in srgb,var(--ac) 6%,var(--bg))}
+.as-go.as-no{border-color:color-mix(in srgb,var(--warn) 50%,var(--line));background:color-mix(in srgb,var(--warn) 5%,var(--bg));color:var(--warn)}
+.as-fin{display:inline-block;margin-top:var(--s1);font-size:var(--t4);color:var(--fg2)}
+.alg-steps>li.as-flash{background:color-mix(in srgb,var(--mark) 65%,transparent);transition:background .6s ease}
+
+/* Современная векторная блок-схема (.fc) */
+.alg-open{margin-top:var(--s1)}
+.fc .fc-t{font-size:13px;cursor:pointer}
+.fc .fc-n{cursor:pointer;stroke-width:1.4;transition:stroke-width .15s ease,filter .15s ease}
+.fc .fc-n:hover{stroke-width:2.2;filter:brightness(.97)}
+.fc .fc-n.fc-active{stroke:var(--ac);stroke-width:2.8}
 .fc .fc-l{font-size:12px;font-weight:600}
 .fc .fc-lbg{fill:var(--bg);stroke:none}
-.fc .fc-e{stroke-width:1.3}
-.fc .fc-q{stroke-width:1.3}
+.fc .fc-e{stroke-width:1.4}
+.fc .fc-e.fc-active-edge{stroke:var(--ac);stroke-width:2.4}
+.fc .fc-q{stroke-width:1.4}
 
 /* рисунок к термину — в окне термина и в словаре: небольшой, с отступами (просьба 26.10.2026) */
 .gl-fig{margin:12px 0 0;max-width:340px}

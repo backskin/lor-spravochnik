@@ -261,7 +261,17 @@ function figClose(fromPop){
 }
 document.addEventListener("click", function(e){
   if(e.target.closest(".fig-x")){ figClose(); return; }
-  var ao = e.target.closest(".alg-open");  /* телефон: строка «Алгоритм…» открывает схему сразу во весь экран */
+  /* нажатие на блок внутри SVG-схемы: если не во весь экран и есть шаг — можно перейти к этому шагу или подсветить его */
+  var fcNode = e.target.closest(".fc-n[data-step], .fc-t[data-step]");
+  if(fcNode){
+    var figAlg = fcNode.closest(".fig-alg");
+    if(figAlg && !figAlg.classList.contains("fig-full") && figAlg._lorGoStep){
+      e.stopPropagation();
+      figAlg._lorGoStep(+fcNode.dataset.step, true);
+      return;
+    }
+  }
+  var ao = e.target.closest(".alg-open");  /* строка «Открыть схему целиком» открывает схему во весь экран */
   var f = ao ? ao.parentNode.querySelector(".fig-scroll") : e.target.closest(".fig-scroll");
   if(!f) return;
   var fig = f.parentNode;
@@ -270,17 +280,19 @@ document.addEventListener("click", function(e){
   document.documentElement.style.overflow = "hidden";
   fig.insertAdjacentHTML("afterbegin", '<button type="button" class="x fig-x" aria-label="Закрыть">✕</button>');
   try{ history.pushState({fig: 1}, ""); }catch(err){}
-  /* к началу схемы: первый блок — по центру экрана */
-  var st = fig.querySelector(".fc-start") || fig.querySelector(".fc-n");
+  /* к началу схемы или активному блоку: по центру экрана */
+  var st = fig.querySelector(".fc-active") || fig.querySelector(".fc-start") || fig.querySelector(".fc-n");
   if(st){ var b = st.getBoundingClientRect(), fb = fig.getBoundingClientRect(); fig.scrollLeft += b.left + b.width / 2 - fb.width / 2; fig.scrollTop = 0; }
 });
 addEventListener("popstate", function(){ figClose(true); });
-/* алгоритм по шагам: «Да → шаг 4» прокручивает к шагу и подсвечивает его */
+/* алгоритм по шагам: «Да → шаг 4» прокручивает к шагу и подсвечивает его (в режиме «Все шаги») */
 document.addEventListener("click", function(e){
   var b = e.target.closest(".as-go"); if(!b) return;
   var li = document.getElementById(b.dataset.to); if(!li) return;
-  li.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
-  li.classList.add("as-flash"); setTimeout(function(){ li.classList.remove("as-flash"); }, 1200);
+  var fig = li.closest(".fig-alg");
+  if(fig && fig._lorSyncStep) fig._lorSyncStep(+li.dataset.step || 1);
+  li.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center"});
+  li.classList.add("as-flash"); setTimeout(function(){ li.classList.remove("as-flash"); }, 1400);
 });
 document.addEventListener("click", function(e){
   var ev = e.target.closest(".ev");
@@ -799,6 +811,7 @@ if(VER && vlog){
 }
 
 if(typeof lorTables === "function") lorTables();
+if(typeof lorAlgorithms === "function") lorAlgorithms();
 }
 
 /* ---------- переходы без перезагрузки ---------- */
@@ -993,4 +1006,216 @@ function lorTables(){
     });
   });
 }
+
+/* Интерактивный навигатор по клиническим алгоритмам:
+   Позволяет переключать 3 режима («По шагам», «Все шаги», «Схема-граф»),
+   вести врача по веткам алгоритма с историей выбора («Назад», «Сначала»)
+   и синхронизирует выбранный шаг с карточками и узлами SVG-схемы. */
+function lorAlgorithms(){
+  var savedMode = "wiz";
+  try{ savedMode = localStorage.getItem("lor-alg-mode") || "wiz"; }catch(e){}
+  if(["wiz","steps","graph"].indexOf(savedMode) < 0) savedMode = "wiz";
+
+  var TYPE_LABELS = {
+    "as-start": "Начало алгоритма",
+    "as-step": "Действие врача",
+    "as-q": "Клиническая развилка · Вопрос",
+    "as-warn": "Особое внимание",
+    "as-end": "Завершение · Тактика"
+  };
+
+  document.querySelectorAll("figure.fig-alg").forEach(function(fig){
+    if(fig.dataset.algReady) return;
+    var ol = fig.querySelector("ol.alg-steps");
+    if(!ol) return;
+    var items = [].slice.call(ol.querySelectorAll(":scope > li"));
+    if(!items.length) return;
+    fig.dataset.algReady = "1";
+
+    /* Собираем карту шагов из <ol class="alg-steps"> */
+    var stepsMap = {}, idToNum = {};
+    items.forEach(function(li, idx){
+      var num = +(li.dataset.step || (idx + 1));
+      li.dataset.step = String(num);
+      var cls = (li.className.match(/as-(?:start|step|q|warn|end)/) || ["as-step"])[0];
+      var tEl = li.querySelector(".as-t");
+      var textHtml = tEl ? tEl.innerHTML : "";
+      var textPlain = tEl ? tEl.textContent.replace(/\s+/g, " ").trim() : "";
+      var btns = [].map.call(li.querySelectorAll(".as-go"), function(b){
+        return {
+          toId: b.dataset.to,
+          label: b.textContent.replace(/\s+/g, " ").trim(),
+          cls: b.classList.contains("as-yes") ? "as-yes" : (b.classList.contains("as-no") ? "as-no" : "")
+        };
+      });
+      stepsMap[num] = {num: num, id: li.id, cls: cls, html: textHtml, plain: textPlain, btns: btns, li: li};
+      if(li.id) idToNum[li.id] = num;
+    });
+
+    /* Строим панель переключения режимов и контейнер пошагового мастера */
+    var toolbar = document.createElement("div");
+    toolbar.className = "alg-toolbar";
+    toolbar.innerHTML = '<div class="alg-modes" role="tablist" aria-label="Режим просмотра алгоритма">'
+      + '<button type="button" role="tab" data-amode="wiz" aria-selected="true">По шагам</button>'
+      + '<button type="button" role="tab" data-amode="steps" aria-selected="false">Все шаги (' + items.length + ')</button>'
+      + '<button type="button" role="tab" data-amode="graph" aria-selected="false">Схема-граф</button>'
+      + '</div>';
+
+    var wiz = document.createElement("div");
+    wiz.className = "alg-wiz";
+
+    ol.parentNode.insertBefore(toolbar, ol);
+    ol.parentNode.insertBefore(wiz, ol);
+
+    var historyTrail = [1];
+    var curStep = 1;
+
+    function syncHighlight(num){
+      items.forEach(function(li){
+        li.classList.toggle("as-active", +li.dataset.step === num);
+      });
+      fig.querySelectorAll(".fc-n[data-step]").forEach(function(n){
+        n.classList.toggle("fc-active", +n.dataset.step === num);
+      });
+      fig.querySelectorAll(".fc-e[data-from]").forEach(function(e){
+        e.classList.toggle("fc-active-edge", +e.dataset.from === num || +e.dataset.to === num);
+      });
+    }
+
+    function renderWiz(){
+      var st = stepsMap[curStep] || stepsMap[1];
+      if(!st) return;
+      syncHighlight(st.num);
+
+      /* Хлебные крошки пройденных шагов */
+      var trailHtml = '<div class="aw-trail" aria-label="Пройденные шаги">';
+      historyTrail.forEach(function(n, idx){
+        var s = stepsMap[n]; if(!s) return;
+        var shortTxt = s.plain.length > 26 ? s.plain.slice(0, 24).replace(/\s\S*$/, "") + "…" : s.plain;
+        if(idx > 0) trailHtml += '<span class="aw-sep" aria-hidden="true">→</span>';
+        trailHtml += '<button type="button" class="aw-crumb' + (idx === historyTrail.length - 1 ? ' aw-crumb-cur' : '') + '" data-tidx="' + idx + '" title="Шаг ' + n + ': ' + s.plain.replace(/"/g, "&quot;") + '">'
+          + '<span>Шаг ' + n + '</span>' + (historyTrail.length <= 4 ? ' · <span>' + shortTxt + '</span>' : '') + '</button>';
+      });
+      trailHtml += '</div>';
+
+      /* Кнопки перехода из текущего шага */
+      var actHtml = "";
+      if(st.btns.length){
+        actHtml = '<div class="aw-actions">';
+        st.btns.forEach(function(b){
+          var targetNum = idToNum[b.toId] || 1;
+          var targetStep = stepsMap[targetNum];
+          var mainLbl = b.label.replace(/\s*→\s*шаг\s*\d+$/i, "").replace(/\s*\(шаг\s*\d+\)\s*→$/i, "").trim();
+          var subTxt = targetStep ? ("Шаг " + targetNum + ": " + targetStep.plain) : "";
+          actHtml += '<button type="button" class="aw-btn ' + b.cls + '" data-gonum="' + targetNum + '">'
+            + '<span><span class="aw-btn-main">' + mainLbl + '</span>'
+            + (subTxt ? '<span class="aw-btn-sub">' + subTxt + '</span>' : '')
+            + '</span><span class="aw-btn-arr" aria-hidden="true">→</span></button>';
+        });
+        actHtml += '</div>';
+      } else {
+        actHtml = '<div class="aw-done"><span>✓ Конечная точка маршрута достигнута. Вы можете вернуться на шаг назад или начать алгоритм сначала.</span></div>';
+      }
+
+      /* Навигация: Назад / Сначала / Показать на схеме */
+      var navHtml = '<div class="aw-nav">'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+        + '<button type="button" class="aw-nav-btn" data-aw="prev"' + (historyTrail.length <= 1 ? ' disabled' : '') + '>← Назад</button>'
+        + '<button type="button" class="aw-nav-btn" data-aw="reset"' + (historyTrail.length <= 1 && curStep === 1 ? ' disabled' : '') + '>↺ Сначала</button>'
+        + '</div>'
+        + '<button type="button" class="aw-nav-btn" data-aw="tograph">Показать на схеме ›</button>'
+        + '</div>';
+
+      wiz.innerHTML = trailHtml
+        + '<div class="aw-card ' + st.cls + '">'
+        + '<div class="aw-head"><span class="aw-badge">Шаг ' + st.num + ' из ' + items.length + ' · ' + (TYPE_LABELS[st.cls] || "Шаг") + '</span></div>'
+        + '<div class="aw-body">' + st.html + '</div>'
+        + actHtml
+        + navHtml
+        + '</div>';
+    }
+
+    function setMode(m, save){
+      fig.dataset.mode = m;
+      toolbar.querySelectorAll("[data-amode]").forEach(function(b){
+        b.setAttribute("aria-selected", String(b.dataset.amode === m));
+      });
+      if(save){
+        try{ localStorage.setItem("lor-alg-mode", m); }catch(e){}
+      }
+      renderWiz();
+    }
+
+    toolbar.addEventListener("click", function(e){
+      var b = e.target.closest("[data-amode]"); if(!b) return;
+      setMode(b.dataset.amode, true);
+    });
+
+    wiz.addEventListener("click", function(e){
+      var goBtn = e.target.closest("[data-gonum]");
+      if(goBtn){
+        var nextNum = +goBtn.dataset.gonum;
+        if(stepsMap[nextNum]){
+          curStep = nextNum;
+          historyTrail.push(nextNum);
+          renderWiz();
+        }
+        return;
+      }
+      var crumb = e.target.closest("[data-tidx]");
+      if(crumb){
+        var tidx = +crumb.dataset.tidx;
+        historyTrail = historyTrail.slice(0, tidx + 1);
+        curStep = historyTrail[historyTrail.length - 1];
+        renderWiz();
+        return;
+      }
+      var navBtn = e.target.closest("[data-aw]");
+      if(navBtn){
+        var act = navBtn.dataset.aw;
+        if(act === "prev" && historyTrail.length > 1){
+          historyTrail.pop();
+          curStep = historyTrail[historyTrail.length - 1];
+          renderWiz();
+        } else if(act === "reset"){
+          historyTrail = [1];
+          curStep = 1;
+          renderWiz();
+        } else if(act === "tograph"){
+          setMode("graph", false);
+        }
+      }
+    });
+
+    /* Клик по кружку с номером шага в режиме «Все шаги» открывает этот шаг в интерактивном мастере */
+    ol.addEventListener("click", function(e){
+      var numBadge = e.target.closest(".as-n");
+      if(numBadge){
+        var li = numBadge.closest("li");
+        if(li && li.dataset.step){
+          curStep = +li.dataset.step;
+          if(historyTrail[historyTrail.length - 1] !== curStep) historyTrail.push(curStep);
+          setMode("wiz", false);
+        }
+      }
+    });
+
+    fig._lorGoStep = function(stepNum, switchToWiz){
+      if(!stepsMap[stepNum]) return;
+      curStep = stepNum;
+      if(historyTrail[historyTrail.length - 1] !== stepNum) historyTrail.push(stepNum);
+      if(switchToWiz) setMode("wiz", false);
+      else renderWiz();
+    };
+    fig._lorSyncStep = function(stepNum){
+      if(!stepsMap[stepNum]) return;
+      curStep = stepNum;
+      if(historyTrail[historyTrail.length - 1] !== stepNum) historyTrail.push(stepNum);
+      renderWiz();
+    };
+
+    setMode(savedMode, false);
+  });
+}
+
 
