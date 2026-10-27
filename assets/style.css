@@ -2135,3 +2135,8 @@ html.tb-paged .tbl-wrap{break-inside:avoid}
   transform:translate(-50%,-70%) rotate(45deg);transition:transform .18s ease}
 .tb-aside-fold[aria-expanded="false"]::before{transform:translate(-70%,-50%) rotate(-45deg)}
 .tb-aside-fold:hover{background:var(--bg2);color:var(--ac)}
+/* сетка разделов главы не растягивается под исходную ширину рисунка или таблицы (жалоба 27.10.2026: на телефоне глава была
+   шире экрана — раздел 740 px при экране 412, текст обрезался справа, рисунки огромные) */
+.tb-body{grid-template-columns:minmax(0,1fr)}
+.tb-sec,.tb-sec-content,.tb-article,.tb-flow,.tb-chap{min-width:0}
+.tb-sec-content figure,.tb-sec-content .fig-scroll{max-width:100%}
