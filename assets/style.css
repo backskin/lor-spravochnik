@@ -2018,3 +2018,5 @@ details.tb-inline-toc>.tb-itoc-grid{padding:0 var(--s4) var(--s3)}
 .tb-ch-hero{border:0!important;background:none!important;box-shadow:none!important;padding:0!important;margin:var(--s4) 0 var(--s3)!important}
 @media (max-width:640px){.tb-ch-jump{display:none!important}}
 .gl-back{display:inline-flex;margin:0 0 var(--s3)}
+/* список из одного пункта — не список: номер «1.» убираем (221 таких мест в разборах, пересмотр 27.10.2026) */
+.summary ol.enum:has(> li:only-child),.body ol.enum:has(> li:only-child){list-style:none;padding-left:0}
