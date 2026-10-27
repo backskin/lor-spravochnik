@@ -403,9 +403,11 @@ function figEl(fig){ return fig.querySelector(".fig-scroll svg, .fig-scroll img"
 function figNat(el){ return el.tagName === "IMG" ? (el.naturalWidth || el.width) : (el.viewBox && el.viewBox.baseVal && el.viewBox.baseVal.width) || +el.getAttribute("width") || el.getBoundingClientRect().width; }
 function figZoom(fig, how, ratio){
   var el = figEl(fig); if(!el) return;
-  var nat = figNat(el), fit = Math.min(1, (fig.clientWidth - 32) / nat);
+  /* «По ширине» — во всю ширину экрана с отступами (жалоба 27.10.2026: аудиограмма 412 px оставалась мелкой посреди пустого экрана);
+     вектор растягивается без потерь, снимок — не больше чем вдвое, иначе размывается */
+  var nat = figNat(el), fit = Math.min(el.tagName === "IMG" ? 2 : 8, (fig.clientWidth - 32) / nat);
   var z = how === "fit" ? fit : how === "in" ? (fig._z || fit) * 1.4 : how === "out" ? (fig._z || fit) / 1.4 : (fig._z0 || fit) * ratio;
-  z = Math.max(fit * 0.9, Math.min(3, z)); fig._z = z;
+  z = Math.max(Math.min(fit, 1) * 0.9, Math.min(Math.max(3, fit * 3), z)); fig._z = z;
   el.style.width = Math.round(nat * z) + "px"; el.style.height = "auto";
   if(how === "fit"){ fig.scrollLeft = 0; fig.scrollTop = 0; }
 }
