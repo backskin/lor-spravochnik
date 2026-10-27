@@ -1395,6 +1395,11 @@ html[data-theme="dark"] .tb-tag-clin,html[data-theme="dark"] .tb-badge-clin{colo
   line-height:1.65;
 }
 .tb-sec-content p + p{margin-top:var(--s3)}
+/* перечни книги «1) … 2) …» — нумерованным списком, по пункту на строку; отступы — как у абзацев */
+.tb-sec-content ol.tb-ol{margin:var(--s2) 0 0;padding-left:1.6em;line-height:1.65}
+.tb-sec-content ol.tb-ol li + li{margin-top:var(--s1)}
+.tb-sec-content ol.tb-ol + p, .tb-sec-content ol.tb-ol + figure{margin-top:var(--s3)}
+.tb-sec-content p.tb-ol-cite{margin-top:var(--s1)}
 .tb-sec-content figure{
   margin:var(--s4) 0;
   padding:var(--s3);
