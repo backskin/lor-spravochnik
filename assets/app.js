@@ -1125,7 +1125,7 @@ if(typeof lorHubHero === "function") lorHubHero();
 /* якорь при открытии страницы (словарь, учебник): браузер прыгает к цели до того, как скрипт достроит экран, и цель уезжала вниз —
    статья вставала на 170 px ниже шапки (жалоба 27.10.2026); после сборки и загрузки шрифтов ставим её под шапку ещё раз.
    В разборах своё reveal, в постраничном режиме страницу выбирает листалка */
-if(location.hash && !tabbar && !root.classList.contains("tb-paged")){
+if(location.hash && !tabbar && !root.classList.contains("tb-paged") && !window.__tbRestored){
   var hashEl = null; try{ hashEl = document.getElementById(decodeURIComponent(location.hash.slice(1))); }catch(err){}
   if(hashEl){
     var y0 = window.scrollY, toHash = function(){ if(Math.abs(window.scrollY - y0) < 40){ hashEl.scrollIntoView({block: "start"}); y0 = window.scrollY; } };
@@ -1259,7 +1259,7 @@ function swap(html, url, atomic){
       if(li) window.__tbAnchor = {href: file, off: li.firstElementChild.getBoundingClientRect().top - A.getBoundingClientRect().top};
     }
     insert(); initPage();
-    if(!new URL(url).hash) window.scrollTo(0, 0);
+    if(!new URL(url).hash && !window.__tbRestored) window.scrollTo(0, 0);
     return runScripts(scripts.filter(function(x){ return !x.src; }));
   }).then(function(){ if(window.lorTour) window.lorTour(); });
   insert();
@@ -1306,7 +1306,8 @@ function go(url, push){
             card.style.viewTransitionName = "hub-hero";
           }
         }
-        if(!u.hash) window.scrollTo(0, 0);
+        if(!u.hash && !window.__tbRestored) window.scrollTo(0, 0);  /* «назад» в главу учебника — место восстановлено в lorTextbook */
+        window.__tbRestored = false;
       });
     };
 
@@ -1362,7 +1363,7 @@ document.addEventListener("click", function(e){
 /* «назад/вперёд» между страницами — через SPA; переход по якорю на той же странице (сноска, оглавление главы) браузер прокручивает
    сам: перерисовка экрана сбивала прокрутку и уводила от сноски */
 var shownDoc = location.pathname + location.search;
-addEventListener("popstate", function(){ if(location.pathname + location.search === shownDoc) return; go(location.href, false); });
+addEventListener("popstate", function(){ if(location.pathname + location.search === shownDoc) return; window.__tbPop = true; go(location.href, false); });
 try{ history.replaceState({lor:1}, "", location.href); }catch(err){}
 
 pageAbort = window.AbortController ? new AbortController() : null;
@@ -1703,6 +1704,7 @@ function lorAlgorithms(){
 /* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех глав (uchebnik-*.html) ---------- */
 function lorTextbook(){
   document.documentElement.classList.remove("tb-paged");  /* постраничный режим — только внутри главы */
+  if(window.__tbAbort){ window.__tbAbort.abort(); window.__tbAbort = null; }  /* слушатели прошлой главы — сняты на любой странице */
   var ICONS = window.LOR_ICONS || {};
   document.querySelectorAll("[data-ico]").forEach(function(el){
     var id = el.dataset.ico;
@@ -1968,7 +1970,6 @@ function lorTextbook(){
      на телефоне — один. Листают свайпом, стрелками клавиатуры, колесом мыши и кнопками «‹ ›»; сноски и содержание открывают нужную
      страницу. Выбор режима запоминается. */
   /* слушатели окна — на одну главу: при переходе SPA на следующую прежние снимаются */
-  if(window.__tbAbort) window.__tbAbort.abort();
   window.__tbAbort = window.AbortController ? new AbortController() : null;
   var sig = window.__tbAbort ? {signal: window.__tbAbort.signal} : false;
   var pager = document.createElement("nav");
@@ -2075,8 +2076,26 @@ function lorTextbook(){
     rsT = setTimeout(function(){ pgLayout(keep); }, 120);
   }, sig);
   var saved = "scroll"; try{ saved = localStorage.getItem("lor-tb-mode") || "scroll"; }catch(e){}
+  aside.classList.remove("open");  /* панель «Содержание» на телефоне не переезжает открытой в новую главу */
   setMode(saved === "paged" ? "paged" : "scroll");
-  if(saved === "paged" && document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(root.classList.contains("tb-paged")) pgLayout(atPageStart()); });
+  if(saved === "paged" && document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(root.classList.contains("tb-paged") && !restored) pgLayout(atPageStart()); });
+  /* «назад/вперёд» возвращает туда, где человек был в этой главе: та же страница или то же место прокрутки */
+  var POS = {}; try{ POS = JSON.parse(sessionStorage.getItem("lor-tb-pos") || "{}"); }catch(e){}
+  var restored = false, pos = POS[cur.href];
+  if(window.__tbPop && pos){
+    if(root.classList.contains("tb-paged") && pos.p != null){ pgGo(pos.p, false); restored = true; }
+    else if(!root.classList.contains("tb-paged") && pos.y != null){ window.scrollTo(0, pos.y); restored = true; }
+  }
+  window.__tbPop = false; window.__tbRestored = restored;
+  function savePos(){ if(!flow.isConnected) return;  /* отложенное сохранение после ухода с главы записало бы чужую прокрутку */
+    POS[cur.href] = {y: Math.round(window.scrollY), p: root.classList.contains("tb-paged") ? pg : null}; try{ sessionStorage.setItem("lor-tb-pos", JSON.stringify(POS)); }catch(e){} }
+  var spT = 0;
+  window.addEventListener("scroll", function(){ if(root.classList.contains("tb-paged")) return; clearTimeout(spT); spT = setTimeout(savePos, 150); }, sig);
+  pager.addEventListener("click", function(){ setTimeout(savePos, 0); });
+  flow.addEventListener("touchend", function(){ setTimeout(savePos, 0); }, {passive: true});
+  document.addEventListener("keydown", function(){ if(root.classList.contains("tb-paged")) setTimeout(savePos, 0); }, sig);
+  flow.addEventListener("wheel", function(){ setTimeout(savePos, 0); }, {passive: true});
+  main.addEventListener("click", function(){ setTimeout(savePos, 50); });
 }
 
 
