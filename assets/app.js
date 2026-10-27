@@ -286,7 +286,7 @@ function reveal(el){
 
 
 
-addEventListener("hashchange", function(){ if(!tabbar) return; var id = location.hash.slice(1); if(TABS.indexOf(id) >= 0) showTab(id); else reveal(findEl(id)); });
+addEventListener("hashchange", function(){ if(!tabbar) return; var id = location.hash.slice(1) || "over"; if(TABS.indexOf(id) >= 0) showTab(id); else reveal(findEl(id)); });
 
 /* коды МКБ: нажатие копирует код */
 document.addEventListener("click", function(e){
@@ -1244,6 +1244,7 @@ var activeHubHero = null;
 
 function go(url, push){
   var u = new URL(url, location.href), my = ++navSeq;
+  shownDoc = u.pathname + u.search;
   if(push) history.pushState({lor:1}, "", u.href);  /* адрес меняется сразу: «назад» работает даже во время загрузки */
   return fetch(u.href.split("#")[0]).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); }).then(function(html){
     if(my !== navSeq) return;  /* пока грузилось, нажали другую ссылку — этот ответ уже не нужен */
@@ -1324,7 +1325,10 @@ document.addEventListener("click", function(e){
   }
   go(u.href, true);
 });
-addEventListener("popstate", function(){ go(location.href, false); });
+/* «назад/вперёд» между страницами — через SPA; переход по якорю на той же странице (сноска, оглавление главы) браузер прокручивает
+   сам: перерисовка экрана сбивала прокрутку и уводила от сноски */
+var shownDoc = location.pathname + location.search;
+addEventListener("popstate", function(){ if(location.pathname + location.search === shownDoc) return; go(location.href, false); });
 try{ history.replaceState({lor:1}, "", location.href); }catch(err){}
 
 pageAbort = window.AbortController ? new AbortController() : null;
