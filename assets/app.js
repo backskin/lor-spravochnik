@@ -318,6 +318,7 @@ function openDrug(name, shown, offl){
 
 document.addEventListener("click", function(e){
   var d = e.target.closest(".drug, .tn-more"); if(!d || !window.GRLS) return;
+  var lnk = e.target.closest("a[href]"); if(lnk && d.contains(lnk) && lnk !== d) return;  /* ссылка внутри нажимаемой карточки («Разбор КР») ведёт по своему адресу */
   e.preventDefault();
   if(d.classList.contains("tn-more")){ d.closest(".tn-box").innerHTML = GRLS.card(d.dataset.inn, 0); return; }
   /* везде одинаково — в тексте и в таблицах: карточка торговых названий в нижнем окне, таблица не раздвигается */
