@@ -1252,6 +1252,12 @@ function swap(html, url, atomic){
   /* глава → глава учебника (atomic): сначала скрипты данных, потом в одном шаге вставка, оформление и прокрутка к началу —
      иначе на кадр показывалась неоформленная глава (жалоба 27.10.2026 на мерцание) */
   if(atomic) return runScripts(scripts.filter(function(x){ return x.src; })).then(function(){
+    /* где на экране стоит пункт новой главы в колонке — до смены страницы (см. lorTextbook) */
+    var A = window.__tbAside, file = new URL(url).pathname.split("/").pop();
+    if(A && A.isConnected){
+      var li = A.querySelector('li[data-href="' + file + '"]');
+      if(li) window.__tbAnchor = {href: file, off: li.firstElementChild.getBoundingClientRect().top - A.getBoundingClientRect().top};
+    }
     insert(); initPage();
     if(!new URL(url).hash) window.scrollTo(0, 0);
     return runScripts(scripts.filter(function(x){ return !x.src; }));
@@ -1894,17 +1900,32 @@ function lorTextbook(){
     window.__tbAside = aside;
     var fresh = true;
   }
-  var curLi = null;
-  aside.querySelectorAll(".tb-aside-ch > li").forEach(function(li){
-    var on = li.dataset.href === cur.href, a = li.firstElementChild, ol = li.querySelector(".tb-aside-toc");
-    if(ol) ol.remove();
+  /* Разделы глав в колонке — как дерево: переход раскрывает новую главу ниже её названия, ранее раскрытые сами не сворачиваются
+     (сворачивание над нажатым пунктом сдвигало весь список вверх — жалоба 27.10.2026). Свернуть и раскрыть — стрелкой справа,
+     меняется только то, что ниже стрелки. Раскрытые главы и их разделы помнятся в пределах вкладки. */
+  var tbSecs = {}, tbOpen = {};
+  try{ tbSecs = JSON.parse(sessionStorage.getItem("lor-tb-secs") || "{}"); tbOpen = JSON.parse(sessionStorage.getItem("lor-tb-open") || "{}"); }catch(e){}
+  tbSecs[cur.href] = secList.map(function(sx){ return [sx.id, sx.num, sx.title]; });
+  tbOpen[cur.href] = 1;
+  function tbSave(){ try{ sessionStorage.setItem("lor-tb-secs", JSON.stringify(tbSecs)); sessionStorage.setItem("lor-tb-open", JSON.stringify(tbOpen)); }catch(e){} }
+  tbSave();
+  function tbRender(li){
+    var href = li.dataset.href, on = href === cur.href, a = li.firstElementChild, list = tbSecs[href], ol = li.querySelector(".tb-aside-toc"), fold = li.querySelector(".tb-aside-fold");
     li.classList.toggle("cur", on);
-    if(on){
-      curLi = li; a.setAttribute("aria-current", "page"); a.setAttribute("href", "#" + (secList[0] ? secList[0].id : "r1"));
-      if(secList.length > 1) li.insertAdjacentHTML("beforeend", '<ol class="tb-aside-toc">' + secList.map(function(sx){
-        return '<li><a href="#' + sx.id + '" data-sec="' + sx.id + '"><span class="tb-itoc-n">' + sx.num + '</span><span>' + sx.title + '</span></a></li>'; }).join("") + '</ol>');
-    } else { a.removeAttribute("aria-current"); a.setAttribute("href", li.dataset.href); }
-  });
+    if(on){ a.setAttribute("aria-current", "page"); a.setAttribute("href", "#" + (secList[0] ? secList[0].id : "r1")); }
+    else { a.removeAttribute("aria-current"); a.setAttribute("href", href); }
+    var can = list && list.length > 1;
+    if(can && !fold){ li.insertAdjacentHTML("beforeend", '<button type="button" class="tb-aside-fold" aria-label="Разделы главы"></button>'); fold = li.querySelector(".tb-aside-fold"); }
+    if(fold) fold.setAttribute("aria-expanded", String(!!(can && tbOpen[href])));
+    if(can && tbOpen[href]){
+      var html = list.map(function(x){ return '<li><a href="' + (on ? "" : href) + '#' + x[0] + '"' + (on ? ' data-sec="' + x[0] + '"' : '') + '><span class="tb-itoc-n">' + x[1] + '</span><span>' + x[2] + '</span></a></li>'; }).join("");
+      if(!ol) li.insertAdjacentHTML("beforeend", '<ol class="tb-aside-toc">' + html + '</ol>');
+      else if(ol.innerHTML !== html) ol.innerHTML = html;  /* те же строки, другие ссылки — высота не меняется */
+    } else if(ol) ol.remove();
+  }
+  var curLi = null;
+  aside.querySelectorAll(".tb-aside-ch > li").forEach(function(li){ tbRender(li); if(li.dataset.href === cur.href) curLi = li; });
+  aside.__tbRender = tbRender; aside.__tbOpen = tbOpen; aside.__tbSave = tbSave;
   main.classList.add("tb-chap");  /* до замеров: без этого класса колонка скрыта и её высота — ноль */
   main.appendChild(aside);
   main.appendChild(article);
@@ -1912,9 +1933,18 @@ function lorTextbook(){
     var ast = 0; try{ ast = +sessionStorage.getItem("lor-tb-aside-st") || 0; }catch(e){}
     aside.scrollTop = ast || (curLi ? Math.max(0, curLi.offsetTop - 120) : 0);
   }
-  if(curLi){  /* текущая глава всегда видна в колонке; если видна — колонка не двигается */
+  /* Нажатый пункт остаётся там же, где был (жалоба 27.10.2026: при нажатии на главу ниже раскрытой список уезжал — сворачивались
+     разделы прежней главы над ним). Положение пункта запоминается перед сменой страницы (swap) и восстанавливается после.
+     Если пункт был вне видимой части (переход карточкой «Следующая глава», «назад»), колонка докручивается ровно настолько,
+     чтобы он стал виден. */
+  var anc = window.__tbAnchor; window.__tbAnchor = null;
+  if(curLi){
     var ar = aside.getBoundingClientRect(), lr = curLi.firstElementChild.getBoundingClientRect();
-    if(ar.height && (lr.top < ar.top + 40 || lr.bottom > ar.bottom - 20)) aside.scrollTop += lr.top - ar.top - 120;
+    if(anc && anc.href === cur.href && anc.off >= 0 && anc.off < ar.height - 30) aside.scrollTop += (lr.top - ar.top) - anc.off;
+    else if(ar.height){
+      if(lr.top < ar.top + 8) aside.scrollTop -= ar.top + 8 - lr.top;
+      else if(lr.bottom > ar.bottom - 8) aside.scrollTop += lr.bottom - (ar.bottom - 8);
+    }
   }
   main.classList.add("tb-chap");
   var barLeft = bar.querySelector(".tb-ch-bar-left");
@@ -2007,6 +2037,8 @@ function lorTextbook(){
   }
   main.addEventListener("click", function(e){
     if(e.target.closest(".tb-pg-toc")){ asideOpen(!aside.classList.contains("open")); return; }
+    var fb = e.target.closest(".tb-aside-fold");
+    if(fb){ var fli = fb.closest("li[data-href]"); aside.__tbOpen[fli.dataset.href] = aside.__tbOpen[fli.dataset.href] ? 0 : 1; aside.__tbSave(); aside.__tbRender(fli); return; }
     if(aside.classList.contains("open") && !aside.contains(e.target)) asideOpen(false);
     var m = e.target.closest("[data-tb-mode]"); if(m){ asideOpen(false); setMode(m.dataset.tbMode); return; }
     var b = e.target.closest("[data-pg]"); if(b){ pgGo(pg + (+b.dataset.pg), true); return; }
