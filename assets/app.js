@@ -101,7 +101,7 @@ function updateDrawerNav(){
 
   var items = [];
   if(!isHome){
-    items.push(row("index.html", "← На главную", "все рекомендации по разделам", "drawer-home-row"));
+    /* «← На главную» не нужна: в шапке каждой страницы есть кнопка с домиком (замечание пользователя 27.10.2026) */
     if(!isTb) items.push(row("uchebnik.html", "Учебник", "анатомия и болезни ЛОР-органов по руководствам"));
     if(!isDrugs) items.push(row("preparaty.html", "Препараты", "вещества из КР, торговые названия и инструкции ГРЛС"));
     if(!isMkb) items.push(row("mkb.html", "Коды МКБ-10", "ЛОР-рубрики по разделам, нажатие копирует код"));
@@ -817,7 +817,12 @@ var LOR_ICONS = {
   mkb: '<rect class="ico-fill-1" x="9" y="8" width="30" height="32" rx="4"/><path class="ico-fill-hi" d="M14 14H24V20H14Z"/>'
     + '<path class="ico-det" d="M14 25H34M14 30H28M14 35H24"/><path class="ico-str" d="M9 12A4 4 0 0 1 13 8H35A4 4 0 0 1 39 12V36A4 4 0 0 1 35 40H13A4 4 0 0 1 9 36ZM16 17H22M19 14V20"/>',
   glossary: '<rect class="ico-fill-1" x="10" y="7" width="28" height="34" rx="3.5"/><path class="ico-fill-hi" d="M16 14H32V22H16Z"/>'
-    + '<path class="ico-det" d="M16 27H32M16 32H26"/><path class="ico-str" d="M10 10.5A3.5 3.5 0 0 1 13.5 7H34.5A3.5 3.5 0 0 1 38 10.5V37.5A3.5 3.5 0 0 1 34.5 41H13.5A3.5 3.5 0 0 1 10 37.5ZM18 21L21.5 13L25 21M19 19H24"/>'
+    + '<path class="ico-det" d="M16 27H32M16 32H26"/><path class="ico-str" d="M10 10.5A3.5 3.5 0 0 1 13.5 7H34.5A3.5 3.5 0 0 1 38 10.5V37.5A3.5 3.5 0 0 1 34.5 41H13.5A3.5 3.5 0 0 1 10 37.5ZM18 21L21.5 13L25 21M19 19H24"/>',
+  /* «Источники и проверка» — щит с галочкой; «Как пользоваться» — круг с вопросом (тот же рисунок линий, что у разделов) */
+  sources: '<path class="ico-fill-1" d="M24 6L39 11.5V23C39 32 32.5 38.8 24 42C15.5 38.8 9 32 9 23V11.5Z"/>'
+    + '<path class="ico-str" d="M24 6L39 11.5V23C39 32 32.5 38.8 24 42C15.5 38.8 9 32 9 23V11.5ZM17 24L22 29L31 19"/>',
+  help: '<circle class="ico-fill-1" cx="24" cy="24" r="16"/><circle class="ico-str" cx="24" cy="24" r="16"/>'
+    + '<path class="ico-str" d="M19 19.5A5 5 0 0 1 29 19.5C29 23 24 23.5 24 27.5"/><path class="ico-str" d="M24 32.5V33"/>'
 };
 function gicon(id){ return LOR_ICONS[id] ? '<span class="gh-ico-wrap" data-ico-type="' + id + '"><svg class="gh-ico" viewBox="0 0 48 48" aria-hidden="true">' + LOR_ICONS[id] + "</svg></span>" : ""; }
 
@@ -1143,6 +1148,10 @@ function lorHubHero(){
     cfg = {ico:"drugs", kicker:(nd ? nd + " " + (nd % 10 === 1 && nd % 100 !== 11 ? "вещество" : nd % 10 >= 2 && nd % 10 <= 4 && (nd % 100 < 12 || nd % 100 > 14) ? "вещества" : "веществ") + " из клинических рекомендаций · " : "") + "реестр ГРЛС"};
   } else if(fname === "mkb.html"){
     cfg = {ico:"mkb", kicker:"Классификатор Минздрава РФ · ЛОР-рубрики"};
+  } else if(fname === "istochniki.html"){
+    cfg = {ico:"sources", kicker:"Официальные документы и журнал сверки"};
+  } else if(fname === "kak-polzovatsya.html"){
+    cfg = {ico:"help", kicker:"Справка по возможностям справочника"};
   } else if(B.page === "glossary" || /^slovar/.test(fname)){
     /* числа — из сборки словаря (data-kr, data-terms у <body>), а не вписаны руками: было «1764» при 1770 в описании */
     var nk = +B.kr, nt = +B.terms;
@@ -1157,7 +1166,7 @@ function lorHubHero(){
   hero.className = "tb-hero";
   var topBar = document.createElement("div");
   topBar.className = "tb-hero-top";
-  topBar.innerHTML = '<a class="tb-back-pill" href="index.html">← На главную</a><span class="tb-kicker">' + cfg.kicker + '</span>';
+  topBar.innerHTML = '<span class="tb-kicker">' + cfg.kicker + '</span>';  /* на главную ведёт домик в шапке */
   var titleRow = document.createElement("div");
   titleRow.className = "tb-hero-title-row";
   if(window.lorIcon) titleRow.innerHTML = window.lorIcon(cfg.ico);
