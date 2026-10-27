@@ -1480,7 +1480,7 @@ function lorAlgorithms(){
   });
 }
 
-/* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех 17 глав (uchebnik-*.html) ---------- */
+/* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех глав (uchebnik-*.html) ---------- */
 function lorTextbook(){
   var ICONS = window.LOR_ICONS || {};
   document.querySelectorAll("[data-ico]").forEach(function(el){
@@ -1629,15 +1629,17 @@ function lorTextbook(){
   /* Листалка Предыдущая / Следующая глава и плашка связанных КР */
   var prev = curIdx > 0 ? TB_CHAPTERS[curIdx - 1] : null;
   var nextCh = curIdx < TB_CHAPTERS.length - 1 ? TB_CHAPTERS[curIdx + 1] : null;
+  var nAll = TB_CHAPTERS.length, n10 = nAll % 10, n100 = nAll % 100;  /* число глав — из списка, а не зашитое «17» */
+  var allCh = "Все " + nAll + " " + (n10 === 1 && n100 !== 11 ? "глава" : n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? "главы" : "глав") + " учебника";
   var navFoot = document.createElement("nav");
   navFoot.className = "tb-prevnext";
   navFoot.setAttribute("aria-label", "Переход между главами учебника");
   navFoot.innerHTML = (prev
       ? '<a class="tb-pn-card tb-pn-prev" href="' + prev.href + '"><span class="tb-pn-dir">← Предыдущая глава (' + prev.num + ')</span><b>' + prev.title + '</b><small>' + prev.catTitle + '</small></a>'
-      : '<a class="tb-pn-card tb-pn-prev" href="uchebnik.html"><span class="tb-pn-dir">← К оглавлению</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>')
+      : '<a class="tb-pn-card tb-pn-prev" href="uchebnik.html"><span class="tb-pn-dir">← К оглавлению</span><b>' + allCh + '</b><small>Выбор раздела по органам</small></a>')
     + (nextCh
       ? '<a class="tb-pn-card tb-pn-next" href="' + nextCh.href + '"><span class="tb-pn-dir">Следующая глава (' + nextCh.num + ') →</span><b>' + nextCh.title + '</b><small>' + nextCh.catTitle + '</small></a>'
-      : '<a class="tb-pn-card tb-pn-next" href="uchebnik.html"><span class="tb-pn-dir">К оглавлению →</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>');
+      : '<a class="tb-pn-card tb-pn-next" href="uchebnik.html"><span class="tb-pn-dir">К оглавлению →</span><b>' + allCh + '</b><small>Выбор раздела по органам</small></a>');
   var noteEl = main.querySelector(".tb-note");
   if(noteEl) main.insertBefore(navFoot, noteEl);
   else main.appendChild(navFoot);
