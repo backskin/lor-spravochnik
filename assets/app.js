@@ -1874,6 +1874,9 @@ function lorTextbook(){
     + '<a class="tb-aside-all" href="uchebnik.html">' + allCh + ' →</a>';
   main.appendChild(aside);
   main.appendChild(article);
+  /* прокрутка списка в колонке сохраняется при переходе между главами: колонка не «прыгает» к началу */
+  try{ var ast = +sessionStorage.getItem("lor-tb-aside-st") || 0; if(ast) aside.scrollTop = ast; }catch(e){}
+  aside.addEventListener("scroll", function(){ try{ sessionStorage.setItem("lor-tb-aside-st", String(aside.scrollTop)); }catch(e){} }, {passive: true});
   main.classList.add("tb-chap");
   var barLeft = bar.querySelector(".tb-ch-bar-left");
   if(barLeft) barLeft.insertAdjacentHTML("beforeend", modeHtml);  /* на телефоне и планшете — переключатель в верхней строке */
@@ -1902,7 +1905,8 @@ function lorTextbook(){
   var pager = document.createElement("nav");
   pager.className = "tb-pager";
   pager.setAttribute("aria-label", "Листание страниц главы");
-  pager.innerHTML = '<button type="button" class="tb-pg-exit" data-tb-mode="scroll">Прокруткой</button>'
+  pager.innerHTML = '<button type="button" class="tb-pg-toc" aria-expanded="false">Содержание</button>'
+    + '<button type="button" class="tb-pg-exit" data-tb-mode="scroll">Прокруткой</button>'
     + '<button type="button" class="tb-pg-btn" data-pg="-1" aria-label="Предыдущая страница">‹</button>'
     + '<span class="tb-pg-info"><b></b><span></span></span>'
     + '<button type="button" class="tb-pg-btn" data-pg="1" aria-label="Следующая страница">›</button>';
@@ -1917,6 +1921,14 @@ function lorTextbook(){
     pager.querySelector(".tb-pg-info span").textContent = "страница " + (pg + 1) + " из " + pgN;
     pager.querySelector('[data-pg="-1"]').disabled = pg === 0;
     pager.querySelector('[data-pg="1"]').disabled = pg === pgN - 1;
+    /* текущий раздел в содержании — и при листании страниц */
+    var curSec = null;
+    bodyEl.querySelectorAll(".tb-sec").forEach(function(sx){ if(pageOf(sx) <= pg) curSec = sx.id; });
+    Object.keys(tocLinks).forEach(function(k){ tocLinks[k].classList.toggle("on", k === curSec); });
+  }
+  function asideOpen(on){
+    aside.classList.toggle("open", on);
+    var tb = pager.querySelector(".tb-pg-toc"); if(tb) tb.setAttribute("aria-expanded", String(on));
   }
   function atPageStart(){  /* первый абзац видимой страницы — чтобы при смене размера окна или режима не потерять место */
     var r = flow.getBoundingClientRect(), el = document.elementFromPoint(r.left + 24, r.top + 24);
@@ -1955,14 +1967,17 @@ function lorTextbook(){
     }
   }
   main.addEventListener("click", function(e){
-    var m = e.target.closest("[data-tb-mode]"); if(m){ setMode(m.dataset.tbMode); return; }
+    if(e.target.closest(".tb-pg-toc")){ asideOpen(!aside.classList.contains("open")); return; }
+    if(aside.classList.contains("open") && !aside.contains(e.target)) asideOpen(false);
+    var m = e.target.closest("[data-tb-mode]"); if(m){ asideOpen(false); setMode(m.dataset.tbMode); return; }
     var b = e.target.closest("[data-pg]"); if(b){ pgGo(pg + (+b.dataset.pg), true); return; }
     if(!root.classList.contains("tb-paged")) return;
     var a = e.target.closest('a[href^="#"]'); if(!a) return;
     var t = document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1)));
-    if(t && flow.contains(t)){ e.preventDefault(); pgGo(pageOf(t), true); }
+    if(t && flow.contains(t)){ e.preventDefault(); asideOpen(false); pgGo(pageOf(t), true); }
   });
   document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && aside.classList.contains("open")){ asideOpen(false); return; }
     if(!root.classList.contains("tb-paged") || e.defaultPrevented || /INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || "") || document.querySelector(".fig-full, .sheet.on")) return;
     var k = e.key, d = k === "ArrowRight" || k === "PageDown" || (k === " " && !e.shiftKey) ? 1 : k === "ArrowLeft" || k === "PageUp" || (k === " " && e.shiftKey) ? -1 : 0;
     if(k === "Home"){ e.preventDefault(); pgGo(0, true); } else if(k === "End"){ e.preventDefault(); pgGo(pgN - 1, true); }
