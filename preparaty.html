@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Препараты · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=7b9fbb515582">
+<link rel="stylesheet" href="assets/style.css?v=8408d45d8858">
 <style>
 .dz-abc{display:flex;flex-wrap:wrap;gap:4px;margin-top:var(--s3)}
 .dz-abc button{min-width:36px;height:36px;padding:0 8px;font:inherit;font-weight:600;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ac);cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
@@ -24,15 +24,19 @@
 .dz-top small.dz-why{display:block;color:var(--fg2);font-size:var(--t4);font-weight:400;margin-top:6px;line-height:1.45}
 .dz-sub{color:var(--fg2);font-size:var(--t4);margin:var(--s4) 0 var(--s2)}
 .dz-how{color:var(--fg2);font-size:var(--t4);margin-top:var(--s5)}
+/* пока не пришли подборки (drug-picks, drug-info), место под ними занято, а не схлопнуто: содержимое проявляется на месте,
+   ничего ниже не прыгает (сдвиг страницы 0,41 на пустом кэше, 27.10.2026) */
+#dhome{transition:opacity .22s ease}
+#dhome:not(.ready){min-height:100vh;opacity:0}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body data-page="drugs">
-<script src="assets/shell.js?v=7b9fbb515582"></script>
+<script src="assets/shell.js?v=8408d45d8858"></script>
 
 <main class="page">
   <h1 class="pt">Препараты</h1>
-  <p class="meta-line" id="dstatus">Загружаю реестр…</p>
+  <p class="meta-line" id="dstatus">Государственный реестр лекарственных средств от 22.10.2026: 2987 веществ, 11044 торговых названий.</p>
   <div id="dres"></div>
   <div id="dhome">
     <nav class="dz-abc" id="dAbc" aria-label="Вещества из КР по первой букве"></nav>
@@ -48,9 +52,9 @@
   <p class="src-of">Источник: Государственный реестр лекарственных средств Минздрава России · <a href="https://grls.rosminzdrav.ru/" target="_blank" rel="noopener">grls.rosminzdrav.ru ↗</a></p>
 </main>
 
-<script src="assets/data.js?v=7b9fbb515582"></script>
-<script src="assets/grls.js?v=7b9fbb515582"></script>
-<script src="assets/app.js?v=7b9fbb515582"></script>
+<script src="assets/data.js?v=8408d45d8858"></script>
+<script src="assets/grls.js?v=8408d45d8858"></script>
+<script src="assets/app.js?v=8408d45d8858"></script>
 <script>
 (function(){
   var q = document.getElementById("q"), res = document.getElementById("dres"), st = document.getElementById("dstatus"), homeEl = document.getElementById("dhome"), E = GRLS.esc;
@@ -116,6 +120,7 @@
     }
     dirsEl.addEventListener("click", function(e){ var b = e.target.closest("button"); if(b) showDir(b.dataset.id); });
     showDir(store("lor-drug-dir") || P.dirs[0].id);
+    homeEl.classList.add("ready");
   }
   var DINFO = {};
   Promise.all([

@@ -1306,6 +1306,7 @@ try{ history.replaceState({lor:1}, "", location.href); }catch(err){}
 
 pageAbort = window.AbortController ? new AbortController() : null;
 initPage();
+requestAnimationFrame(function(){ root.classList.remove("lor-boot"); });  /* экран собран — показываем (assets/shell.js) */
 })();
 
 

@@ -1964,26 +1964,23 @@ html[data-anim="off"]::view-transition-new(hub-hero) {
 .d-sec .drawer-reset-list{padding-inline:16px}
 .d-sec .drawer-reset-list .row{padding:10px 0!important}
 html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .tsize-b:active{transform:none}
-/* срез полосы — под постоянным углом при любой высоте карточки: наклонённая подложка вместо обрезки в процентах.
-   Умное решение: шапка с overflow:hidden и точным перекрытием (-1px по границе) — полностью исключает
-   зеленые вылеты в раскрытый список и гарантирует отсутствие белых горизонтальных щелей */
-.grp-head{
-  position:relative;
-  overflow:hidden!important;
-  border-bottom:1px solid transparent!important;
-  border-top-left-radius:13px;
-  border-top-right-radius:13px;
-  isolation:isolate;
-}
-.grp-card:not(.is-open) .grp-head{
-  border-bottom-left-radius:13px;
-  border-bottom-right-radius:13px;
-}
+/* ===== Карточка раздела на главной: одна схема отрисовки (переделано 27.10.2026) =====
+   Обрезает и скругляет только сама карточка (border-radius + overflow:clip). У шапки нет ни своих скруглений, ни своей рамки:
+   прежняя прозрачная рамка шапки в 1 px давала белую щель под полосой, а отдельные скругления шапки при сворачивании
+   рисовали «карточку в карточке». Полоса — наклонённая подложка строго в пределах шапки (top/bottom: 0), срез под постоянным углом.
+   Линия между шапкой и списком — первая строка самого списка: при свёрнутом списке её просто нет. */
+.grp-card{overflow:clip;isolation:isolate}
+.grp-head{position:relative;overflow:hidden!important;border:0!important;border-radius:0!important}
+.grp-card.is-open .grp-head{border:0!important}
 .grp-head .gh-ico-wrap{clip-path:none!important;background:none!important;overflow:visible;z-index:1}
-.grp-head .gh-ico-wrap::before{content:"";position:absolute;top:-2px;bottom:-1px;left:-80px;right:0;background:var(--top-bg,#0b6b53);
+.grp-head .gh-ico-wrap::before{content:"";position:absolute;top:0;bottom:0;left:-80px;right:0;background:var(--top-bg,#0b6b53);
   transform:skewX(-12deg);transform-origin:0 0;z-index:-1}
 .grp-head .gh-ico-wrap .gh-ico{position:relative;z-index:2;color:#fff!important}
-.grp-card.is-open .grp-head{border-bottom-color:color-mix(in srgb,var(--ac) 28%,var(--line))!important}
+.grp-body-in{position:relative}
+.grp-body-in::before{content:"";display:block;height:1px;background:color-mix(in srgb,var(--ac) 28%,var(--line))}
+/* список проявляется вслед за раскрытием и гаснет первым при сворачивании */
+.grp-body-in > .list{opacity:0;transform:translateY(-6px);transition:opacity .16s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
+.grp-card.is-open .grp-body-in > .list{opacity:1;transform:none;transition-delay:.06s}
 .grp-chev{width:36px!important;height:36px!important;flex:none;border-radius:50%;
   border:1px solid color-mix(in srgb,var(--ac) 30%,var(--line));background:var(--bg)!important;color:var(--ac)!important;
   transform:none!important;transition:background .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease!important;
@@ -2056,3 +2053,9 @@ html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .ts
 /* смена экрана: старый и новый экраны перетекают за 0,14 с — дольше они просвечивают друг сквозь друга и экран «двоится» (27.10.2026).
    Правило в <head> страниц (tools/build_site.py) переход без перезагрузки не подхватывал: там было 0,25 с по умолчанию */
 :root::view-transition-old(root),:root::view-transition-new(root){animation-duration:.14s}
+/* главная на пустом кэше: пока скрипты строят разделы, место под ними занято — блок «Источники данных» не мелькает наверху
+   и не уезжает вниз (сдвиг 0,55 при первой загрузке, 27.10.2026) */
+body.home #home:empty{min-height:100vh}
+/* до сборки экрана скриптом содержимое скрыто (assets/shell.js, класс lor-boot), затем мягко проявляется; шапка видна сразу */
+html.lor-boot main.page{opacity:0}
+main.page{transition:opacity .16s ease}
