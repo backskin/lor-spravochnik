@@ -322,7 +322,7 @@ document.addEventListener("click", function(e){
   if(d.classList.contains("tn-more")){ d.closest(".tn-box").innerHTML = GRLS.card(d.dataset.inn, 0); return; }
   /* везде одинаково — в тексте и в таблицах: карточка торговых названий в нижнем окне, таблица не раздвигается */
   var nx = d.nextElementSibling;
-  openDrug(d.dataset.name, d.textContent, !!(nx && nx.classList.contains("offl")));
+  openDrug(d.dataset.name, d.dataset.shown || d.textContent, !!(nx && nx.classList.contains("offl")));  /* data-shown — у кнопок, чья надпись не название («Разборы КР: 3») */
 });
 
 /* ---------- источник под пунктом: скрыт, включается в «Обзоре» ---------- */

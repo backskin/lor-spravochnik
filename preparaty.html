@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Препараты · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=8408d45d8858">
+<link rel="stylesheet" href="assets/style.css?v=34801cb88ac5">
 <style>
 .dz-abc{display:flex;flex-wrap:wrap;gap:4px;margin-top:var(--s3)}
 .dz-abc button{min-width:36px;height:36px;padding:0 8px;font:inherit;font-weight:600;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ac);cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
@@ -27,18 +27,21 @@
 /* пока не пришли подборки (drug-picks, drug-info), место под ними занято, а не схлопнуто: содержимое проявляется на месте,
    ничего ниже не прыгает (сдвиг страницы 0,41 на пустом кэше, 27.10.2026) */
 #dhome{transition:opacity .22s ease}
+#dhome:not(.show-info) .dz-meta-grid{display:none}
+.dz-showinfo{margin-top:var(--s3);border-bottom:0;font-size:var(--t4)}
 #dhome:not(.ready){min-height:100vh;opacity:0}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body data-page="drugs">
-<script src="assets/shell.js?v=8408d45d8858"></script>
+<script src="assets/shell.js?v=34801cb88ac5"></script>
 
 <main class="page">
   <h1 class="pt">Препараты</h1>
   <p class="meta-line" id="dstatus">Государственный реестр лекарственных средств от 22.10.2026: 2987 веществ, 11044 торговых названий.</p>
   <div id="dres"></div>
   <div id="dhome">
+    <label class="switch dz-showinfo"><span>Показывать показания и противопоказания в списках</span><input type="checkbox" id="dShowInfo"></label>
     <nav class="dz-abc" id="dAbc" aria-label="Вещества из КР по первой букве"></nav>
     <div id="dLetter" hidden></div>
     <h2 class="gh">Чаще всего в КР</h2>
@@ -52,9 +55,9 @@
   <p class="src-of">Источник: Государственный реестр лекарственных средств Минздрава России · <a href="https://grls.rosminzdrav.ru/" target="_blank" rel="noopener">grls.rosminzdrav.ru ↗</a></p>
 </main>
 
-<script src="assets/data.js?v=8408d45d8858"></script>
-<script src="assets/grls.js?v=8408d45d8858"></script>
-<script src="assets/app.js?v=8408d45d8858"></script>
+<script src="assets/data.js?v=34801cb88ac5"></script>
+<script src="assets/grls.js?v=34801cb88ac5"></script>
+<script src="assets/app.js?v=34801cb88ac5"></script>
 <script>
 (function(){
   var q = document.getElementById("q"), res = document.getElementById("dres"), st = document.getElementById("dstatus"), homeEl = document.getElementById("dhome"), E = GRLS.esc;
@@ -80,6 +83,25 @@
     res.querySelectorAll(".toggle[aria-expanded=true]").forEach(function(x){ x.setAttribute("aria-expanded", "false"); var c = x.parentNode.querySelector(".tn-box"); if(c) c.remove(); });
     if(open){ b.setAttribute("aria-expanded", "true"); li.insertAdjacentHTML("beforeend", '<div class="tn-box">' + GRLS.card(b.dataset.inn, 15) + "</div>"); }
   });
+  /* главное о веществе одной строкой, целиком: зачем оно в КР, иначе — в каких разборах встречается.
+     Показания и противопоказания в списках скрыты (переключатель «dShowInfo»), в карточке вещества — всегда (просьба 27.10.2026) */
+  function brief(inf){
+    return inf && inf.why && inf.why.length ? '<small class="dz-why">В КР: ' + E(inf.why.join("; ")) + "</small>" : "";
+  }
+  /* кнопка разбора — у каждой карточки одна и та же: один разбор — ссылка на него, несколько — карточка вещества со списком разборов */
+  function krBtn(k, href, inf, name){
+    var kr = inf && inf.kr || [];
+    if(href) return '<a class="dz-kr-link" href="' + E(href) + '">Разбор КР ›</a>';
+    if(kr.length === 1) return '<a class="dz-kr-link" href="' + E(kr[0][1]) + '">Разбор КР ›</a>';
+    if(kr.length > 1) return '<button type="button" class="dz-kr-link drug" data-name="' + E(k) + '" data-shown="' + E(name || k) + '">Разборы КР: ' + kr.length + ' ›</button>';
+    return "";
+  }
+  (function(){
+    var cb = document.getElementById("dShowInfo");
+    function apply(){ homeEl.classList.toggle("show-info", cb.checked); }
+    cb.checked = store("lor-drug-info") === "1"; apply();
+    cb.addEventListener("change", function(){ store("lor-drug-info", cb.checked ? "1" : "0"); apply(); });
+  })();
   /* до поиска: алфавит, частые, направления — data/drug-picks.json (tools/build_drug_picks.py) */
   function home(P){
     var abc = {}, order = [];
@@ -94,7 +116,8 @@
       b.setAttribute("aria-pressed", "true");
       letEl.innerHTML = '<ul class="dz-top">' + abc[b.dataset.c].map(function(x){
         var inf = DINFO[x.k];
-        return '<li class="dz-card-li"><div class="dz-card-main"><div class="dz-card-head"><button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n) + '</button></div>'
+        return '<li class="dz-card-li"><div class="dz-card-main"><div class="dz-card-head"><button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n) + '</button>' + krBtn(x.k, "", inf, x.n) + '</div>'
+          + brief(inf)
           + (inf ? '<div class="dz-meta-grid"><div class="dz-m-ind"><b>Показания:</b> ' + E(inf.ind) + '</div><div class="dz-m-con"><b>Противопоказания:</b> ' + E(inf.contra) + '</div></div>' : '')
           + '</div></li>';
       }).join("") + '</ul><p class="dz-sub">Вещества из КР на «' + E(b.dataset.c) + '». Нажмите на вещество для просмотра всех торговых названий и инструкций ГРЛС.</p>';
@@ -110,7 +133,7 @@
           var inf = DINFO[x.k];
           return '<li class="dz-card-li"><div class="dz-card-main">'
             + '<div class="dz-card-head"><button type="button" class="drug" data-name="' + E(x.k) + '">' + E(x.n) + '</button>'
-            + (x.href ? '<a class="dz-kr-link" href="' + E(x.href) + '">Разбор КР ›</a>' : "") + '</div>'
+            + krBtn(x.k, x.href, inf, x.n) + '</div>'
             + '<small class="dz-why">В КР: ' + E(x.why) + '</small>'
             + (inf ? '<div class="dz-meta-grid"><div class="dz-m-ind"><b>Показания:</b> ' + E(inf.ind) + '</div><div class="dz-m-con"><b>Противопоказания:</b> ' + E(inf.contra) + '</div></div>' : '')
             + '</div></li>';

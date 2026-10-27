@@ -2059,3 +2059,13 @@ body.home #home:empty{min-height:100vh}
 /* до сборки экрана скриптом содержимое скрыто (assets/shell.js, класс lor-boot), затем мягко проявляется; шапка видна сразу */
 html.lor-boot main.page{opacity:0}
 main.page{transition:opacity .16s ease}
+/* карточка вещества: разборы КР — обычный список по строке на разбор; кнопка «Разборы КР: N» того же вида, что «Разбор КР» (27.10.2026) */
+.drg-krs{display:block;margin-top:var(--s3)}
+.drg-krs .drg-lbl{display:block;margin-bottom:2px}
+.drg-kr-list .row{min-height:44px;padding:8px 0}
+.drg-kr-list .row .rt{font-weight:500}
+button.dz-kr-link{font:inherit;font-size:var(--t4);font-weight:600;line-height:1.2;cursor:pointer}
+.dz-card-head button.dz-kr-link{font-size:var(--t4)!important;font-weight:600!important;padding:5px 12px;border-radius:999px;background:color-mix(in srgb, var(--ac) 12%, var(--bg));
+  border:1px solid color-mix(in srgb, var(--ac) 35%, var(--line));color:var(--ac);white-space:nowrap}
+.dz-card-head button.dz-kr-link:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.dz-card-head .dz-kr-link{min-height:36px;box-sizing:border-box;line-height:1.2}

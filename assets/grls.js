@@ -49,9 +49,10 @@
     }
     var krHtml = "";
     if(inf.kr && inf.kr.length){
-      krHtml = '<div class="drg-krs"><span class="drg-lbl">Применение в разобранных КР Минздрава:</span><div class="drg-kr-links">'
-        + inf.kr.map(function(x){ return '<a class="drg-kr-a" href="' + esc(x[1]) + '">' + esc(x[0]) + ' ›</a>'; }).join("")
-        + '</div></div>';
+      /* по разбору на строку, как любой список справочника (было — ссылки сплошной строкой, 27.10.2026) */
+      krHtml = '<div class="drg-krs"><span class="drg-lbl">Разборы КР, в которых назначается вещество</span><ul class="list drg-kr-list">'
+        + inf.kr.map(function(x){ return '<li><a class="row" href="' + esc(x[1]) + '"><span class="rt">' + esc(x[0]) + '</span></a></li>'; }).join("")
+        + '</ul></div>';
     }
     return '<div class="drg-clinical">'
       + '<div class="drg-sec drg-ind"><span class="drg-lbl">Показания к применению</span><p>' + esc(inf.ind) + '</p></div>'
