@@ -847,16 +847,19 @@ if(home){
   }
 
   /* Быстрая панель ключевых разделов справочника */
+  /* подписи карточек — короткие и целиком, без обрезки многоточием (пересмотр дизайна 27.10.2026) */
   var qnav = '<nav class="home-qnav" aria-label="Быстрый доступ к разделам справочника">'
-    + '<a class="hq-card" href="uchebnik.html">' + gicon("textbook") + '<span class="hq-txt"><b>Учебник</b><small>анатомия, клиника, операции</small></span></a>'
-    + '<a class="hq-card" href="preparaty.html">' + gicon("drugs") + '<span class="hq-txt"><b>Препараты ГРЛС</b><small>показания, противопоказания, ТН</small></span></a>'
-    + '<a class="hq-card" href="mkb.html">' + gicon("mkb") + '<span class="hq-txt"><b>Коды МКБ-10</b><small>ЛОР-рубрики в 1 касание</small></span></a>'
-    + '<a class="hq-card" href="slovar.html">' + gicon("glossary") + '<span class="hq-txt"><b>Словарь КР</b><small>термины и сокращения</small></span></a>'
+    + '<a class="hq-card" href="uchebnik.html">' + gicon("textbook") + '<span class="hq-txt"><b>Учебник</b><small>анатомия и болезни</small></span></a>'
+    + '<a class="hq-card" href="preparaty.html">' + gicon("drugs") + '<span class="hq-txt"><b>Препараты</b><small>по реестру ГРЛС</small></span></a>'
+    + '<a class="hq-card" href="mkb.html">' + gicon("mkb") + '<span class="hq-txt"><b>Коды МКБ-10</b><small>ЛОР-рубрики</small></span></a>'
+    + '<a class="hq-card" href="slovar.html">' + gicon("glossary") + '<span class="hq-txt"><b>Словарь</b><small>термины из КР</small></span></a>'
     + '</nav>';
 
-  var h = qnav
+  /* что это за сайт — первой строкой (тест Круга «из багажника»); инструкций нет: стрелка у раздела говорит сама за себя */
+  var h = '<header class="home-id"><h1 class="home-title">ЛОР-справочник</h1><p class="home-tag">Клинические рекомендации Минздрава России в кратком изложении для врача-оториноларинголога</p></header>'
+    + qnav
     + '<div class="home-head-bar">'
-    + '<div><h1 class="pt">Клинические рекомендации</h1><p class="home-sub">Выберите раздел, чтобы раскрыть список клинических рекомендаций</p></div>'
+    + '<h2 class="pt">Клинические рекомендации</h2>'
     + '<button type="button" class="home-exp-btn" id="toggleAllGrps" aria-pressed="false">Развернуть все</button>'
     + '</div><div class="grps">';
 
@@ -866,13 +869,15 @@ if(home){
   core.forEach(function(g, idx){
     var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
     var isOpen = !!savedOpen[g.id];
-    var cardTitle = g.id === "nose" ? "Нос и ОНП" : g.title;
+    var cardTitle = g.id === "nose" ? "Нос и пазухи" : g.title;
     h += '<section class="grp grp-card' + (isOpen ? ' is-open' : '') + '" data-sec-id="' + g.id + '" style="--stagger:' + idx + '">'
       + '<button type="button" class="grp-head" aria-expanded="' + String(isOpen) + '" data-grp-toggle="' + g.id + '">'
       + gicon(g.id)
       + '<span class="grp-title-box"><span class="grp-title">' + esc(cardTitle) + '</span>'
+      /* число — словами, а не голой плашкой «9» (правило 1 docs/design-principles.md) */
+      + '<span class="grp-num">' + all.length + " " + plural(all.length, "рекомендация", "рекомендации", "рекомендаций") + '</span>'
       + '<span class="grp-preview">' + esc(SUB_PREV[g.id] || "") + '</span></span>'
-      + '<span class="grp-meta"><span class="grp-cnt">' + all.length + '</span><span class="grp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></span></span>'
+      + '<span class="grp-meta"><span class="grp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></span></span>'
       + '</button>'
       + '<div class="grp-body"><div class="grp-body-in"><ul class="list">' + all.map(oneRow).join("") + '</ul></div></div>'
       + '</section>';
@@ -890,8 +895,9 @@ if(home){
     + '<button type="button" class="grp-head" aria-expanded="' + String(relOpen) + '" data-grp-toggle="related">'
     + gicon("related")
     + '<span class="grp-title-box"><span class="grp-title">Смежные специальности</span>'
-    + '<span class="grp-preview">Онкология головы и шеи · ЧЛХ · Неврология · Инфекции · Пульмонология · Пищевод · Иммунология (' + relReady + ' с разбором, ' + (relTotal - relReady) + ' по ссылкам Минздрава)</span></span>'
-    + '<span class="grp-meta"><span class="grp-cnt">' + relTotal + '</span><span class="grp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></span></span>'
+    + '<span class="grp-num">' + "с разбором " + relReady + " из " + relTotal + '</span>'
+    + '<span class="grp-preview">Онкология головы и шеи · ЧЛХ · Неврология · Инфекции · Пульмонология · Пищевод · Иммунология</span></span>'
+    + '<span class="grp-meta"><span class="grp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg></span></span>'
     + '</button>'
     + '<div class="grp-body"><div class="grp-body-in"><ul class="list rel-subgrid">' + rel.map(function(g){
       var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); });
@@ -963,8 +969,13 @@ if(home){
 
   var ready = L.diseases.filter(function(d){ return d.href; }).length;
   var statEl = $("stat");
-  if(statEl) statEl.textContent = "Минздрав РФ, оториноларингология и смежные рубрики. Полностью разобрано на сайте: " + ready + " из " + L.diseases.length + " " + plural(L.diseases.length, "рекомендации", "рекомендаций", "рекомендаций")
-    + " (все 33 профильные ЛОР-рекомендации + 18 смежных; остальные 46 смежных КР доступны по прямым ссылкам на рубрикатор Минздрава). Список сверен " + L.updated.split("-").reverse().join(".");
+  /* числа считаются по данным, а не вписаны руками (было «33 + 18» при 52 разобранных) */
+  var coreIds = core.map(function(g){ return g.id; });
+  var coreAll = L.diseases.filter(function(d){ return coreIds.indexOf(d.g) >= 0; }), relAll = L.diseases.filter(function(d){ return coreIds.indexOf(d.g) < 0; });
+  var coreReady = coreAll.filter(function(d){ return d.href; }).length, relReady2 = relAll.filter(function(d){ return d.href; }).length;
+  if(statEl) statEl.textContent = "Разобрано " + ready + " из " + L.diseases.length + " " + plural(L.diseases.length, "рекомендации", "рекомендаций", "рекомендаций")
+    + ": " + coreReady + " из " + coreAll.length + " по оториноларингологии и " + relReady2 + " из " + relAll.length + " смежных; остальные открываются на сайте Минздрава. Список сверен "
+    + L.updated.split("-").reverse().join(".") + ".";
 }
 
 tabbar = $("tabbar"); TABS = tabbar ? Array.prototype.map.call(tabbar.querySelectorAll("[data-tab]"), function(b){ return b.dataset.tab; }) : [];
