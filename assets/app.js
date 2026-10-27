@@ -102,7 +102,7 @@ function updateDrawerNav(){
   var items = [];
   if(!isHome){
     items.push(row("index.html", "← На главную", "все рекомендации по разделам", "drawer-home-row"));
-    if(!isTb) items.push(row("uchebnik.html", "Учебник", "20 глав · анатомия, клиника и операции"));
+    if(!isTb) items.push(row("uchebnik.html", "Учебник", "анатомия, клиника и операции"));
     if(!isDrugs) items.push(row("preparaty.html", "Препараты и торговые названия", "показания, противопоказания и реестр ГРЛС"));
     if(!isMkb) items.push(row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код"));
     if(!isGlossary) items.push(row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций"));
@@ -768,7 +768,7 @@ if(home){
 
   /* Быстрая панель ключевых разделов справочника */
   var qnav = '<nav class="home-qnav" aria-label="Быстрый доступ к разделам справочника">'
-    + '<a class="hq-card" href="uchebnik.html">' + gicon("textbook") + '<span class="hq-txt"><b>Учебник</b><small>20 глав · анатомия, клиника, операции</small></span></a>'
+    + '<a class="hq-card" href="uchebnik.html">' + gicon("textbook") + '<span class="hq-txt"><b>Учебник</b><small>анатомия, клиника, операции</small></span></a>'
     + '<a class="hq-card" href="preparaty.html">' + gicon("drugs") + '<span class="hq-txt"><b>Препараты ГРЛС</b><small>показания, противопоказания, ТН</small></span></a>'
     + '<a class="hq-card" href="mkb.html">' + gicon("mkb") + '<span class="hq-txt"><b>Коды МКБ-10</b><small>ЛОР-рубрики в 1 касание</small></span></a>'
     + '<a class="hq-card" href="slovar.html">' + gicon("glossary") + '<span class="hq-txt"><b>Словарь КР</b><small>термины и сокращения</small></span></a>'
@@ -1133,68 +1133,18 @@ function swap(html, url){
   }).then(function(){ if(window.lorTour) window.lorTour(); });
 }
 var navSeq = 0;
-var activeHubCard = null;
-var pendingHubTarget = "";
-var activeHubHero = null;
-
 function go(url, push){
   var u = new URL(url, location.href), my = ++navSeq;
   if(push) history.pushState({lor:1}, "", u.href);  /* адрес меняется сразу: «назад» работает даже во время загрузки */
   return fetch(u.href.split("#")[0]).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); }).then(function(html){
     if(my !== navSeq) return;  /* пока грузилось, нажали другую ссылку — этот ответ уже не нужен */
-    var isGoingHome = /index\.html$|\/$/.test(u.pathname);
-    var fromHubPage = pendingHubTarget || location.pathname.split("/").pop() || "";
-    var currentHero = document.querySelector(".tb-hero");
-
-    /* Если уходим со страницы хаба (.tb-hero) на главную — подготавливаем обратный морф в карточку */
-    if(isGoingHome && currentHero && !activeHubCard && root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches){
-      activeHubHero = currentHero;
-      currentHero.style.viewTransitionName = "hub-hero";
-    }
-
     var run = function(){
-      return swap(html, u.href).then(function(){
-        /* 1) Переход Главная -> Раздел: связываем .tb-hero с нажатой карточкой */
-        if(activeHubCard || pendingHubTarget){
-          var hero = document.querySelector(".tb-hero");
-          if(hero){
-            hero.style.viewTransitionName = "hub-hero";
-          }
-        }
-        /* 2) Обратный переход Раздел -> Главная: связываем карточку на главной со свернувшимся героем */
-        else if(activeHubHero && isGoingHome){
-          var base = fromHubPage.replace(/\.html$/, "");
-          var card = document.querySelector('.hq-card[href*="' + base + '"]');
-          if(card){
-            card.style.viewTransitionName = "hub-hero";
-          }
-        }
-        if(!u.hash) window.scrollTo(0, 0);
-      });
+      var p = swap(html, u.href);
+      if(!u.hash) window.scrollTo(0, 0);
+      return p;
     };
-
-    if(document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off"){
-      var vt = document.startViewTransition(run);
-      if(vt && vt.finished){
-        vt.finished.finally(function(){
-          document.querySelectorAll("[style*='view-transition-name']").forEach(function(el){
-            el.style.viewTransitionName = "";
-          });
-          activeHubCard = null;
-          pendingHubTarget = "";
-          activeHubHero = null;
-        });
-      }
-    } else {
-      run().finally(function(){
-        document.querySelectorAll("[style*='view-transition-name']").forEach(function(el){
-          el.style.viewTransitionName = "";
-        });
-        activeHubCard = null;
-        pendingHubTarget = "";
-        activeHubHero = null;
-      });
-    }
+    if(document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off") document.startViewTransition(run);
+    else run();
   }).catch(function(){ if(my === navSeq) location.href = u.href; });
 }
 document.addEventListener("click", function(e){
@@ -1207,9 +1157,6 @@ document.addEventListener("click", function(e){
   e.preventDefault();
   var hq = a.closest(".hq-card");
   if(hq && root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches){
-    activeHubCard = hq;
-    pendingHubTarget = u.pathname.split("/").pop() || "";
-    hq.style.viewTransitionName = "hub-hero";
     hq.classList.add("is-pressed");
     setTimeout(function(){
       hq.classList.remove("is-pressed");
@@ -1556,7 +1503,7 @@ function lorAlgorithms(){
   });
 }
 
-/* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех 17 глав (uchebnik-*.html) ---------- */
+/* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех глав (uchebnik-*.html) ---------- */
 function lorTextbook(){
   var ICONS = window.LOR_ICONS || {};
   document.querySelectorAll("[data-ico]").forEach(function(el){
@@ -1705,15 +1652,17 @@ function lorTextbook(){
   /* Листалка Предыдущая / Следующая глава и плашка связанных КР */
   var prev = curIdx > 0 ? TB_CHAPTERS[curIdx - 1] : null;
   var nextCh = curIdx < TB_CHAPTERS.length - 1 ? TB_CHAPTERS[curIdx + 1] : null;
+  var nAll = TB_CHAPTERS.length, n10 = nAll % 10, n100 = nAll % 100;  /* число глав — из списка, а не зашитое «17» */
+  var allCh = "Все " + nAll + " " + (n10 === 1 && n100 !== 11 ? "глава" : n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? "главы" : "глав") + " учебника";
   var navFoot = document.createElement("nav");
   navFoot.className = "tb-prevnext";
   navFoot.setAttribute("aria-label", "Переход между главами учебника");
   navFoot.innerHTML = (prev
       ? '<a class="tb-pn-card tb-pn-prev" href="' + prev.href + '"><span class="tb-pn-dir">← Предыдущая глава (' + prev.num + ')</span><b>' + prev.title + '</b><small>' + prev.catTitle + '</small></a>'
-      : '<a class="tb-pn-card tb-pn-prev" href="uchebnik.html"><span class="tb-pn-dir">← К оглавлению</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>')
+      : '<a class="tb-pn-card tb-pn-prev" href="uchebnik.html"><span class="tb-pn-dir">← К оглавлению</span><b>' + allCh + '</b><small>Выбор раздела по органам</small></a>')
     + (nextCh
       ? '<a class="tb-pn-card tb-pn-next" href="' + nextCh.href + '"><span class="tb-pn-dir">Следующая глава (' + nextCh.num + ') →</span><b>' + nextCh.title + '</b><small>' + nextCh.catTitle + '</small></a>'
-      : '<a class="tb-pn-card tb-pn-next" href="uchebnik.html"><span class="tb-pn-dir">К оглавлению →</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>');
+      : '<a class="tb-pn-card tb-pn-next" href="uchebnik.html"><span class="tb-pn-dir">К оглавлению →</span><b>' + allCh + '</b><small>Выбор раздела по органам</small></a>');
   var noteEl = main.querySelector(".tb-note");
   if(noteEl) main.insertBefore(navFoot, noteEl);
   else main.appendChild(navFoot);
