@@ -4,6 +4,7 @@
 
 /* Lora (Cyreal, SIL Open Font License 1.1, лежит рядом в OFL.txt) — Google Fonts, 23.10.2026.
    Один переменный файл на набор знаков: жирность 400–700, прямой и курсив. Лежит у нас — работает без интернета. */
+/* предзагрузка шрифта — tools/build_site.py (PRELOAD): файл приходит вместе со стилями, без подмены после первой отрисовки (27.10.2026) */
 @font-face{font-family:"Lora";font-style:italic;font-weight:400 700;font-display:swap;src:url("fonts/lora-cyr-italic.woff2") format("woff2");unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
 @font-face{font-family:"Lora";font-style:italic;font-weight:400 700;font-display:swap;src:url("fonts/lora-latext-italic.woff2") format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
 @font-face{font-family:"Lora";font-style:italic;font-weight:400 700;font-display:swap;src:url("fonts/lora-lat-italic.woff2") format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
@@ -1833,6 +1834,8 @@ html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff}
 
 /* ==========================================================================
    VIEW TRANSITION: Плавное расширение быстрых карточек (.hq-card -> .tb-hero)
+   Растёт рамка, а не картинка: снимки карточки и шапки в натуральную величину (object-fit:none), лишнее обрезается.
+   При cover текст карточки раздувался в 3–4 раза и мутно проступал поверх нового экрана (жалоба 27.10.2026)
    ========================================================================== */
 ::view-transition-group(hub-hero) {
   animation-duration: .32s;
@@ -1845,14 +1848,14 @@ html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff}
   animation: lorHubOldFade .14s ease-out both;
   height: 100%;
   width: 100%;
-  object-fit: cover;
+  object-fit: none;
   object-position: top left;
 }
 ::view-transition-new(hub-hero) {
   animation: lorHubNewFade .32s cubic-bezier(.2, .9, .3, 1) both;
   height: 100%;
   width: 100%;
-  object-fit: cover;
+  object-fit: none;
   object-position: top left;
 }
 @keyframes lorHubOldFade {
@@ -2042,3 +2045,14 @@ html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .ts
   box-shadow:0 2px 8px rgba(11,107,83,.24)!important;
   transform:none!important;
 }
+
+/* ===== 27.10.2026: заливка вкладок разбора — одна плашка переезжает между кнопками (app.js, tabInd) ===== */
+.tabbar.has-ind .tab-ind{position:absolute;top:0;bottom:0;left:0;z-index:0;background:var(--ac);pointer-events:none}
+.tabbar.has-ind button{position:relative;z-index:1;transition:color .22s ease,background-color .15s ease}
+.tabbar.has-ind button[aria-selected="true"]{background:transparent!important}
+/* ===== 27.10.2026: блок «Размер текста» — свои размеры в px (не зависит от собственной настройки); пока палец на нём, он поверх меню ===== */
+.d-sec.pinned{position:relative;z-index:5;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.d-sec{transition:box-shadow .2s ease}
+/* смена экрана: старый и новый экраны перетекают за 0,14 с — дольше они просвечивают друг сквозь друга и экран «двоится» (27.10.2026).
+   Правило в <head> страниц (tools/build_site.py) переход без перезагрузки не подхватывал: там было 0,25 с по умолчанию */
+:root::view-transition-old(root),:root::view-transition-new(root){animation-duration:.14s}

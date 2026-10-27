@@ -119,6 +119,37 @@ function openMenu(){ updateDrawerNav(); lockPage(true); menu.hidden = false; req
 function closeMenu(){ if(!menu || menu.hidden) return; lockPage(false); menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, root.dataset.anim === "off" ? 0 : 200); }
 menuBtn.onclick = function(){ if(menu.classList.contains("on")){ closeMenu(); scrim.classList.remove("on"); } else openMenu(); };
 updateDrawerNav();
+/* меню закрывается свайпом влево: панель едет за пальцем, затемнение бледнеет; отпустили раньше трети ширины — возвращается.
+   Ползунок размера текста жест не перехватывает (просьба 27.10.2026) */
+(function(){
+  var x0 = null, y0 = 0, t0 = 0, dx = 0, drag = null;
+  menu.addEventListener("touchstart", function(e){
+    if(e.touches.length !== 1 || e.target.closest(".tsize-row")){ x0 = null; return; }
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); dx = 0; drag = null;
+  }, {passive: true});
+  menu.addEventListener("touchmove", function(e){
+    if(x0 === null || drag === false) return;
+    var mx = e.touches[0].clientX - x0, my = e.touches[0].clientY - y0;
+    if(drag === null){
+      if(Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.2 && mx < 0){ drag = true; menu.style.transition = "none"; scrim.style.transition = "none"; }
+      else if(Math.abs(my) > 10 || mx > 10){ drag = false; return; }
+      else return;
+    }
+    dx = Math.min(0, mx);
+    menu.style.transform = "translateX(" + dx + "px)";
+    scrim.style.opacity = String(Math.max(0, 1 + dx / menu.offsetWidth));
+  }, {passive: true});
+  function end(){
+    if(drag){
+      var fast = dx < -40 && Date.now() - t0 < 250;
+      menu.style.transition = ""; scrim.style.transition = ""; menu.style.transform = ""; scrim.style.opacity = "";
+      if(fast || dx < -menu.offsetWidth / 3) closeSheets();
+    }
+    x0 = null; drag = null;
+  }
+  menu.addEventListener("touchend", end);
+  menu.addEventListener("touchcancel", end);
+})();
 /* тема: светлая / как в системе / тёмная */
 function themeSync(){ var t = root.dataset.theme || ""; $("themeSeg").querySelectorAll("button").forEach(function(b){ b.type = "button"; b.setAttribute("aria-selected", String(b.dataset.th === t)); }); }
 $("themeSeg").addEventListener("click", function(e){ var b = e.target.closest("button"); if(!b) return;
@@ -137,10 +168,30 @@ document.querySelectorAll(".sheet").forEach(function(sh){
 });
 /* размер текста: плавный множитель шрифтовой шкалы от 0,7 до 1,3 — обычный ровно посередине, мельче нужнее, чем крупнее; применяется сразу и запоминается */
 var sizeRange = $("sizeRange"), sizeVal = $("sizeVal");
-function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; if(sizeVal){ sizeVal.textContent = Math.round(k * 100) + "%"; sizeVal.classList.remove("pop"); void sizeVal.offsetWidth; sizeVal.classList.add("pop"); } store("lor-k", String(k)); }
+/* пока палец на блоке «Размер текста», блок стоит на месте поверх меню: остальное растёт или сжимается, меню подкручивается;
+   что не удалось компенсировать прокруткой, держит сдвиг блока. Отпустили — блок плавно встаёт на своё новое место (просьба 27.10.2026) */
+var sizeSec = sizeRange.closest(".d-sec"), pinTop = null, pinOff = 0;
+function pinStart(){ if(pinTop !== null) return; pinTop = sizeSec.getBoundingClientRect().top - pinOff; sizeSec.style.transition = "none"; sizeSec.classList.add("pinned"); }
+function pinHold(){
+  if(pinTop === null) return;
+  var nat = sizeSec.getBoundingClientRect().top - pinOff;
+  menu.scrollTo({top: menu.scrollTop + nat - pinTop, behavior: "instant"});
+  nat = sizeSec.getBoundingClientRect().top - pinOff;
+  pinOff = pinTop - nat; sizeSec.style.transform = pinOff ? "translateY(" + pinOff + "px)" : "";
+}
+function pinEnd(){
+  if(pinTop === null) return;
+  pinTop = null; pinOff = 0; sizeSec.classList.remove("pinned"); void sizeSec.offsetWidth;
+  sizeSec.style.transition = root.dataset.anim === "off" ? "none" : "transform .38s cubic-bezier(.34,1.3,.64,1)";
+  sizeSec.style.transform = "";
+}
+sizeSec.addEventListener("pointerdown", pinStart);
+["pointerup", "pointercancel", "touchend", "touchcancel"].forEach(function(ev){ addEventListener(ev, pinEnd); });
+function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; pinHold(); if(sizeVal){ sizeVal.textContent = Math.round(k * 100) + "%"; sizeVal.classList.remove("pop"); void sizeVal.offsetWidth; sizeVal.classList.add("pop"); } store("lor-k", String(k)); }
 sizeRange.addEventListener("input", function(){ setK(+sizeRange.value); });
-$("sizeDown").onclick = function(){ setK(+sizeRange.value - 0.05); };
-$("sizeUp").onclick = function(){ setK(+sizeRange.value + 0.05); };
+/* у кнопок click приходит после pointerup — закрепляем блок на время самого шага */
+$("sizeDown").onclick = function(){ pinStart(); setK(+sizeRange.value - 0.05); pinEnd(); };
+$("sizeUp").onclick = function(){ pinStart(); setK(+sizeRange.value + 0.05); pinEnd(); };
 (function(){ var k = Math.min(1.3, Math.max(0.7, +(store("lor-k") || 1))); root.style.setProperty("--k", k); sizeRange.value = k; if(sizeVal) sizeVal.textContent = Math.round(k * 100) + "%"; })();
 /* переключатель плавных анимаций интерфейса */
 (function(){
@@ -171,6 +222,34 @@ function showTab(id){
   document.querySelectorAll("[data-panel]").forEach(function(p){ p.hidden = p.dataset.panel !== id; });
   document.querySelectorAll(".toc [data-totab]").forEach(function(a){ a.classList.toggle("on", a.dataset.totab === id); });
   document.querySelectorAll(".toc [data-tosec]").forEach(function(a){ var s = $(a.dataset.tosec); a.hidden = !s || panelOf(s) !== id; });
+  tabInd(true);
+}
+/* заливка выбранной вкладки — одна плашка, которая переезжает к нажатой: разгон, лёгкий «удар» о край (сжалась у стенки)
+   и распрямление. Выключается вместе с плавными анимациями (просьба 27.10.2026) */
+function tabInd(move){
+  if(!tabbar) return;
+  var ind = tabbar.querySelector(".tab-ind"), b = tabbar.querySelector('[aria-selected="true"]');
+  if(!b) return;
+  if(!ind){
+    ind = document.createElement("span"); ind.className = "tab-ind"; ind.setAttribute("aria-hidden", "true");
+    tabbar.insertBefore(ind, tabbar.firstChild); tabbar.classList.add("has-ind"); move = false;
+    if(window.ResizeObserver){ var ro = new ResizeObserver(function(){ tabInd(false); }); ro.observe(tabbar); tabbar.querySelectorAll("[data-tab]").forEach(function(x){ ro.observe(x); }); }  /* кнопки меняют ширину с размером текста и после загрузки шрифта */
+  }
+  var L1 = b.offsetLeft, W1 = b.offsetWidth, L0 = ind.offsetLeft, W0 = ind.offsetWidth;
+  if(ind._a){ ind._a.cancel(); ind._a = null; }
+  ind.style.left = L1 + "px"; ind.style.width = W1 + "px";
+  if(!move || !W0 || L0 === L1 || !ind.animate || root.dataset.anim === "off" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var right = L1 > L0, d = Math.min(W1 * .08, 10);
+  /* сжатие у «стенки»: край, которым плашка ударилась, стоит, противоположный подтягивается */
+  var squash = right ? {left: (L1 + d) + "px", width: (W1 - d) + "px"} : {left: L1 + "px", width: (W1 - d) + "px"};
+  ind._a = ind.animate([
+    {left: L0 + "px", width: W0 + "px", easing: "cubic-bezier(.55,0,.85,.45)"},
+    {left: (right ? L0 + (L1 - L0) * .35 : L1 + (L0 - L1) * .65 - (W0 + W1) * .06) + "px", width: ((W0 + W1) / 2 * 1.12) + "px", offset: .38, easing: "cubic-bezier(.3,.6,.7,1)"},
+    {left: L1 + "px", width: W1 + "px", offset: .66, easing: "ease-out"},
+    {left: squash.left, width: squash.width, offset: .82, easing: "cubic-bezier(.3,1.4,.6,1)"},
+    {left: L1 + "px", width: W1 + "px"}
+  ], {duration: 460});
+  ind._a.onfinish = function(){ ind._a = null; };
 }
 function findEl(id){ return id ? (document.getElementById(id) || document.querySelector('[data-v="' + id.replace(/"/g, "") + '"]')) : null; }
 function panelOf(el){ var p = el && el.closest("[data-panel]"); return p ? p.dataset.panel : null; }
@@ -1022,9 +1101,9 @@ window.LOR_ICONS = LOR_ICONS;  /* до вызова lorTextbook: значки р
 if(typeof lorTables === "function") lorTables();
 if(typeof lorAlgorithms === "function") lorAlgorithms();
 if(typeof lorTextbook === "function") lorTextbook();
+window.lorIcon = gicon;  /* до lorHubHero: иначе при прямом открытии словаря, МКБ и «Препаратов» шапка оставалась без значка */
 if(typeof lorHubHero === "function") lorHubHero();
 if(typeof updateDrawerNav === "function") updateDrawerNav();
-window.lorIcon = gicon;
 }
 
 /* ---------- Единая шапка-пространство (.tb-hero) для 4 главных экранов (Учебник, Препараты, МКБ-10, Словарь) ---------- */
@@ -1051,7 +1130,10 @@ function lorHubHero(){
   } else if(fname === "mkb.html"){
     cfg = {ico:"mkb", kicker:"Классификатор Минздрава РФ · ЛОР-рубрики"};
   } else if(B.page === "glossary" || /^slovar/.test(fname)){
-    cfg = {ico:"glossary", kicker:"51 клиническая рекомендация · 1764 термина"};
+    /* числа — из сборки словаря (data-kr, data-terms у <body>), а не вписаны руками: было «1764» при 1770 в описании */
+    var nk = +B.kr, nt = +B.terms;
+    function pl(n, one, few, many){ var a = n % 10, b = n % 100; return n + " " + (a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many); }
+    cfg = {ico:"glossary", kicker: nk && nt ? pl(nk, "клиническая рекомендация", "клинические рекомендации", "клинических рекомендаций") + " · " + pl(nt, "термин", "термина", "терминов") : "Термины и сокращения КР"};
   }
   if(!cfg || main.querySelector(".tb-hero")) return;
   var h1 = main.querySelector(":scope > h1.pt");
