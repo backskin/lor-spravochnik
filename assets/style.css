@@ -92,7 +92,6 @@ body.searching{overflow:hidden}
 .row.ext::after{content:"↗";font-size:16px}
 .row.toggle::after{transform:rotate(90deg);transition:transform .15s}
 .row.toggle[aria-expanded="true"]::after{transform:rotate(-90deg)}
-.row.dim .rt{color:var(--fg2)}
 .row.copy::after{content:none}
 .row mark,.results mark{background:none;color:inherit;font-weight:600}
 .sublist{padding-left:var(--s4)}
@@ -444,7 +443,6 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
 /* источник под каждым разделом страницы болезни */
 .src-of{margin-top:var(--s3);padding-top:var(--s2);border-top:1px dashed var(--line);color:var(--fg2);font-size:var(--t4);line-height:var(--l4)}
 .src-of a{white-space:nowrap}
-.source-line{color:var(--fg2);font-size:var(--t4);line-height:var(--l4);margin-top:var(--s2)}
 
 /* подсказки: затемнение всего, кроме подсвеченного элемента */
 .help-ring{position:fixed;z-index:70;border-radius:var(--r);box-shadow:0 0 0 9999px rgba(0,0,0,.55);outline:2px solid var(--ac);transition:all .2s ease;pointer-events:auto}
@@ -705,72 +703,6 @@ html{scrollbar-gutter:stable}
   background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 6%,var(--bg)),var(--bg));
   border:1px solid color-mix(in srgb,var(--ac) 32%,var(--line));
 }
-.alg-triv-summary{
-  padding:var(--s3) var(--s4);
-  border-radius:10px;
-  background:var(--bg);
-  border:1px solid var(--line);
-  border-left:4px solid var(--ac);
-  margin-bottom:var(--s3);
-}
-.alg-triv-lead{
-  margin:0 0 var(--s2)!important;
-  font-size:var(--t3);
-  line-height:1.5;
-  color:var(--fg);
-}
-.alg-triv-list{
-  margin:0!important;
-  padding-left:20px;
-  display:grid;
-  gap:6px;
-  font-size:var(--t4);
-  line-height:1.45;
-  color:var(--fg);
-}
-.alg-triv-fold{
-  margin:0;
-}
-.alg-triv-fold>summary.alg-triv-btn{
-  list-style:none;
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  min-height:42px;
-  padding:8px 14px;
-  border:1px solid color-mix(in srgb,var(--ac) 35%,var(--line));
-  border-radius:10px;
-  background:var(--bg);
-  color:var(--ac);
-  font-size:var(--t4);
-  font-weight:600;
-  line-height:1.35;
-  cursor:pointer;
-  transition:background .15s ease,border-color .15s ease,color .15s ease;
-}
-.alg-triv-fold>summary.alg-triv-btn::-webkit-details-marker{display:none}
-.alg-triv-fold>summary.alg-triv-btn:hover{
-  border-color:var(--ac);
-  background:color-mix(in srgb,var(--ac) 8%,var(--bg));
-}
-.alg-triv-fold[open]>summary.alg-triv-btn{
-  background:var(--ac);
-  color:#fff;
-  border-color:var(--ac);
-}
-.alg-triv-fold .fig-ico{
-  flex:none;
-  width:1.15em;
-  height:1.15em;
-  background:currentColor;
-  -webkit-mask:var(--ico-alg) center/contain no-repeat;
-  mask:var(--ico-alg) center/contain no-repeat;
-}
-.alg-triv-fold .fig-sum{flex:1}
-.alg-triv-fold[open]>summary.alg-triv-btn .fig-chev{transform:rotate(90deg)}
-.alg-triv-orig{
-  margin-top:var(--s3);
-}
 
 /* рисунок к термину — в окне термина и в словаре: небольшой, с отступами (просьба 26.10.2026) */
 .gl-fig{margin:12px 0 0;max-width:340px}
@@ -930,7 +862,6 @@ html[data-theme="dark"] .gh-ico-wrap[data-ico-type="glossary"]{--ico-c:#deb07c}
   margin:0 0 var(--s3);
 }
 .home-head-bar .pt{margin:0}
-.home-sub{margin:4px 0 0;font-size:var(--t4);color:var(--fg2)}
 .home-exp-btn{
   min-height:38px;
   padding:0 14px;
@@ -1031,25 +962,6 @@ body.home .grps{
   align-items:center;
   gap:var(--s2);
 }
-.grp-cnt{
-  min-width:30px;
-  height:28px;
-  padding:0 9px;
-  border-radius:8px;
-  background:color-mix(in srgb, var(--ac) 12%, var(--bg));
-  border:1px solid color-mix(in srgb, var(--ac) 28%, var(--line));
-  color:var(--ac);
-  font-size:var(--t4);
-  font-weight:700;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-.grp-card.is-open .grp-cnt{
-  background:var(--ac);
-  border-color:var(--ac);
-  color:#fff;
-}
 .grp-chev{
   width:28px;
   height:28px;
@@ -1106,10 +1018,6 @@ body.home .trust .lead{
   font-size:var(--t4);
   line-height:1.5;
   color:var(--fg2);
-}
-body.home .trust .source-line{
-  margin-top:var(--s2);
-  padding-top:var(--s2);
 }
 
 /* ==========================================================================
@@ -1562,27 +1470,9 @@ html[data-theme="dark"] .tb-tag-clin,html[data-theme="dark"] .tb-badge-clin{colo
   gap:6px;
   margin-top:6px;
 }
-.drg-kr-link{
-  display:inline-flex;
-  align-items:center;
-  padding:3px 9px;
-  border-radius:6px;
-  background:var(--bg);
-  border:1px solid var(--line);
-  color:var(--ac);
-  font-size:.92em;
-  font-weight:600;
-  text-decoration:none;
-}
-.drg-kr-link:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,var(--bg))}
 
 .dz-card-li{
   padding:var(--s3) var(--s4);
-}
-.dz-card-main{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
 }
 .dz-card-head{
   display:flex;
@@ -1612,9 +1502,6 @@ html[data-theme="dark"] .tb-tag-clin,html[data-theme="dark"] .tb-badge-clin{colo
   color:#fff;
   border-color:var(--ac);
   text-decoration:none;
-}
-.dz-row-btn{
-  padding-bottom:6px;
 }
 .dz-meta-grid{
   display:grid;
@@ -1989,7 +1876,6 @@ html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .ts
 .grp-head:hover .grp-chev{border-color:var(--ac)}
 .grp-card.is-open .grp-chev{background:var(--ac)!important;border-color:var(--ac);color:#fff!important;box-shadow:inset 0 2px 4px rgba(0,0,0,.18)}
 .grp-card.is-open .grp-chev svg{transform:rotate(180deg)}
-.grp-cnt{transition:none!important}
 
 /* ===== Единые алфавитные кнопки (Препараты и Словарь): золотая середина дизайна и центрирования ===== */
 .dz-abc, .gl-strip{
