@@ -1213,7 +1213,7 @@ function runScripts(list){
     });
   }, Promise.resolve());
 }
-function swap(html, url){
+function swap(html, url, atomic){
   var doc = new DOMParser().parseFromString(html, "text/html");
   if(!doc.body || !doc.querySelector("main")){
     location.href = url;
@@ -1231,8 +1231,7 @@ function swap(html, url){
   Array.prototype.slice.call(doc.body.attributes).forEach(function(a){ document.body.setAttribute(a.name, a.value); });
   netState();
   /* содержимое */
-  Array.prototype.slice.call(document.body.children).forEach(function(el){ if(!isKept(el)) el.remove(); });
-  var scripts = [], anchorEl = $("results").nextSibling;
+  var scripts = [], nodes = [];
   Array.prototype.slice.call(doc.body.childNodes).forEach(function(n){
     if(n.nodeType === 1 && n.tagName === "SCRIPT"){
       var src = n.getAttribute("src");
@@ -1241,10 +1240,23 @@ function swap(html, url){
       scripts.push({src: src ? new URL(src, url).href : "", text: n.textContent});
       return;
     }
-    document.body.insertBefore(document.importNode(n, true), anchorEl);
+    nodes.push(n);
   });
-  document.title = doc.title;
-  window.LOR_VERIFY = null;
+  function insert(){
+    Array.prototype.slice.call(document.body.children).forEach(function(el){ if(!isKept(el)) el.remove(); });
+    var anchorEl = $("results").nextSibling;
+    nodes.forEach(function(n){ document.body.insertBefore(document.importNode(n, true), anchorEl); });
+    document.title = doc.title;
+    window.LOR_VERIFY = null;
+  }
+  /* глава → глава учебника (atomic): сначала скрипты данных, потом в одном шаге вставка, оформление и прокрутка к началу —
+     иначе на кадр показывалась неоформленная глава (жалоба 27.10.2026 на мерцание) */
+  if(atomic) return runScripts(scripts.filter(function(x){ return x.src; })).then(function(){
+    insert(); initPage();
+    if(!new URL(url).hash) window.scrollTo(0, 0);
+    return runScripts(scripts.filter(function(x){ return !x.src; }));
+  }).then(function(){ if(window.lorTour) window.lorTour(); });
+  insert();
   return runScripts(scripts.filter(function(x){ return x.src; })).then(function(){
     initPage();
     return runScripts(scripts.filter(function(x){ return !x.src; }));
@@ -1272,7 +1284,7 @@ function go(url, push){
     }
 
     var run = function(){
-      return swap(html, u.href).then(function(){
+      return swap(html, u.href, tbToTb).then(function(){
         /* 1) Переход Главная -> Раздел: связываем .tb-hero с нажатой карточкой */
         if(activeHubCard || pendingHubTarget){
           var hero = document.querySelector(".tb-hero");
@@ -1292,7 +1304,10 @@ function go(url, push){
       });
     };
 
-    if(document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off"){
+    /* из главы учебника в главу — без затухания всего экрана: полупрозрачный старый и новый текст накладывались друг на друга
+       (жалоба 27.10.2026); колонка-оглавление — тот же элемент, сменяется только текст справа */
+    var tbToTb = !!document.querySelector("main.tb-chap") && /^uchebnik-.+\.html$/.test(u.pathname.split("/").pop()) && !!window.__tbAside;
+    if(!tbToTb && document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off"){
       var vt = document.startViewTransition(run);
       if(vt && vt.finished){
         vt.finished.finally(function(){
@@ -1861,22 +1876,46 @@ function lorTextbook(){
   article.appendChild(flow);
   var modeHtml = '<div class="tb-mode" role="group" aria-label="Режим чтения главы">'
     + '<button type="button" data-tb-mode="scroll">Прокруткой</button><button type="button" data-tb-mode="paged">Постранично</button></div>';
-  var sameCat = TB_CHAPTERS.filter(function(ch){ return ch.cat === cur.cat; });
-  var aside = document.createElement("aside");
-  aside.className = "tb-aside";
-  aside.setAttribute("aria-label", "Навигация по главе");
-  aside.innerHTML = modeHtml
-    + (secList.length > 1 ? '<p class="tb-aside-h">Содержание главы</p><ol class="tb-aside-toc">' + secList.map(function(s){
-        return '<li><a href="#' + s.id + '" data-sec="' + s.id + '"><span class="tb-itoc-n">' + s.num + '</span><span>' + s.title + '</span></a></li>'; }).join("") + '</ol>' : '')
-    + '<p class="tb-aside-h">' + cur.catTitle + '</p><ul class="tb-aside-ch">' + sameCat.map(function(ch){
-        return ch === cur ? '<li><span aria-current="page"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></span></li>'
-          : '<li><a href="' + ch.href + '"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></a></li>'; }).join("") + '</ul>'
-    + '<a class="tb-aside-all" href="uchebnik.html">' + allCh + ' →</a>';
+  /* Левая колонка — одно постоянное оглавление всего учебника (жалоба 27.10.2026: при переходе между главами колонка пересоздавалась,
+     в каждой главе была своя и при переходе накладывалась на старую). Элемент создаётся один раз и переносится в новую страницу:
+     перерисовывается только правая часть, в колонке меняется лишь текущая глава и раскрытые под ней разделы. */
+  var aside = window.__tbAside || null;
+  if(!aside){
+    var groups = [];
+    TB_CHAPTERS.forEach(function(ch){ if(!groups.some(function(g){ return g.cat === ch.cat; })) groups.push({cat: ch.cat, title: ch.catTitle}); });
+    aside = document.createElement("aside");
+    aside.className = "tb-aside";
+    aside.setAttribute("aria-label", "Оглавление учебника");
+    aside.innerHTML = modeHtml + groups.map(function(g){
+        return '<p class="tb-aside-h">' + g.title + '</p><ul class="tb-aside-ch">' + TB_CHAPTERS.filter(function(ch){ return ch.cat === g.cat; }).map(function(ch){
+          return '<li data-href="' + ch.href + '"><a href="' + ch.href + '"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></a></li>'; }).join("") + '</ul>';
+      }).join("") + '<a class="tb-aside-all" href="uchebnik.html">Оглавление учебника →</a>';
+    aside.addEventListener("scroll", function(){ try{ sessionStorage.setItem("lor-tb-aside-st", String(aside.scrollTop)); }catch(e){} }, {passive: true});
+    window.__tbAside = aside;
+    var fresh = true;
+  }
+  var curLi = null;
+  aside.querySelectorAll(".tb-aside-ch > li").forEach(function(li){
+    var on = li.dataset.href === cur.href, a = li.firstElementChild, ol = li.querySelector(".tb-aside-toc");
+    if(ol) ol.remove();
+    li.classList.toggle("cur", on);
+    if(on){
+      curLi = li; a.setAttribute("aria-current", "page"); a.setAttribute("href", "#" + (secList[0] ? secList[0].id : "r1"));
+      if(secList.length > 1) li.insertAdjacentHTML("beforeend", '<ol class="tb-aside-toc">' + secList.map(function(sx){
+        return '<li><a href="#' + sx.id + '" data-sec="' + sx.id + '"><span class="tb-itoc-n">' + sx.num + '</span><span>' + sx.title + '</span></a></li>'; }).join("") + '</ol>');
+    } else { a.removeAttribute("aria-current"); a.setAttribute("href", li.dataset.href); }
+  });
+  main.classList.add("tb-chap");  /* до замеров: без этого класса колонка скрыта и её высота — ноль */
   main.appendChild(aside);
   main.appendChild(article);
-  /* прокрутка списка в колонке сохраняется при переходе между главами: колонка не «прыгает» к началу */
-  try{ var ast = +sessionStorage.getItem("lor-tb-aside-st") || 0; if(ast) aside.scrollTop = ast; }catch(e){}
-  aside.addEventListener("scroll", function(){ try{ sessionStorage.setItem("lor-tb-aside-st", String(aside.scrollTop)); }catch(e){} }, {passive: true});
+  if(fresh){  /* первое открытие учебника: прокрутка колонки — как была в этой вкладке, иначе — к текущей главе */
+    var ast = 0; try{ ast = +sessionStorage.getItem("lor-tb-aside-st") || 0; }catch(e){}
+    aside.scrollTop = ast || (curLi ? Math.max(0, curLi.offsetTop - 120) : 0);
+  }
+  if(curLi){  /* текущая глава всегда видна в колонке; если видна — колонка не двигается */
+    var ar = aside.getBoundingClientRect(), lr = curLi.firstElementChild.getBoundingClientRect();
+    if(ar.height && (lr.top < ar.top + 40 || lr.bottom > ar.bottom - 20)) aside.scrollTop += lr.top - ar.top - 120;
+  }
   main.classList.add("tb-chap");
   var barLeft = bar.querySelector(".tb-ch-bar-left");
   if(barLeft) barLeft.insertAdjacentHTML("beforeend", modeHtml);  /* на телефоне и планшете — переключатель в верхней строке */

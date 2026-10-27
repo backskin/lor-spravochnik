@@ -2085,7 +2085,9 @@ html.tb-paged main.tb-chap{display:block}
 }
 @media (prefers-reduced-motion:reduce){html.tb-paged .tb-aside{transition:none}}
 html[data-anim="off"] .tb-aside{transition:none!important}
-::view-transition-old(tb-aside),::view-transition-new(tb-aside){animation:none}
+/* колонка при переходе между главами — тот же элемент: старый снимок не показываем (иначе два оглавления накладывались), новый — без затухания */
+::view-transition-old(tb-aside){display:none}
+::view-transition-new(tb-aside){animation:none}
 html.tb-paged .crumbs,html.tb-paged .tb-ch-bar,html.tb-paged .tb-ch-hero,html.tb-paged .tb-inline-toc,
 html.tb-paged .site-foot,html.tb-paged .foot,html.tb-paged footer{display:none!important}
 html.tb-paged .tb-flow{column-count:1;column-gap:40px;column-fill:auto;overflow:hidden;touch-action:pan-y pinch-zoom}
@@ -2115,3 +2117,13 @@ html.tb-paged .tb-sec-content figure{break-inside:auto}  /* длинная по�
 html.tb-paged .fig-scroll{break-inside:avoid}
 .tb-pg-toc{flex:none;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--bg2);color:var(--fg);font:inherit;font-size:var(--t4);font-weight:600;cursor:pointer}
 .tb-pg-toc[aria-expanded="true"]{border-color:var(--ac);color:var(--ac)}
+.tb-tcap{margin-top:var(--s4)!important;font-weight:600;color:var(--fg)}
+.tb-sec-content .tbl-wrap{margin:var(--s2) 0 var(--s3)}
+html.tb-paged .tbl-wrap{break-inside:avoid}
+
+/* постоянное оглавление учебника в колонке: место под полосу прокрутки занято всегда — ширина и текст не прыгают */
+.tb-chap .tb-aside{scrollbar-gutter:stable;scrollbar-width:thin}
+.tb-aside-ch li.cur>a{color:var(--fg);font-weight:600;background:var(--bg2)}
+.tb-aside-ch .tb-aside-toc{margin:2px 0 8px 14px;padding-left:6px;border-left:2px solid color-mix(in srgb,var(--ac) 35%,var(--line))}
+.tb-aside-ch .tb-aside-toc a{padding:5px 8px}
+.tb-aside-h:first-of-type{margin-top:0}
