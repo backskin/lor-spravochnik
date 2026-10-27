@@ -1133,18 +1133,68 @@ function swap(html, url){
   }).then(function(){ if(window.lorTour) window.lorTour(); });
 }
 var navSeq = 0;
+var activeHubCard = null;
+var pendingHubTarget = "";
+var activeHubHero = null;
+
 function go(url, push){
   var u = new URL(url, location.href), my = ++navSeq;
   if(push) history.pushState({lor:1}, "", u.href);  /* адрес меняется сразу: «назад» работает даже во время загрузки */
   return fetch(u.href.split("#")[0]).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); }).then(function(html){
     if(my !== navSeq) return;  /* пока грузилось, нажали другую ссылку — этот ответ уже не нужен */
+    var isGoingHome = /index\.html$|\/$/.test(u.pathname);
+    var fromHubPage = pendingHubTarget || location.pathname.split("/").pop() || "";
+    var currentHero = document.querySelector(".tb-hero");
+
+    /* Если уходим со страницы хаба (.tb-hero) на главную — подготавливаем обратный морф в карточку */
+    if(isGoingHome && currentHero && !activeHubCard && root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+      activeHubHero = currentHero;
+      currentHero.style.viewTransitionName = "hub-hero";
+    }
+
     var run = function(){
-      var p = swap(html, u.href);
-      if(!u.hash) window.scrollTo(0, 0);
-      return p;
+      return swap(html, u.href).then(function(){
+        /* 1) Переход Главная -> Раздел: связываем .tb-hero с нажатой карточкой */
+        if(activeHubCard || pendingHubTarget){
+          var hero = document.querySelector(".tb-hero");
+          if(hero){
+            hero.style.viewTransitionName = "hub-hero";
+          }
+        }
+        /* 2) Обратный переход Раздел -> Главная: связываем карточку на главной со свернувшимся героем */
+        else if(activeHubHero && isGoingHome){
+          var base = fromHubPage.replace(/\.html$/, "");
+          var card = document.querySelector('.hq-card[href*="' + base + '"]');
+          if(card){
+            card.style.viewTransitionName = "hub-hero";
+          }
+        }
+        if(!u.hash) window.scrollTo(0, 0);
+      });
     };
-    if(document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off") document.startViewTransition(run);
-    else run();
+
+    if(document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off"){
+      var vt = document.startViewTransition(run);
+      if(vt && vt.finished){
+        vt.finished.finally(function(){
+          document.querySelectorAll("[style*='view-transition-name']").forEach(function(el){
+            el.style.viewTransitionName = "";
+          });
+          activeHubCard = null;
+          pendingHubTarget = "";
+          activeHubHero = null;
+        });
+      }
+    } else {
+      run().finally(function(){
+        document.querySelectorAll("[style*='view-transition-name']").forEach(function(el){
+          el.style.viewTransitionName = "";
+        });
+        activeHubCard = null;
+        pendingHubTarget = "";
+        activeHubHero = null;
+      });
+    }
   }).catch(function(){ if(my === navSeq) location.href = u.href; });
 }
 document.addEventListener("click", function(e){
@@ -1157,6 +1207,9 @@ document.addEventListener("click", function(e){
   e.preventDefault();
   var hq = a.closest(".hq-card");
   if(hq && root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+    activeHubCard = hq;
+    pendingHubTarget = u.pathname.split("/").pop() || "";
+    hq.style.viewTransitionName = "hub-hero";
     hq.classList.add("is-pressed");
     setTimeout(function(){
       hq.classList.remove("is-pressed");

@@ -2,16 +2,16 @@
    При установке новой версии сразу обновляется ядро (шапка, стили, скрипты, главные экраны),
    старый кэш мгновенно удаляется, страница один раз перезагружается, а остальные файлы
    докачиваются в фоне для полного офлайн-режима. */
-var CACHE = "lor-b2a59d71c840", MEDIA = "lor-media";
+var CACHE = "lor-c71a39f04e8d", MEDIA = "lor-media";
 var CORE = [
   "./",
   "index.html",
-  "assets/style.css?v=b2a59d71c840",
-  "assets/shell.js?v=b2a59d71c840",
-  "assets/app.js?v=b2a59d71c840",
-  "assets/data.js?v=b2a59d71c840",
-  "assets/grls.js?v=b2a59d71c840",
-  "assets/mkb.js?v=b2a59d71c840",
+  "assets/style.css?v=c71a39f04e8d",
+  "assets/shell.js?v=c71a39f04e8d",
+  "assets/app.js?v=c71a39f04e8d",
+  "assets/data.js?v=c71a39f04e8d",
+  "assets/grls.js?v=c71a39f04e8d",
+  "assets/mkb.js?v=c71a39f04e8d",
   "assets/style.css",
   "assets/shell.js",
   "assets/app.js",

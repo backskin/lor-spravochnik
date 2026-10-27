@@ -1831,19 +1831,42 @@ html[data-theme="dark"] .grp-head .gh-ico-wrap[data-ico-type]{--ico-c:#fff}
 }
 
 
-@keyframes lorHubSpaceIn{
-  from{opacity:0;transform:translateY(14px) scale(.985)}
-  to{opacity:1;transform:translateY(0) scale(1)}
+/* ==========================================================================
+   VIEW TRANSITION: Плавное расширение быстрых карточек (.hq-card -> .tb-hero)
+   ========================================================================== */
+::view-transition-group(hub-hero) {
+  animation-duration: .32s;
+  animation-timing-function: cubic-bezier(.2, .9, .3, 1);
+  overflow: hidden;
+  border-radius: 14px;
+  z-index: 60;
 }
-@keyframes lorHubHeroIn{
-  from{opacity:.35;transform:scale(.97)}
-  to{opacity:1;transform:scale(1)}
+::view-transition-old(hub-hero) {
+  animation: lorHubOldFade .14s ease-out both;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: top left;
 }
-main.page.hub-entering > .tb-hero{
-  animation:lorHubHeroIn .28s cubic-bezier(.22,1,.36,1) both;
+::view-transition-new(hub-hero) {
+  animation: lorHubNewFade .32s cubic-bezier(.2, .9, .3, 1) both;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: top left;
 }
-main.page.hub-entering > :not(.tb-hero){
-  animation:lorHubSpaceIn .34s cubic-bezier(.22,1,.36,1) .05s both;
+@keyframes lorHubOldFade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes lorHubNewFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+html[data-anim="off"]::view-transition-group(hub-hero),
+html[data-anim="off"]::view-transition-old(hub-hero),
+html[data-anim="off"]::view-transition-new(hub-hero) {
+  animation: none!important;
 }
 
 /* Единая шапка-пространство (.tb-hero) для всех 4 разделов: Учебник, Препараты, Коды МКБ-10, Словарь */
