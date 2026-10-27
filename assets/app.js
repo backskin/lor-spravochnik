@@ -60,16 +60,7 @@ document.body.insertAdjacentHTML("beforeend",
   + '<div class="toast" id="toast" role="status"></div>'
   + '<nav class="drawer" id="menu" aria-label="Меню" hidden>'
   + '<div class="drawer-top"><div class="drawer-brand"><span class="drawer-t">ЛОР-справочник</span><span class="drawer-sub">Клинические рекомендации Минздрава РФ</span></div><button class="x drawer-x" type="button" data-close aria-label="Закрыть меню">✕</button></div>'
-  + '<ul class="list drawer-nav">'
-  + row("index.html", "Главная", "все рекомендации по разделам")
-  + row("uchebnik.html", "Учебник", "20 глав · анатомия, клиника и операции")
-  + row("preparaty.html", "Препараты и торговые названия", "показания, противопоказания и реестр ГРЛС")
-  + row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код")
-  + row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций")
-  + row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"')
-  + row("kak-polzovatsya.html", "Как пользоваться", "краткая справка по возможностям")
-  + row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены")
-  + "</ul>"
+  + '<ul class="list drawer-nav" id="drawerNav"></ul>'
   + '<div class="drawer-settings">'
   + '<div class="d-sec"><div class="d-sec-h"><span>Размер текста</span><span class="tsize-val" id="sizeVal">100%</span></div>'
   + '<div class="tsize-row">'
@@ -95,11 +86,39 @@ var scrim = $("scrim"), pop = $("pop"), ask = $("ask");
 function openSheet(s){ closeSheets(); s.classList.add("on"); scrim.classList.add("on"); root.classList.add("sheet-lock"); }
 function closeSheets(){ pop.classList.remove("on"); ask.classList.remove("on"); $("askBtn").setAttribute("aria-expanded", "false"); $("moreSheet").classList.remove("on"); scrim.classList.remove("on"); root.classList.remove("sheet-lock"); closeMenu(); }
 var menu = $("menu"), menuBtn = $("menuBtn");
+function updateDrawerNav(){
+  var nav = $("drawerNav");
+  if(!nav) return;
+  var path = location.pathname;
+  var fname = (path.split("/").pop() || "").split("?")[0].split("#")[0];
+  var isHome = document.body.classList.contains("home") || path === "/" || fname === "" || fname === "index.html";
+  var isTb = document.body.classList.contains("tb-page") || document.body.classList.contains("tb-hub") || /^uchebnik/.test(fname);
+  var isDrugs = (document.body.dataset && document.body.dataset.page === "drugs") || fname === "preparaty.html";
+  var isMkb = fname === "mkb.html";
+  var isGlossary = (document.body.dataset && document.body.dataset.page === "glossary") || /^slovar/.test(fname);
+  var isHelp = fname === "kak-polzovatsya.html";
+  var isSources = fname === "istochniki.html";
+
+  var items = [];
+  if(!isHome){
+    items.push(row("index.html", "← На главную", "все рекомендации по разделам", "drawer-home-row"));
+    if(!isTb) items.push(row("uchebnik.html", "Учебник", "20 глав · анатомия, клиника и операции"));
+    if(!isDrugs) items.push(row("preparaty.html", "Препараты и торговые названия", "показания, противопоказания и реестр ГРЛС"));
+    if(!isMkb) items.push(row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код"));
+    if(!isGlossary) items.push(row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций"));
+  }
+  items.push(row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"'));
+  if(!isHelp) items.push(row("kak-polzovatsya.html", "Как пользоваться", "краткая справка по возможностям"));
+  if(!isSources) items.push(row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены"));
+
+  nav.innerHTML = items.join("");
+}
 /* пока меню открыто, страница под ним не прокручивается */
 function lockPage(on){ root.classList.toggle("menu-lock", on); }
-function openMenu(){ lockPage(true); menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
+function openMenu(){ updateDrawerNav(); lockPage(true); menu.hidden = false; requestAnimationFrame(function(){ menu.classList.add("on"); }); scrim.classList.add("on"); menuBtn.setAttribute("aria-expanded", "true"); }
 function closeMenu(){ if(!menu || menu.hidden) return; lockPage(false); menu.classList.remove("on"); menuBtn.setAttribute("aria-expanded", "false"); setTimeout(function(){ if(!menu.classList.contains("on")) menu.hidden = true; }, root.dataset.anim === "off" ? 0 : 200); }
 menuBtn.onclick = function(){ if(menu.classList.contains("on")){ closeMenu(); scrim.classList.remove("on"); } else openMenu(); };
+updateDrawerNav();
 /* тема: светлая / как в системе / тёмная */
 function themeSync(){ var t = root.dataset.theme || ""; $("themeSeg").querySelectorAll("button").forEach(function(b){ b.type = "button"; b.setAttribute("aria-selected", String(b.dataset.th === t)); }); }
 $("themeSeg").addEventListener("click", function(e){ var b = e.target.closest("button"); if(!b) return;
@@ -118,7 +137,7 @@ document.querySelectorAll(".sheet").forEach(function(sh){
 });
 /* размер текста: плавный множитель шрифтовой шкалы от 0,7 до 1,3 — обычный ровно посередине, мельче нужнее, чем крупнее; применяется сразу и запоминается */
 var sizeRange = $("sizeRange"), sizeVal = $("sizeVal");
-function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; if(sizeVal) sizeVal.textContent = Math.round(k * 100) + "%"; store("lor-k", String(k)); }
+function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; if(sizeVal){ sizeVal.textContent = Math.round(k * 100) + "%"; sizeVal.classList.remove("pop"); void sizeVal.offsetWidth; sizeVal.classList.add("pop"); } store("lor-k", String(k)); }
 sizeRange.addEventListener("input", function(){ setK(+sizeRange.value); });
 $("sizeDown").onclick = function(){ setK(+sizeRange.value - 0.05); };
 $("sizeUp").onclick = function(){ setK(+sizeRange.value + 0.05); };
@@ -1004,6 +1023,7 @@ if(typeof lorTables === "function") lorTables();
 if(typeof lorAlgorithms === "function") lorAlgorithms();
 if(typeof lorTextbook === "function") lorTextbook();
 if(typeof lorHubHero === "function") lorHubHero();
+if(typeof updateDrawerNav === "function") updateDrawerNav();
 window.lorIcon = gicon;
 }
 
@@ -1077,7 +1097,10 @@ function runScripts(list){
 }
 function swap(html, url){
   var doc = new DOMParser().parseFromString(html, "text/html");
-  if(!doc.body || !doc.querySelector("main")) throw new Error("не страница справочника");
+  if(!doc.body || !doc.querySelector("main")){
+    location.href = url;
+    return Promise.resolve();
+  }
   if(pageAbort) pageAbort.abort();
   pageAbort = window.AbortController ? new AbortController() : null;
   closeSheets(); closeResults(); qIn.blur();
@@ -1480,7 +1503,7 @@ function lorAlgorithms(){
   });
 }
 
-/* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех глав (uchebnik-*.html) ---------- */
+/* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех 17 глав (uchebnik-*.html) ---------- */
 function lorTextbook(){
   var ICONS = window.LOR_ICONS || {};
   document.querySelectorAll("[data-ico]").forEach(function(el){
@@ -1629,17 +1652,15 @@ function lorTextbook(){
   /* Листалка Предыдущая / Следующая глава и плашка связанных КР */
   var prev = curIdx > 0 ? TB_CHAPTERS[curIdx - 1] : null;
   var nextCh = curIdx < TB_CHAPTERS.length - 1 ? TB_CHAPTERS[curIdx + 1] : null;
-  var nAll = TB_CHAPTERS.length, n10 = nAll % 10, n100 = nAll % 100;  /* число глав — из списка, а не зашитое «17» */
-  var allCh = "Все " + nAll + " " + (n10 === 1 && n100 !== 11 ? "глава" : n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? "главы" : "глав") + " учебника";
   var navFoot = document.createElement("nav");
   navFoot.className = "tb-prevnext";
   navFoot.setAttribute("aria-label", "Переход между главами учебника");
   navFoot.innerHTML = (prev
       ? '<a class="tb-pn-card tb-pn-prev" href="' + prev.href + '"><span class="tb-pn-dir">← Предыдущая глава (' + prev.num + ')</span><b>' + prev.title + '</b><small>' + prev.catTitle + '</small></a>'
-      : '<a class="tb-pn-card tb-pn-prev" href="uchebnik.html"><span class="tb-pn-dir">← К оглавлению</span><b>' + allCh + '</b><small>Выбор раздела по органам</small></a>')
+      : '<a class="tb-pn-card tb-pn-prev" href="uchebnik.html"><span class="tb-pn-dir">← К оглавлению</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>')
     + (nextCh
       ? '<a class="tb-pn-card tb-pn-next" href="' + nextCh.href + '"><span class="tb-pn-dir">Следующая глава (' + nextCh.num + ') →</span><b>' + nextCh.title + '</b><small>' + nextCh.catTitle + '</small></a>'
-      : '<a class="tb-pn-card tb-pn-next" href="uchebnik.html"><span class="tb-pn-dir">К оглавлению →</span><b>' + allCh + '</b><small>Выбор раздела по органам</small></a>');
+      : '<a class="tb-pn-card tb-pn-next" href="uchebnik.html"><span class="tb-pn-dir">К оглавлению →</span><b>Все 17 глав учебника</b><small>Выбор раздела по органам</small></a>');
   var noteEl = main.querySelector(".tb-note");
   if(noteEl) main.insertBefore(navFoot, noteEl);
   else main.appendChild(navFoot);

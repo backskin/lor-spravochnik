@@ -358,6 +358,15 @@ body.offline .offline-bar{display:block;background:var(--bg2);color:var(--fg2);f
   padding:var(--s2) var(--s4) var(--s3) max(20px,env(safe-area-inset-left,0px));
 }
 .drawer-nav .row{min-height:52px;padding:12px 0}
+.drawer-nav .drawer-home-row{
+  min-height:46px;
+  padding:8px 12px;
+  margin-bottom:8px;
+  background:var(--bg2);
+  border:1px solid var(--line);
+  border-radius:10px;
+}
+.drawer-nav .drawer-home-row .rt{color:var(--ac);font-weight:700}
 .drawer .row .rt{font-weight:600}
 .drawer .row .rs{font-weight:400;margin-top:2px}
 
@@ -1904,7 +1913,22 @@ main.page.hub-entering > :not(.tb-hero){
 .themes button:last-child,.tsize-row .tsize-b:last-child{border-right:0!important}
 .themes button:active,.tsize-row .tsize-b:active{transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.16)!important;background:var(--bg2)}
 .themes button[aria-selected="true"]{background:var(--ac)!important;color:#fff!important;box-shadow:inset 0 2px 5px rgba(0,0,0,.18)!important;transform:translateY(1px)}
-.themes button svg{transform:none!important}
+.themes button svg{
+  display:block;
+  transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .3s ease;
+}
+.themes button:active svg{transform:scale(.86)}
+.themes button[data-th="light"][aria-selected="true"] svg{transform:rotate(90deg) scale(1.18);filter:drop-shadow(0 0 5px rgba(255,230,120,.55))}
+.themes button[data-th=""][aria-selected="true"] svg{transform:rotate(180deg) scale(1.12)}
+.themes button[data-th="dark"][aria-selected="true"] svg{transform:rotate(-28deg) scale(1.18);filter:drop-shadow(0 0 5px rgba(180,210,255,.45))}
+
+.tsize-aSm,.tsize-aLg{display:inline-block;transition:transform .32s cubic-bezier(.34,1.56,.64,1),color .2s ease}
+.tsize-b:hover .tsize-aSm{transform:scale(.88)}
+.tsize-b:active .tsize-aSm{transform:scale(.72) translateY(1px)}
+.tsize-b:hover .tsize-aLg{transform:scale(1.16)}
+.tsize-b:active .tsize-aLg{transform:scale(1.3) translateY(-1px)}
+.tsize-val.pop{animation:valPop .25s cubic-bezier(.34,1.56,.64,1)}
+@keyframes valPop{0%{transform:scale(1.22)} 100%{transform:scale(1)}}
 .tsize-row{align-items:stretch}
 .tsize-row .tsize-b{flex:0 0 74px}
 .tsize-row .tsize-b:first-child{border-right:1px solid var(--line)!important}
