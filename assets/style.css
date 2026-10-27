@@ -1939,17 +1939,24 @@ main.page.hub-entering > :not(.tb-hero){
 .d-sec .drawer-reset-list .row{padding:10px 0!important}
 html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .tsize-b:active{transform:none}
 /* срез полосы — под постоянным углом при любой высоте карточки: наклонённая подложка вместо обрезки в процентах.
-   Перекрываем с запасом вверх (-3px), вниз (-4px) и влево (-80px), исключая любые белые горизонтальные щели */
-.grp-head .gh-ico-wrap{clip-path:none!important;background:none!important;overflow:visible;z-index:0}
-.grp-head .gh-ico-wrap::before{content:"";position:absolute;top:-3px;bottom:-4px;left:-80px;right:0;background:var(--top-bg,#0b6b53);
+   Умное решение: шапка с overflow:hidden и точным перекрытием (-1px по границе) — полностью исключает
+   зеленые вылеты в раскрытый список и гарантирует отсутствие белых горизонтальных щелей */
+.grp-head{
+  position:relative;
+  overflow:hidden!important;
+  border-bottom:1px solid transparent!important;
+  border-top-left-radius:13px;
+  border-top-right-radius:13px;
+  isolation:isolate;
+}
+.grp-card:not(.is-open) .grp-head{
+  border-bottom-left-radius:13px;
+  border-bottom-right-radius:13px;
+}
+.grp-head .gh-ico-wrap{clip-path:none!important;background:none!important;overflow:visible;z-index:1}
+.grp-head .gh-ico-wrap::before{content:"";position:absolute;top:-2px;bottom:-1px;left:-80px;right:0;background:var(--top-bg,#0b6b53);
   transform:skewX(-12deg);transform-origin:0 0;z-index:-1}
-.grp-head .gh-ico-wrap .gh-ico{position:relative;z-index:1}
-.grp-head{isolation:isolate}
-.grp-head .gh-ico-wrap .gh-ico{color:#fff!important}
-
-/* карточка раздела: шапка не сдвигается при раскрытии (граница есть всегда, у закрытой — прозрачная);
-   стрелка — круглая кнопка постоянного размера с нарисованной стрелкой, при раскрытии заливается и стрелка разворачивается */
-.grp-head{border-bottom:1px solid transparent!important}
+.grp-head .gh-ico-wrap .gh-ico{position:relative;z-index:2;color:#fff!important}
 .grp-card.is-open .grp-head{border-bottom-color:color-mix(in srgb,var(--ac) 28%,var(--line))!important}
 .grp-chev{width:36px!important;height:36px!important;flex:none;border-radius:50%;
   border:1px solid color-mix(in srgb,var(--ac) 30%,var(--line));background:var(--bg)!important;color:var(--ac)!important;
