@@ -32,7 +32,10 @@
 @media (min-width:900px){:root{--t1:calc(26px*var(--k)); --l1:calc(32px*var(--k)); --l3:calc(26px*var(--k))}}
 
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hd) + 64px)}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hd) + 12px)}
+/* переход по якорю: раздел встаёт сразу под шапкой; запас под липкие вкладки — только в разборах (жалоба 27.10.2026: в учебнике и словаре
+   было видно конец предыдущего раздела) */
+html:has(body.brief){scroll-padding-top:calc(var(--hd) + 64px)}
 body{margin:0;background:var(--bg-page);color:var(--fg);font:400 var(--t3)/var(--l3) var(--font)}
 /* переносы по слогам в тексте (узкая колонка телефона); заголовки, кнопки, коды и номера не переносятся */
 main p,main li,main dd{-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word}
@@ -1355,7 +1358,7 @@ html[data-theme="dark"] .tb-tag-clin,html[data-theme="dark"] .tb-badge-clin{colo
   border-radius:12px;
   background:var(--bg);
   box-shadow:0 1px 4px rgba(0,0,0,.02);
-  scroll-margin-top:calc(var(--hd) + 16px);
+  scroll-margin-top:0;
 }
 .tb-sec-head{
   display:flex;

@@ -1122,6 +1122,17 @@ if(typeof lorAlgorithms === "function") lorAlgorithms();
 if(typeof lorTextbook === "function") lorTextbook();
 window.lorIcon = gicon;  /* до lorHubHero: иначе при прямом открытии словаря, МКБ и «Препаратов» шапка оставалась без значка */
 if(typeof lorHubHero === "function") lorHubHero();
+/* якорь при открытии страницы (словарь, учебник): браузер прыгает к цели до того, как скрипт достроит экран, и цель уезжала вниз —
+   статья вставала на 170 px ниже шапки (жалоба 27.10.2026); после сборки и загрузки шрифтов ставим её под шапку ещё раз.
+   В разборах своё reveal, в постраничном режиме страницу выбирает листалка */
+if(location.hash && !tabbar && !root.classList.contains("tb-paged")){
+  var hashEl = null; try{ hashEl = document.getElementById(decodeURIComponent(location.hash.slice(1))); }catch(err){}
+  if(hashEl){
+    var y0 = window.scrollY, toHash = function(){ if(Math.abs(window.scrollY - y0) < 40){ hashEl.scrollIntoView({block: "start"}); y0 = window.scrollY; } };
+    requestAnimationFrame(toHash);  /* только если человек ещё не прокрутил страницу сам */
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ requestAnimationFrame(toHash); });
+  }
+}
 if(typeof updateDrawerNav === "function") updateDrawerNav();
 }
 
@@ -1940,7 +1951,7 @@ function lorTextbook(){
       keep = keep || atPageStart();
       root.classList.remove("tb-paged");
       flow.style.height = ""; flow.scrollLeft = 0;
-      if(keep){ keep.scrollIntoView({block: "start"}); window.scrollBy(0, -((document.querySelector(".top") || {}).offsetHeight || 56) - 16); }
+      if(keep) keep.scrollIntoView({block: "start"});  /* отступ под шапку даёт scroll-padding-top у html */
     }
   }
   main.addEventListener("click", function(e){
