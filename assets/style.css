@@ -1400,6 +1400,10 @@ html[data-theme="dark"] .tb-tag-clin,html[data-theme="dark"] .tb-badge-clin{colo
 .tb-sec-content ol.tb-ol li + li{margin-top:var(--s1)}
 .tb-sec-content ol.tb-ol + p, .tb-sec-content ol.tb-ol + figure{margin-top:var(--s3)}
 .tb-sec-content p.tb-ol-cite{margin-top:var(--s1)}
+.tb-sec-content ol.tb-ol-lit{list-style:none;padding-left:0}
+.tb-sec-content ol.tb-ol-lit li{position:relative;padding-left:1.6em}
+.tb-sec-content ol.tb-ol-lit .tb-ol-m{position:absolute;left:0}
+.tb-sec-content ol.tb-ol-lit .tb-ol-m{color:var(--fg2)}
 .tb-sec-content figure{
   margin:var(--s4) 0;
   padding:var(--s3);
