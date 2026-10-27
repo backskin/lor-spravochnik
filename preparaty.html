@@ -4,20 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Препараты · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=0ab428497e70">
+<link rel="stylesheet" href="assets/style.css?v=d6bc95029afd">
 <style>
-.dz-abc{display:flex;flex-wrap:wrap;gap:4px;margin-top:var(--s3)}
-.dz-abc button{min-width:36px;height:36px;padding:0 8px;font:inherit;font-weight:600;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ac);cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
-.dz-abc button:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 8%,var(--bg))}
-.dz-abc button[aria-pressed="true"]{background:var(--ac);color:#fff;border-color:var(--ac)}
+/* алфавит и направления — единый «чип выбора» из assets/style.css (пересмотр дизайна 27.10.2026) */
 .dz-chips{display:flex;flex-wrap:wrap;gap:8px}
 .dz-chips .drug{max-width:100%;overflow-wrap:anywhere;display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border:1px solid color-mix(in srgb,var(--ac) 32%,var(--line));border-radius:999px;background:var(--bg);font:inherit;font-weight:600;color:var(--ac);cursor:pointer;text-align:left;box-shadow:0 1px 2px rgba(0,0,0,.03)}
 .dz-chips .drug:hover{background:var(--ac);color:#fff;border-color:var(--ac);text-decoration:none}
 .dz-chips.small .drug{min-height:34px;padding:4px 12px;font-weight:500;font-size:var(--t4)}
-.dz-dirs{display:flex;flex-wrap:wrap;gap:8px}
-.dz-dirs button{font:inherit;font-weight:600;padding:8px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--fg);cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
-.dz-dirs button:hover{border-color:var(--ac);color:var(--ac)}
-.dz-dirs button[aria-selected="true"]{background:var(--ac);color:#fff;border-color:var(--ac);box-shadow:0 2px 6px rgba(11,107,83,.22)}
 .dz-top{list-style:none;padding:0;margin:var(--s3) 0 0;display:grid;gap:var(--s3)}
 .dz-top li.dz-card-li{display:block;padding:var(--s4);border:1px solid var(--line);border-radius:12px;background:var(--bg);box-shadow:0 2px 6px rgba(0,0,0,.025)}
 .dz-top .dz-name{font-size:var(--t2);font-weight:700;color:var(--fg);line-height:1.3}
@@ -45,7 +38,7 @@
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body data-page="drugs">
-<script src="assets/shell.js?v=0ab428497e70"></script>
+<script src="assets/shell.js?v=d6bc95029afd"></script>
 
 <main class="page">
   <h1 class="pt">Препараты</h1>
@@ -66,9 +59,9 @@
   <p class="src-of">Источник: Государственный реестр лекарственных средств Минздрава России · <a href="https://grls.rosminzdrav.ru/" target="_blank" rel="noopener">grls.rosminzdrav.ru ↗</a></p>
 </main>
 
-<script src="assets/data.js?v=0ab428497e70"></script>
-<script src="assets/grls.js?v=0ab428497e70"></script>
-<script src="assets/app.js?v=0ab428497e70"></script>
+<script src="assets/data.js?v=d6bc95029afd"></script>
+<script src="assets/grls.js?v=d6bc95029afd"></script>
+<script src="assets/app.js?v=d6bc95029afd"></script>
 <script>
 (function(){
   var q = document.getElementById("q"), res = document.getElementById("dres"), st = document.getElementById("dstatus"), homeEl = document.getElementById("dhome"), E = GRLS.esc;

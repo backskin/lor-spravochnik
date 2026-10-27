@@ -2069,3 +2069,34 @@ button.dz-kr-link{font:inherit;font-size:var(--t4);font-weight:600;line-height:1
   border:1px solid color-mix(in srgb, var(--ac) 35%, var(--line));color:var(--ac);white-space:nowrap}
 .dz-card-head button.dz-kr-link:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
 .dz-card-head .dz-kr-link{min-height:36px;box-sizing:border-box;line-height:1.2}
+
+/* =====================================================================================================================
+   ЕДИНЫЕ КОМПОНЕНТЫ — пересмотр дизайна 27.10.2026 (docs/ux/10-design-review.md, шаг 4). Этот слой последний и главный:
+   одинаковое по смыслу выглядит одинаково на всех экранах.
+   ===================================================================================================================== */
+:root{--r-ctl:8px;--r-card:12px}
+
+/* Скругления: 8 px у элементов управления, 12 px у карточек и панелей (было восемь разных значений) */
+.grp-card,.hq-card,.tb-card,.tb-hero,.tb-ch-hero,.dz-top li.dz-card-li,.tb-pn-card,.aw-card,.alg-steps>li,.d-sec,.tb-ch-bar,
+.trust,.callout,.tbl-wrap{border-radius:var(--r-card)}
+.grp-card .grp-head{border-radius:0}
+.tb-back-pill,.tb-back-btn,.tb-ch-sel,.home-exp-btn,.aw-nav-btn,.alg-triv-summary,.alg-triv-fold>summary.alg-triv-btn,
+.tb-itoc-link,.alg-modes,.drawer-x{border-radius:var(--r-ctl)}
+.alg-modes button{border-radius:6px}
+
+/* Чип выбора: одна форма для алфавитов, направлений, фильтров и букв словаря (было пять видов).
+   Не выбран — рамка и акцентный текст (нажимается); выбран — заливка акцентом. */
+.dz-abc button,.dz-dirs button,.tb-filters button,.tb-fbtn,.gl-strip a{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;min-width:40px;height:auto;
+  padding:0 12px;box-sizing:border-box;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--bg);
+  color:var(--ac);font:inherit;font-size:calc(15px * var(--k));font-weight:600;line-height:1.2;text-decoration:none;
+  box-shadow:none;cursor:pointer;transition:border-color .15s ease,background-color .15s ease,color .15s ease}
+.dz-abc,.dz-dirs,.tb-filters,.gl-strip{display:flex;flex-wrap:wrap;gap:6px}
+@media (hover:hover){.dz-abc button:hover,.dz-dirs button:hover,.tb-filters button:hover,.tb-fbtn:hover,.gl-strip a:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 8%,var(--bg))}}
+.dz-abc button[aria-pressed="true"],.dz-dirs button[aria-selected="true"],.tb-filters button[aria-selected="true"],
+.tb-fbtn[aria-selected="true"],.gl-strip a[aria-current]{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:none}
+:root[data-theme="dark"] .dz-abc button[aria-pressed="true"],:root[data-theme="dark"] .dz-dirs button[aria-selected="true"],
+:root[data-theme="dark"] .tb-filters button[aria-selected="true"],:root[data-theme="dark"] .gl-strip a[aria-current]{color:var(--bg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dz-abc button[aria-pressed="true"],:root:not([data-theme="light"]) .dz-dirs button[aria-selected="true"],
+:root:not([data-theme="light"]) .tb-filters button[aria-selected="true"],:root:not([data-theme="light"]) .gl-strip a[aria-current]{color:var(--bg)}}
+.dz-abc button:active,.dz-dirs button:active,.tb-filters button:active,.gl-strip a:active{transform:translateY(1px)}

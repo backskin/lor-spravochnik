@@ -4,16 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Словарь: Л · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=0ab428497e70">
+<link rel="stylesheet" href="assets/style.css?v=d6bc95029afd">
 <style>
 .gl-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:var(--s4);padding:0;list-style:none}
 .gl-tiles a{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64px;border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--fg)}
 .gl-tiles a b{font-size:22px;line-height:1.1;color:var(--ac)}
 .gl-tiles a small{color:var(--fg2);font-size:13px}
 .gl-tiles a[aria-current]{border-color:var(--ac);background:var(--bg2)}
-.gl-strip{display:flex;flex-wrap:wrap;gap:2px 2px;margin-top:var(--s3)}
-.gl-strip a{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:4px 6px;box-sizing:border-box;text-align:center;border-radius:6px;text-decoration:none;font-weight:600}
-.gl-strip a[aria-current]{background:var(--ac);color:var(--bg)}
+.gl-strip{margin-top:var(--s3)}  /* вид букв — единый «чип выбора» из assets/style.css */
 .gl-pn{display:flex;justify-content:space-between;gap:var(--s3);margin-top:var(--s5)}
 .gl-pn a{font-weight:600}
 .gl{margin:var(--s3) 0 0}
@@ -36,7 +34,7 @@
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body data-page="glossary" data-kr="52" data-terms="1770">
-<script src="assets/shell.js?v=0ab428497e70"></script>
+<script src="assets/shell.js?v=d6bc95029afd"></script>
 
 <main class="page">
   <nav class="crumbs"><a href="index.html">Главная</a> › <a href="slovar.html">Словарь</a> › <span>Буква Л</span></nav>
@@ -47,9 +45,9 @@
   <div class="gl-pn"><a href="slovar-k.html">← К</a><a href="slovar.html">Все буквы</a><a href="slovar-m.html">М →</a></div>
 </main>
 
-<script src="assets/data.js?v=0ab428497e70"></script>
-<script src="assets/grls.js?v=0ab428497e70"></script>
-<script src="assets/app.js?v=0ab428497e70"></script>
+<script src="assets/data.js?v=d6bc95029afd"></script>
+<script src="assets/grls.js?v=d6bc95029afd"></script>
+<script src="assets/app.js?v=d6bc95029afd"></script>
 <script>if(location.hash){ var t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if(t) setTimeout(function(){ t.scrollIntoView({block:"center"}); }, 50); }</script>
 <script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;sw.addEventListener("controllerchange",function(){if(had&&!done){done=true;location.reload();}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
