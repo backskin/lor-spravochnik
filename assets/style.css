@@ -70,7 +70,9 @@ img{max-width:100%}
 .results{position:fixed;left:0;right:0;top:calc(var(--hd) + env(safe-area-inset-top,0px) + 1px);bottom:0;z-index:29;
   background:var(--bg);overflow-y:auto;overscroll-behavior:contain}
 .results-in{max-width:calc(var(--col) + 32px);margin:0 auto;padding:0 max(16px,env(safe-area-inset-right,0px)) var(--s7) max(16px,env(safe-area-inset-left,0px))}
-body.searching{overflow:hidden}
+/* блокировка прокрутки под результатами поиска — на html, как у меню и окон: overflow:hidden у body при html{overflow-x:clip} делал body
+   прокручиваемым контейнером, и липкая шапка уезжала вместе со страницей (жалоба 27.10.2026, словарь → поиск) */
+html:has(body.searching){overflow-y:clip;overscroll-behavior-y:none}
 
 /* ---------- страница ---------- */
 .page{max-width:calc(var(--col) + 32px);margin:0 auto;
@@ -2022,3 +2024,62 @@ details.tb-inline-toc>.tb-itoc-grid{padding:0 var(--s4) var(--s3)}
 .gl-back{display:inline-flex;margin:0 0 var(--s3)}
 /* список из одного пункта — не список: номер «1.» убираем (221 таких мест в разборах, пересмотр 27.10.2026) */
 .summary ol.enum:has(> li:only-child),.body ol.enum:has(> li:only-child){list-style:none;padding-left:0}
+
+/* ===== Учебник: глава (пересмотр 27.10.2026) — колонка навигации слева, текст удобной ширины, постраничное чтение ===== */
+.tb-chap .tb-sec-content p{max-width:none}  /* текст заполняет карточку: пустоты справа больше нет */
+.tb-aside,.tb-flow-title,.tb-pager{display:none}
+.tb-mode{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-ctl);overflow:hidden;background:var(--bg)}
+.tb-mode button{min-height:34px;padding:0 12px;border:0;background:none;color:var(--fg2);font:inherit;font-size:var(--t4);font-weight:600;cursor:pointer}
+.tb-mode button+button{border-left:1px solid var(--line)}
+.tb-mode button[aria-pressed="true"]{background:var(--ac);color:#fff}
+@media (min-width:1024px){
+  main.tb-chap{display:grid;grid-template-columns:272px minmax(0,46rem);gap:var(--s7);justify-content:center;align-items:start}
+  .tb-chap .tb-aside{display:block;position:sticky;top:calc(var(--hd) + var(--s4));max-height:calc(100vh - var(--hd) - 32px);overflow-y:auto;
+    padding:var(--s2) var(--s2) var(--s4) 0;font-size:var(--t4);line-height:1.35;overscroll-behavior:contain}
+  .tb-aside .tb-mode{display:flex;margin-bottom:var(--s4)}
+  .tb-aside .tb-mode button{flex:1}
+  .tb-aside-h{margin:var(--s4) 0 var(--s2);font-weight:700;color:var(--fg)}
+  .tb-aside-h:first-of-type{margin-top:0}
+  .tb-aside-toc,.tb-aside-ch{list-style:none;margin:0;padding:0}
+  .tb-aside-toc a,.tb-aside-ch a,.tb-aside-ch [aria-current]{display:flex;gap:8px;padding:6px 8px;border-radius:var(--r-ctl);color:var(--fg2);text-decoration:none}
+  .tb-aside-toc a:hover,.tb-aside-ch a:hover{background:var(--bg2);color:var(--ac)}
+  .tb-aside-toc a.on{background:color-mix(in srgb,var(--ac) 10%,var(--bg));color:var(--ac);font-weight:600}
+  .tb-aside-ch [aria-current]{color:var(--fg);font-weight:600;background:var(--bg2)}
+  .tb-aside .tb-itoc-n{min-width:1.6em}
+  .tb-aside-all{display:block;margin-top:var(--s3);padding:6px 8px;color:var(--ac);font-weight:600;text-decoration:none}
+  /* боковая колонка заменяет встроенное содержание, «Быстрый переход» и «← Все главы» */
+  .tb-chap .tb-inline-toc,.tb-chap .tb-ch-jump,.tb-chap .tb-back-btn,.tb-chap .tb-ch-bar .tb-mode{display:none!important}
+  .tb-chap .tb-ch-bar{background:none;border:0;padding:0;margin:var(--s3) 0 0}
+}
+@media (max-width:1023px){.tb-ch-bar .tb-mode{margin-left:auto}}
+
+/* постраничный режим: глава листается, как книга */
+html.tb-paged{overflow:hidden;overscroll-behavior:none}
+html.tb-paged main.tb-chap{display:block;max-width:min(1400px,100%);padding-top:var(--s3)}
+html.tb-paged .tb-aside,html.tb-paged .crumbs,html.tb-paged .tb-ch-bar,html.tb-paged .tb-ch-hero,html.tb-paged .tb-inline-toc,
+html.tb-paged .site-foot,html.tb-paged .foot,html.tb-paged footer{display:none!important}
+html.tb-paged .tb-flow{column-count:1;column-gap:40px;column-fill:auto;overflow:hidden;touch-action:pan-y pinch-zoom}
+@media (min-width:900px){html.tb-paged .tb-flow{column-count:2;column-gap:64px;column-rule:1px solid var(--line)}}
+html.tb-paged .tb-flow-title{display:block;margin:0 0 var(--s4);font-size:var(--t1);line-height:1.25;font-weight:700;color:var(--fg);break-after:avoid}
+html.tb-paged .tb-body{display:block}
+html.tb-paged .tb-sec{border:0;border-radius:0;padding:0;background:none;box-shadow:none}
+html.tb-paged .tb-sec+.tb-sec{margin-top:var(--s5)}
+html.tb-paged .tb-sec-head{break-after:avoid;break-inside:avoid;border:0;padding-bottom:0}
+html.tb-paged .tb-sec-content p{orphans:3;widows:3;text-align:justify;hyphens:auto}
+html.tb-paged figure,html.tb-paged .tb-pn-card,html.tb-paged .tb-fn p{break-inside:avoid}
+html.tb-paged .tb-sec-content figure{padding:var(--s2)}
+html.tb-paged figure img,html.tb-paged figure svg{max-height:calc(var(--tb-h,70vh) * .5);width:auto;height:auto;max-width:100%;margin:0 auto;object-fit:contain}
+html.tb-paged .tb-prevnext{grid-template-columns:1fr}
+html.tb-paged .tb-pager{display:flex;align-items:center;gap:var(--s2);position:fixed;z-index:40;left:0;right:0;bottom:0;
+  padding:8px max(16px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:var(--bg);border-top:1px solid var(--line)}
+.tb-pg-btn{flex:none;display:grid;place-items:center;padding:0 0 3px;width:48px;height:44px;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--bg2);color:var(--fg);font:inherit;font-size:24px;line-height:1;cursor:pointer}
+.tb-pg-btn:disabled{opacity:.35;cursor:default}
+.tb-pg-exit{flex:none;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--bg);color:var(--ac);font:inherit;font-size:var(--t4);font-weight:600;cursor:pointer}
+.tb-pg-info{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;font-size:var(--t4);line-height:1.3;color:var(--fg2);text-align:center}
+.tb-pg-info b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg);font-weight:600}
+@media (max-width:520px){.tb-pg-info b{display:none}}
+@media (max-width:899px){html.tb-paged .tb-sec-content p{text-align:left}}
+html.tb-paged figcaption{font-size:.86em;line-height:1.4}
+html.tb-paged .tb-sec-content figure{break-inside:auto}  /* длинная подпись может уйти на следующую страницу, снимок — целиком */
+html.tb-paged .fig-scroll{break-inside:avoid}

@@ -1670,6 +1670,7 @@ function lorAlgorithms(){
 
 /* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех глав (uchebnik-*.html) ---------- */
 function lorTextbook(){
+  document.documentElement.classList.remove("tb-paged");  /* постраничный режим — только внутри главы */
   var ICONS = window.LOR_ICONS || {};
   document.querySelectorAll("[data-ico]").forEach(function(el){
     var id = el.dataset.ico;
@@ -1832,6 +1833,153 @@ function lorTextbook(){
   var noteEl = main.querySelector(".tb-note");
   if(noteEl) main.insertBefore(navFoot, noteEl);
   else main.appendChild(navFoot);
+
+  /* Пересмотр вёрстки главы (претензии 27.10.2026: пустота справа от текста, растянутое содержание, «быстрый переход» в углу):
+     на широком экране — как в разборах: слева липкая колонка (режим чтения, содержание главы с текущим разделом, главы раздела),
+     справа текст удобной ширины. Текст, сноски, источники и листалка собраны в .tb-flow — его же листает постраничный режим. */
+  var article = document.createElement("div");
+  article.className = "tb-article";
+  while(main.firstChild) article.appendChild(main.firstChild);
+  var flow = document.createElement("div");
+  flow.className = "tb-flow";
+  var flowTitle = document.createElement("p");
+  flowTitle.className = "tb-flow-title";
+  flowTitle.textContent = h1 ? h1.textContent : cur.title;
+  flow.appendChild(flowTitle);
+  [bodyEl, article.querySelector(".tb-fn"), article.querySelector(".tb-sources"), navFoot, noteEl].forEach(function(el){ if(el) flow.appendChild(el); });
+  article.appendChild(flow);
+  var modeHtml = '<div class="tb-mode" role="group" aria-label="Режим чтения главы">'
+    + '<button type="button" data-tb-mode="scroll">Прокруткой</button><button type="button" data-tb-mode="paged">Постранично</button></div>';
+  var sameCat = TB_CHAPTERS.filter(function(ch){ return ch.cat === cur.cat; });
+  var aside = document.createElement("aside");
+  aside.className = "tb-aside";
+  aside.setAttribute("aria-label", "Навигация по главе");
+  aside.innerHTML = modeHtml
+    + (secList.length > 1 ? '<p class="tb-aside-h">Содержание главы</p><ol class="tb-aside-toc">' + secList.map(function(s){
+        return '<li><a href="#' + s.id + '" data-sec="' + s.id + '"><span class="tb-itoc-n">' + s.num + '</span><span>' + s.title + '</span></a></li>'; }).join("") + '</ol>' : '')
+    + '<p class="tb-aside-h">' + cur.catTitle + '</p><ul class="tb-aside-ch">' + sameCat.map(function(ch){
+        return ch === cur ? '<li><span aria-current="page"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></span></li>'
+          : '<li><a href="' + ch.href + '"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></a></li>'; }).join("") + '</ul>'
+    + '<a class="tb-aside-all" href="uchebnik.html">' + allCh + ' →</a>';
+  main.appendChild(aside);
+  main.appendChild(article);
+  main.classList.add("tb-chap");
+  var barLeft = bar.querySelector(".tb-ch-bar-left");
+  if(barLeft) barLeft.insertAdjacentHTML("beforeend", modeHtml);  /* на телефоне и планшете — переключатель в верхней строке */
+
+  var root = document.documentElement;
+  /* текущий раздел в боковом содержании */
+  var tocLinks = {};
+  aside.querySelectorAll("a[data-sec]").forEach(function(a){ tocLinks[a.dataset.sec] = a; });
+  if(window.IntersectionObserver && secList.length > 1){
+    var spy = new IntersectionObserver(function(es){
+      es.forEach(function(en){
+        if(!en.isIntersecting || root.classList.contains("tb-paged")) return;
+        Object.keys(tocLinks).forEach(function(k){ tocLinks[k].classList.toggle("on", k === en.target.id); });
+      });
+    }, {rootMargin: "-20% 0px -70% 0px"});
+    bodyEl.querySelectorAll(".tb-sec").forEach(function(s){ spy.observe(s); });
+  }
+
+  /* Постраничное чтение (просьба 27.10.2026): глава режется на страницы, как книга; на широком экране — два столбца на весь экран,
+     на телефоне — один. Листают свайпом, стрелками клавиатуры, колесом мыши и кнопками «‹ ›»; сноски и содержание открывают нужную
+     страницу. Выбор режима запоминается. */
+  /* слушатели окна — на одну главу: при переходе SPA на следующую прежние снимаются */
+  if(window.__tbAbort) window.__tbAbort.abort();
+  window.__tbAbort = window.AbortController ? new AbortController() : null;
+  var sig = window.__tbAbort ? {signal: window.__tbAbort.signal} : false;
+  var pager = document.createElement("nav");
+  pager.className = "tb-pager";
+  pager.setAttribute("aria-label", "Листание страниц главы");
+  pager.innerHTML = '<button type="button" class="tb-pg-exit" data-tb-mode="scroll">Прокруткой</button>'
+    + '<button type="button" class="tb-pg-btn" data-pg="-1" aria-label="Предыдущая страница">‹</button>'
+    + '<span class="tb-pg-info"><b></b><span></span></span>'
+    + '<button type="button" class="tb-pg-btn" data-pg="1" aria-label="Следующая страница">›</button>';
+  pager.querySelector(".tb-pg-info b").textContent = flowTitle.textContent;
+  main.appendChild(pager);
+  var pg = 0, pgN = 1, pgStep = 1;
+  function animOn(){ return root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function pageOf(el){ return Math.max(0, Math.floor((el.getBoundingClientRect().left - flow.getBoundingClientRect().left + flow.scrollLeft + 2) / pgStep)); }
+  function pgGo(n, smooth){
+    pg = Math.max(0, Math.min(pgN - 1, n));
+    flow.scrollTo({left: pg * pgStep, behavior: smooth && animOn() ? "smooth" : "auto"});
+    pager.querySelector(".tb-pg-info span").textContent = "страница " + (pg + 1) + " из " + pgN;
+    pager.querySelector('[data-pg="-1"]').disabled = pg === 0;
+    pager.querySelector('[data-pg="1"]').disabled = pg === pgN - 1;
+  }
+  function atPageStart(){  /* первый абзац видимой страницы — чтобы при смене размера окна или режима не потерять место */
+    var r = flow.getBoundingClientRect(), el = document.elementFromPoint(r.left + 24, r.top + 24);
+    return el && flow.contains(el) ? el : null;
+  }
+  function pgLayout(keep){
+    var hd = (document.querySelector(".top") || {}).offsetHeight || 56;
+    window.scrollTo(0, 0);
+    var h = Math.max(260, window.innerHeight - flow.getBoundingClientRect().top - pager.offsetHeight - 16);
+    flow.style.height = h + "px"; flow.style.setProperty("--tb-h", h + "px");
+    var gap = parseFloat(getComputedStyle(flow).columnGap) || 48;
+    pgStep = flow.clientWidth + gap;
+    pgN = Math.max(1, Math.ceil((flow.scrollWidth + gap - 4) / pgStep));
+    pgGo(keep ? pageOf(keep) : pg, false);
+    void hd;
+  }
+  function setMode(mode, keep){
+    var paged = mode === "paged";
+    document.querySelectorAll("[data-tb-mode]").forEach(function(b){ if(b.closest(".tb-mode")) b.setAttribute("aria-pressed", String(b.dataset.tbMode === mode)); });
+    try{ localStorage.setItem("lor-tb-mode", mode); }catch(e){}
+    if(paged === root.classList.contains("tb-paged")) return;
+    if(paged){
+      if(!keep){ var c = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 3); keep = c && flow.contains(c) ? c : null; }
+      root.classList.add("tb-paged");
+      pgLayout(keep);
+      /* ленивые картинки внутри обрезанных столбцов сами не загружаются: грузим сразу, после загрузки — пересчёт страниц */
+      var lazy = [].slice.call(flow.querySelectorAll('img[loading="lazy"]'));
+      lazy.forEach(function(im){ im.loading = "eager"; });
+      Promise.all(lazy.map(function(im){ return im.complete ? 0 : new Promise(function(ok){ im.addEventListener("load", ok, {once: true}); im.addEventListener("error", ok, {once: true}); }); }))
+        .then(function(){ if(root.classList.contains("tb-paged")) pgLayout(atPageStart()); });
+    } else {
+      keep = keep || atPageStart();
+      root.classList.remove("tb-paged");
+      flow.style.height = ""; flow.scrollLeft = 0;
+      if(keep){ keep.scrollIntoView({block: "start"}); window.scrollBy(0, -((document.querySelector(".top") || {}).offsetHeight || 56) - 16); }
+    }
+  }
+  main.addEventListener("click", function(e){
+    var m = e.target.closest("[data-tb-mode]"); if(m){ setMode(m.dataset.tbMode); return; }
+    var b = e.target.closest("[data-pg]"); if(b){ pgGo(pg + (+b.dataset.pg), true); return; }
+    if(!root.classList.contains("tb-paged")) return;
+    var a = e.target.closest('a[href^="#"]'); if(!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1)));
+    if(t && flow.contains(t)){ e.preventDefault(); pgGo(pageOf(t), true); }
+  });
+  document.addEventListener("keydown", function(e){
+    if(!root.classList.contains("tb-paged") || e.defaultPrevented || /INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || "") || document.querySelector(".fig-full, .sheet.on")) return;
+    var k = e.key, d = k === "ArrowRight" || k === "PageDown" || (k === " " && !e.shiftKey) ? 1 : k === "ArrowLeft" || k === "PageUp" || (k === " " && e.shiftKey) ? -1 : 0;
+    if(k === "Home"){ e.preventDefault(); pgGo(0, true); } else if(k === "End"){ e.preventDefault(); pgGo(pgN - 1, true); }
+    else if(d){ e.preventDefault(); pgGo(pg + d, true); }
+  }, sig);
+  var wheelT = 0;
+  flow.addEventListener("wheel", function(e){
+    if(!root.classList.contains("tb-paged") || Math.abs(e.deltaY) < 8) return;
+    e.preventDefault();
+    var now = Date.now(); if(now - wheelT < 450) return; wheelT = now;
+    pgGo(pg + (e.deltaY > 0 ? 1 : -1), true);
+  }, {passive: false});
+  var tx = null, ty = 0;
+  flow.addEventListener("touchstart", function(e){ if(e.touches.length === 1){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; } else tx = null; }, {passive: true});
+  flow.addEventListener("touchend", function(e){
+    if(tx === null || !root.classList.contains("tb-paged")) return;
+    var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) pgGo(pg + (dx < 0 ? 1 : -1), true);
+  }, {passive: true});
+  var rsT = 0;
+  window.addEventListener("resize", function(){
+    if(!root.classList.contains("tb-paged")) return;
+    clearTimeout(rsT); var keep = atPageStart();
+    rsT = setTimeout(function(){ pgLayout(keep); }, 120);
+  }, sig);
+  var saved = "scroll"; try{ saved = localStorage.getItem("lor-tb-mode") || "scroll"; }catch(e){}
+  setMode(saved === "paged" ? "paged" : "scroll");
+  if(saved === "paged" && document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(root.classList.contains("tb-paged")) pgLayout(atPageStart()); });
 }
 
 
