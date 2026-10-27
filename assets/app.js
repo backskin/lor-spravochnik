@@ -102,10 +102,10 @@ function updateDrawerNav(){
   var items = [];
   if(!isHome){
     items.push(row("index.html", "← На главную", "все рекомендации по разделам", "drawer-home-row"));
-    if(!isTb) items.push(row("uchebnik.html", "Учебник", "анатомия, клиника и операции"));
-    if(!isDrugs) items.push(row("preparaty.html", "Препараты и торговые названия", "показания, противопоказания и реестр ГРЛС"));
-    if(!isMkb) items.push(row("mkb.html", "Коды МКБ-10 по разделам", "ЛОР-рубрики, нажатие копирует код"));
-    if(!isGlossary) items.push(row("slovar.html", "Словарь", "термины и сокращения из текста рекомендаций"));
+    if(!isTb) items.push(row("uchebnik.html", "Учебник", "анатомия и болезни ЛОР-органов по руководствам"));
+    if(!isDrugs) items.push(row("preparaty.html", "Препараты", "вещества из КР, торговые названия и инструкции ГРЛС"));
+    if(!isMkb) items.push(row("mkb.html", "Коды МКБ-10", "ЛОР-рубрики по разделам, нажатие копирует код"));
+    if(!isGlossary) items.push(row("slovar.html", "Словарь", "термины и сокращения из текста КР"));
   }
   items.push(row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"'));
   if(!isHelp) items.push(row("kak-polzovatsya.html", "Как пользоваться", "краткая справка по возможностям"));
@@ -1138,7 +1138,9 @@ function lorHubHero(){
   }
   var cfg = null;
   if(B.page === "drugs" || fname === "preparaty.html"){
-    cfg = {ico:"drugs", kicker:"Госреестр Минздрава РФ · ГРЛС · 175 веществ"};
+    /* сколько веществ упоминается в КР — из сборки (data-n у <body>, tools/build_site.py); весь реестр — в строке под заголовком */
+    var nd = +B.n;
+    cfg = {ico:"drugs", kicker:(nd ? nd + " " + (nd % 10 === 1 && nd % 100 !== 11 ? "вещество" : nd % 10 >= 2 && nd % 10 <= 4 && (nd % 100 < 12 || nd % 100 > 14) ? "вещества" : "веществ") + " из клинических рекомендаций · " : "") + "реестр ГРЛС"};
   } else if(fname === "mkb.html"){
     cfg = {ico:"mkb", kicker:"Классификатор Минздрава РФ · ЛОР-рубрики"};
   } else if(B.page === "glossary" || /^slovar/.test(fname)){
@@ -1785,10 +1787,11 @@ function lorTextbook(){
 
   /* Встроенное оглавление главы + боковое оглавление на широком экране */
   if(secList.length > 1){
-    var inlineToc = document.createElement("nav");
+    /* на телефоне оглавление свёрнуто в одну строку: 25 пунктов занимали полтора экрана до начала текста (пересмотр дизайна 27.10.2026) */
+    var inlineToc = document.createElement("details");
     inlineToc.className = "tb-inline-toc";
-    inlineToc.setAttribute("aria-label", "Содержание главы");
-    inlineToc.innerHTML = '<div class="tb-itoc-head">Содержание главы (' + secList.length + ' ' + (secList.length < 5 ? 'раздела' : 'разделов') + ')</div>'
+    inlineToc.open = matchMedia("(min-width:900px)").matches;
+    inlineToc.innerHTML = '<summary class="tb-itoc-head">Содержание главы (' + secList.length + ' ' + (secList.length < 5 ? 'раздела' : 'разделов') + ')</summary>'
       + '<div class="tb-itoc-grid">'
       + secList.map(function(s){
         return '<a class="tb-itoc-link" href="#' + s.id + '"><span class="tb-itoc-n">' + s.num + '</span><span>' + s.title + '</span></a>';
