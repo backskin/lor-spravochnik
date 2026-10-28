@@ -2028,7 +2028,9 @@ function lorTextbook(){
       var lazy = [].slice.call(flow.querySelectorAll('img[loading="lazy"]'));
       lazy.forEach(function(im){ im.loading = "eager"; });
       Promise.all(lazy.map(function(im){ return im.complete ? 0 : new Promise(function(ok){ im.addEventListener("load", ok, {once: true}); im.addEventListener("error", ok, {once: true}); }); }))
-        .then(function(){ if(root.classList.contains("tb-paged")) pgLayout(atPageStart()); });
+        .then(function(){ if(!root.classList.contains("tb-paged")) return;
+          /* при «назад» страница сохранена в разбивке с загруженными картинками — после их загрузки возвращаемся именно на неё */
+          if(restored && pos && pos.p != null){ pgLayout(null); pgGo(pos.p, false); } else pgLayout(atPageStart()); });
     } else {
       keep = keep || atPageStart();
       root.classList.remove("tb-paged");
@@ -2078,7 +2080,8 @@ function lorTextbook(){
   var saved = "scroll"; try{ saved = localStorage.getItem("lor-tb-mode") || "scroll"; }catch(e){}
   aside.classList.remove("open");  /* панель «Содержание» на телефоне не переезжает открытой в новую главу */
   setMode(saved === "paged" ? "paged" : "scroll");
-  if(saved === "paged" && document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(root.classList.contains("tb-paged") && !restored) pgLayout(atPageStart()); });
+  if(saved === "paged" && document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(!root.classList.contains("tb-paged")) return;
+    if(!restored) pgLayout(atPageStart()); else if(pos && pos.p != null){ pgLayout(null); pgGo(pos.p, false); } });
   /* «назад/вперёд» возвращает туда, где человек был в этой главе: та же страница или то же место прокрутки */
   var POS = {}; try{ POS = JSON.parse(sessionStorage.getItem("lor-tb-pos") || "{}"); }catch(e){}
   var restored = false, pos = POS[cur.href];
