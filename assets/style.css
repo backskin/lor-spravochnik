@@ -2064,7 +2064,10 @@ details.tb-inline-toc>.tb-itoc-grid{padding:0 var(--s4) var(--s3)}
   .tb-aside-toc a.on{background:color-mix(in srgb,var(--ac) 10%,var(--bg));color:var(--ac);font-weight:600}
   .tb-aside-ch [aria-current]{color:var(--fg);font-weight:600;background:var(--bg2)}
   .tb-aside .tb-itoc-n{min-width:1.6em}
-  .tb-aside-all{display:block;margin-top:var(--s3);padding:6px 8px;color:var(--ac);font-weight:600;text-decoration:none}
+  .tb-aside-top{position:sticky;top:calc(-1 * var(--s2));z-index:2;margin-top:calc(-1 * var(--s2));padding-top:var(--s2);padding-bottom:var(--s2);margin-bottom:var(--s2);background:var(--bg-page)}
+  .tb-aside .tb-aside-top .tb-mode{margin-bottom:0}
+  .tb-aside-all{display:block;margin:0 0 var(--s2);padding:6px 8px;color:var(--ac);font-weight:600;text-decoration:none;border-radius:var(--r-ctl)}
+  .tb-aside-all:hover{background:var(--bg2)}
   /* боковая колонка заменяет встроенное содержание, «Быстрый переход» и «← Все главы» */
   .tb-chap .tb-inline-toc,.tb-chap .tb-ch-jump,.tb-chap .tb-back-btn,.tb-chap .tb-ch-bar .tb-mode{display:none!important}
   .tb-chap .tb-ch-bar{background:none;border:0;padding:0;margin:var(--s3) 0 0}
@@ -2088,6 +2091,7 @@ html.tb-paged main.tb-chap{display:block}
     transform:translateX(-104%);transition:transform .24s cubic-bezier(.2,.8,.2,1);visibility:hidden}
   html.tb-paged .tb-aside.open{transform:none;visibility:visible}
   html.tb-paged .tb-aside .tb-mode{display:flex;margin-bottom:var(--s4)}
+  html.tb-paged .tb-aside-top{top:calc(-1 * var(--s4));margin-top:calc(-1 * var(--s4));padding-top:var(--s4);background:var(--bg)}
   html.tb-paged .tb-aside .tb-mode button{flex:1}
   html.tb-paged .tb-aside-toc,html.tb-paged .tb-aside-ch{list-style:none;margin:0;padding:0}
   html.tb-paged .tb-aside a,html.tb-paged .tb-aside [aria-current]{display:flex;gap:8px;padding:8px;border-radius:var(--r-ctl);color:var(--fg2);text-decoration:none}

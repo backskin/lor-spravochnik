@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Вирусные менингиты у детей · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=561d0f7a04d3">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body class="brief" data-title="Вирусные менингиты у детей" data-year="2025" data-crid="995_1" data-rev="2028" data-group="infect">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+
+
+<div class="page">
+<main id="main">
+    <p class="demo-strip">Сверка с PDF рубрикатора выполняется…</p>
+
+    <nav class="crumbs"><a href="index.html">Главная</a> › <span>Инфекции</span></nav>
+    <h1>Вирусные менингиты у детей</h1>
+    <div class="dochead"><p class="docline">Клинические рекомендации от 24.12.2025 · дети</p></div>
+
+    <nav class="tabbar" id="tabbar" role="tablist" aria-label="Разделы"><button role="tab" data-tab="over" aria-selected="true">Обзор</button><button role="tab" data-tab="clin" aria-selected="false">Клиника</button><button role="tab" data-tab="diag" aria-selected="false">Диагностика</button><button role="tab" data-tab="treat" aria-selected="false">Лечение</button></nav>
+
+    <!-- ================= ОБЗОР ================= -->
+
+    <section class="summary" id="sum" data-sec="Главное" data-panel="over">
+      <h2>Основные положения</h2>
+      <ul>
+        <li data-v="s1">Вирусный менингит протекает с серозным воспалением оболочек мозга и гипертензионно-гидроцефальным синдромом. Чаще всего его вызывают энтеровирусы (до 58%), <span class="term" data-t="d:Герпесвирус">герпесвирусы</span>, реже <span class="term" data-t="d:Аденовирус">аденовирус</span>, вирусы кори, паротита, гриппа.</li>
+        <li data-v="s-dx">Диагноз основан на клинике (общемозговые, менингеальные, очаговые симптомы после инкубационного периода <em class="key">2–30 дней</em>), обнаружении антител <span class="term" data-t="a:IgM">IgM</span> или нарастании <span class="term" data-t="a:IgG">IgG</span> и вирусной РНК/ДНК методом ПЦР в крови и <span class="term" data-t="d:Цереброспинальная жидкость">цереброспинальной жидкости</span>, эпидемиологическом анамнезе. Спинномозговая пункция — <em class="key">в первые сутки</em> при отсутствии противопоказаний.</li>
+        <li data-v="s-ent"><b class="lt">Для оториноларинголога</b>: при паротитном менингите часто развивается неврит VIII пары черепных нервов — системное головокружение, рвота, <span class="term" data-t="d:Нистагм">нистагм</span>; при тяжёлом течении и подозрении на нейросенсорную тугоухость регистрируются акустические стволовые вызванные потенциалы (<span class="term" data-t="a:АСВП">АСВП</span>).</li>
+        <li data-v="s-tx">При подозрении на вирусный менингит показана экстренная госпитализация в инфекционный стационар с <span class="term" data-t="a:ОРИТ">ОРИТ</span>. Лечение — этиотропное (противовирусные препараты, интерферон альфа-2b), патогенетическое и симптоматическое; антибиотики — только при бактериальных осложнениях.</li>
+      </ul>
+    </section>
+
+    <!-- ================= КЛИНИКА ================= -->
+    <section class="block b-clin" id="clin" data-panel="clin" data-sec="Клиника">
+      <header><h2>Клиническая картина и классификация</h2></header>
+      <div class="body">
+        <h3>Определение</h3>
+        <div class="rec" data-v="c-def"><p>Вирусный менингит (ВМ) — полиэтиологичное вирусное заболевание, характеризующееся серозным воспалением в оболочках головного мозга с преобладанием гипертензионно-гидроцефального синдрома.</p>
+          <button class="ev" data-loc="1.1 Определение" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Этиология и эпидемиология</h3>
+        <div class="rec" data-v="c-etio"><p>ВМ развиваются при любых вирусных инфекциях с вовлечением нервной системы в результате нарушения проницаемости гематоэнцефалического барьера. Наиболее частые причины — энтеровирусы и герпесвирусы, реже аденовирус, вирусы кори, эпидемического паротита, гриппа. Вакцинация снижает вероятность неврологических осложнений.</p>
+          <button class="ev" data-loc="1.2 Этиология и патогенез" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="c-gate"><p>Входными воротами инфекции при первичном ВМ является слизистая оболочка носоглотки, бронхов, желудочно-кишечного тракта; вторичные ВМ носят иммунокомплексный и аллергический характер.</p>
+          <button class="ev" data-loc="1.3 Эпидемиология" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec more" data-v="c-epi"><p>У детей ВМ встречаются в 5–8 раз чаще, чем у взрослых, чаще у мальчиков. В этиологии преобладают энтеровирусы (до 58%), с пиком заболеваемости в июне — октябре.</p>
+          <button class="ev" data-loc="1.3 Эпидемиология" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Классификация</h3>
+        <div class="rec" data-v="c-class"><ol class="enum"><li><b class="lt">по первичному очагу</b> — первичные (энтеровирусные, лимфоцитарный хориоменингит, клещевой энцефалит) и вторичные (грипп, герпес, ВИЧ и другие инфекции)</li><li><b class="lt">по течению</b> — острое — санация ЦСЖ <em class="key">в течение 4 недель</em>, затяжное — <em class="key">4–12 недель</em>, хроническое — <em class="key">более 3 месяцев</em></li><li><b class="lt">по этиологии</b> — энтеровирусный, лимфоцитарный хориоменингит, герпесвирусный, паротитный, гриппозный, аденовирусный, вызванный вирусами кори, краснухи, клещевого энцефалита, ВИЧ и др.</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="c-class2"><ol class="enum"><li><b class="lt">по форме</b> — начальный (цитоз 15–50×10⁶/л) и выраженный</li><li><b class="lt">по тяжести</b> — среднетяжёлое (плеоцитоз до 150×10⁶/л, белок до 0,7 г/л, без осложнений) и тяжёлое</li><li><b class="lt">осложнения</b> — внутричерепная гипертензия, гидроцефальный синдром, диэнцефальный синдром</li></ol></div></div>
+        <h3>Клиническая картина</h3>
+        <div class="rec" data-v="cl-gen"><p>Клиническая картина любого ВМ — сочетание общемозговой симптоматики, менингеального и общеинфекционного синдромов, а при поражении вещества мозга — очагового синдрома.</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="cl-ent"><p>При энтеровирусном менингите у 25–90% пациентов отмечаются экзантема, энантема, миалгии, лихорадка двухволновая. У 15–20% детей менингеальных симптомов нет, но есть головная боль, рвота и светобоязнь.</p><ol class="enum"><li><b class="lt">ЦСЖ</b> — прозрачная, давление 300–400 мм вод. ст., лимфоцитарный плеоцитоз 30–800 клеток в 1 мкл</li><li><b class="lt">санация ЦСЖ</b> — <em class="key">на 14–20 сутки</em></li><li><b class="lt">новорождённые и дети <em class="key">до 2–3 месяцев</em></b> — ВМ протекает по типу <span class="term" data-t="d:Неонатальный сепсис">неонатального сепсиса</span></li></ol>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="cl-ev71"><p>ВМ, вызванные Коксаки В, реже Коксаки А, ЕСНО, ЭВИ-71, протекают тяжелее, особенно <em class="key">у детей до 5 лет</em>. Течение двухфазное.</p><ol class="enum"><li><b class="lt">первая фаза</b> — синдром «рука — нога — рот», катаральные явления по типу ринофарингита</li><li><b class="lt">вторая фаза</b> — <em class="key">на 3–6 сутки</em> — серозный менингит, острые вялые параличи, ромбэнцефалит</li></ol></div></div>
+        <div class="rec" data-v="cl-par"><p>Паротитный менингит развивается чаще <em class="key">на 3–6 день</em>, реже <em class="key">до 30 дня</em> после припухания слюнных желёз; у 4% — без клинических признаков их воспаления. Острый период — 5–7 дней, санация ликвора — к 18–20 дню.</p><p>Часто встречается неврит VIII пары черепных нервов: системное головокружение, рвота, нистагм; движения глаз и головы усиливают головокружение, дети стараются лежать неподвижно. Вестибулярные нарушения держатся несколько дней и постепенно проходят. Паротитный менингит может быть поствакцинальным осложнением.</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec more" data-v="cl-herp"><ol class="enum"><li><b class="lt">герпетический менингит</b> — относительно лёгкое течение; горизонтальный нистагм, гиперрефлексия, гиперестезия, светобоязнь; лимфоцитарный плеоцитоз до 200–800 клеток в 1 мкл</li><li><b class="lt">ветряночный менингит</b> — на 5–7 сутки от появления сыпи; у трети — анизорефлексия и атаксия; выздоровление на 3–4 неделе</li><li><b class="lt">при опоясывающем герпесе</b> — выраженный общеинфекционный синдром, ганглиониты и ганглионевриты, лёгкие менингеальные симптомы</li><li><b class="lt">лимфоцитарный хориоменингит</b> — у детей раннего возраста возможны судороги, нарушение сознания, септический шок; плеоцитоз 100–1500 клеток; у 30–50% — изменения глазного дна</li><li><b class="lt">клещевой энцефалит</b> — одно- или двухволновое течение, мелкоразмашистый нистагм, статическая атаксия; санация на 3–4 неделе, возможна хронизация (3%)</li><li><b class="lt">коревой, аденовирусный, гриппозный</b> — без значимых клинических особенностей</li></ol>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ДИАГНОСТИКА ================= -->
+    <section class="block b-diag" id="diag" data-panel="diag" data-sec="Диагностика">
+      <header><h2>Диагностика</h2></header>
+      <div class="body">
+        <h3>Критерии диагноза</h3>
+        <div class="rec" data-v="d-crit"><span class="enum-h">Диагноз ВМ устанавливается на основании</span><ol class="enum"><li><b class="lt">физикального обследования</b>: общемозговые, и/или очаговые, и/или менингеальные симптомы после инкубационного периода <em class="key">2–30 дней</em>;</li><li><b class="lt">лабораторных исследований</b>: специфические антитела IgM и нарастающий титр IgG в крови и ЦСЖ к подозреваемым вирусам и/или вирусная РНК или ДНК методом ПЦР в крови и ЦСЖ;</li><li><b class="lt">эпидемиологического анамнеза</b>: контакты с больными, пребывание в эндемичных регионах, контакты с грызунами, присасывание клеща, употребление сырого козьего молока, вакцинация.</li></ol>
+          <button class="ev" data-loc="2 Диагностика" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Физикальное обследование</h3>
+        <div class="rec" data-v="d-phys"><span class="enum-h">При осмотре обращают внимание</span><ol class="enum"><li><b class="lt">общеинфекционная симптоматика</b>: интоксикация, лихорадка;</li><li><b class="lt">общемозговая симптоматика</b>: головная боль, тошнота, рвота, светобоязнь, кожная <span class="term" data-t="d:Гиперестезия">гиперестезия</span>;</li><li>менингеальные симптомы;</li><li>очаговая неврологическая симптоматика.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2 Диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <div class="rec" data-v="d-cons"><ol class="enum"><li><b class="lt">инфекционист</b> — всем при подозрении на ВМ</li><li><b class="lt">офтальмолог</b> — перед спинномозговой пункцией: застойные явления на глазном дне — противопоказание к пункции</li><li><b class="lt">невролог</b> — всем с ВМ, оценка сознания по <span class="term" data-t="d:Шкала комы Глазго">шкале комы Глазго</span>, менингеальных и очаговых симптомов</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.2 Физикальное обследование">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Лабораторные исследования</h3>
+        <div class="rec" data-v="d-csf"><p>Всем пациентам выполняются общий (клинический) анализ крови и спинномозговая пункция <em class="key">в течение первых суток</em> при отсутствии противопоказаний.</p><span class="enum-h">Исследование ЦСЖ</span><ol class="enum"><li>микроскопия, цитоз;</li><li>глюкоза, белок, лактат;</li><li>натрий, хлориды.</li></ol><p>Для ВМ характерен умеренный плеоцитоз (до 1000 клеток в 1 мкл) с преобладанием мононуклеаров и незначительное повышение белка.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.3 Лабораторные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-csf-no"><p>При подозрении на отёк головного мозга и других противопоказаниях спинномозговая пункция не проводится до стабилизации состояния.</p></div>
+          <div class="sub" data-v="d-csf2"><p>Повторная спинномозговая пункция проводится <em class="key">на 7–10 сутки</em>.</p></div></div>
+        <div class="rec" data-v="d-pcr"><span class="enum-h">ПЦР крови — всем пациентам</span><ol class="enum"><li>ДНК вирусов простого герпеса 1 и 2 типов, варицелла зостер;</li><li>ДНК цитомегаловируса, вируса Эпштейна — Барр, герпеса 6 и 7 типов;</li><li>по эпидемическим показаниям — ДНК боррелий и антиген вируса клещевого энцефалита.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.3 Лабораторные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-pcr2"><p>В ЦСЖ методом ПЦР определяются ДНК герпесвирусов, РНК неполиомиелитных энтеровирусов, ДНК <span class="term" data-t="d:Парвовирус В19">парвовируса В19</span>, РНК вируса краснухи, ДНК боррелий. Отрицательный результат при первом обследовании заболевание не исключает.</p></div></div>
+        <div class="rec" data-v="d-ifa"><p>Одновременно с ПЦР методом <span class="term" data-t="a:ИФА">ИФА</span> определяются антитела к вирусам, способным вызвать ВМ, — в остром периоде и в динамике.</p><p>На острую инфекцию указывают IgM и/или нарастание титра IgG в 2–4 раза и более в парных сыворотках; однократное выявление IgG острой инфекцией не считается.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.3 Лабораторные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-ifa2"><p>Серологическое исследование ликвора проводится в остром периоде и в динамике; антитела в ЦСЖ появляются позже, чем в крови, почти всегда к 10 суткам.</p></div></div>
+        <div class="rec" data-v="d-bio"><p>При подозрении на васкулит исследуется система <span class="term" data-t="d:Гемостаз">гемостаза</span>: <span class="term" data-t="d:Коагулограмма">коагулограмма</span>, D-димер.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.5 Иная диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-bio2"><p>Для дифференциальной диагностики с бактериальным менингитом и безопасности терапии выполняются биохимический анализ крови и общий анализ мочи.</p></div>
+          <div class="sub" data-v="d-bio3"><p>При подозрении на бактериальные осложнения или сепсис исследуются С-реактивный белок и прокальцитонин.</p></div></div>
+        <h3>Инструментальные исследования</h3>
+        <div class="rec" data-v="d-asvp"><p>При тяжёлом течении в остром периоде регистрируются акустические стволовые вызванные потенциалы (АСВП) — для выявления нарушения проведения на стволовом уровне и при подозрении на нейросенсорную тугоухость как осложнение тяжёлого ВМ. АСВП позволяют диагностировать менингоэнцефалит и синдром внутричерепной гипертензии.</p>
+          <button class="ev C" data-uur="C" data-udd="4" data-loc="2.5 Иная диагностика">УУР <b>C</b> · УДД 4<span class="st"></span></button></div>
+        <div class="rec" data-v="d-img"><ol class="enum"><li><b class="lt">УЗИ головного мозга</b> — всем с нарушением сознания — отёк, смещение срединных структур</li><li><b class="lt">УЗИ глазного яблока</b> — при подозрении на внутричерепную гипертензию — толщина зрительного нерва</li><li><b class="lt"><span class="term" data-t="a:ЭЭГ">ЭЭГ</span></b> — при нарушении сознания и судорогах</li><li><b class="lt">зрительные вызванные потенциалы</b> — при тяжёлом течении с признаками внутричерепной гипертензии</li><li><b class="lt">КТ головного мозга с контрастированием</b> — при подозрении на <span class="term" data-t="d:Паранеопластический синдром">паранеопластический синдром</span>, объёмное образование</li><li><b class="lt">МРТ головного мозга с контрастированием</b> — при очаговой симптоматике — менингоэнцефалит, осложнения</li></ol>
+          <button class="ev C" data-uur="C" data-udd="4" data-loc="2.4 Инструментальные исследования">УУР <b>C</b> · УДД 4<span class="st"></span></button></div>
+        <div class="rec" data-v="d-icu"><p>При внутричерепной гипертензии, судорогах и нарушении сознания показана консультация анестезиолога-реаниматолога для решения о переводе в ОРИТ.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.5 Иная диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Дифференциальная диагностика</h3>
+        <div class="rec" data-v="d-diff"><p>ВМ дифференцируют с инфекционными и неинфекционными заболеваниями ЦНС, в том числе с онкопатологией; решающее значение имеет отсутствие воспалительных изменений в ЦСЖ у неинфекционных заболеваний, сезонность и указание на укусы клещей.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.5 Иная диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-bact"><p>С бактериальным гнойным менингитом дифференцируют при смешанном или нейтрофильном плеоцитозе; дополнительно определяют нейроспецифические белки: для ВМ характерны нейронспецифическая енолаза <em class="key">до 3,0 нг/мл</em>, глиальный фибриллярный кислый белок <em class="key">до 1,0 нг/мл</em>, белок S100 <em class="key">до 200 нг/л</em>.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ================= ЛЕЧЕНИЕ ================= -->
+    <section class="block b-treat" id="treat" data-panel="treat" data-sec="Лечение">
+      <header><h2>Лечение</h2></header>
+      <div class="body">
+        <div class="rec" data-v="t-gen"><p>При подозрении на ВМ всем пациентам показана экстренная госпитализация в стационар с инфекционными койками и ОРИТ из-за возможного внезапного утяжеления состояния. Лечение включает этиотропную, патогенетическую и симптоматическую терапию; хирургическое лечение не проводится.</p>
+          <button class="ev" data-loc="3 Лечение" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Этиотропное лечение</h3>
+        <div class="rec" data-v="t-ifn"><p>Детям <em class="key">старше 4 лет</em> назначается интерферон альфа-2b или иммуностимуляторы; противовирусные препараты системного действия показаны всем пациентам — как можно раньше.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-acv"><ol class="enum"><li><b class="lt">герпесвирусная этиология</b> — <span class="drug" data-name="ацикловир">ацикловир</span> по инструкции</li><li><b class="lt">клещевой энцефалит</b> — <span class="drug" data-name="рибавирин">рибавирин</span><sup class="offl">off-label</sup> 10 мг/кг/сут в 2–3 приёма <em class="key">14 суток</em>, контроль ЭКГ</li><li><b class="lt">дети <em class="key">старше 7 лет</em>, в том числе энтеровирусный менингит</b> — <span class="drug" data-name="тилорон">тилорон</span><sup class="offl">off-label</sup>: 7–12 лет — 60 мг/сут, старше 12 лет — 125 мг/сут однократно 7 дней, затем через день 5 дней</li></ol></div></div>
+        <div class="rec more" data-v="t-megl"><p>При невозможности терапии <span class="drug" data-name="рибавирин">рибавирином</span><sup class="offl">off-label</sup> назначают другие иммуностимуляторы: <span class="drug" data-name="меглюмина акридонацетат">меглюмина акридонацетат</span><sup class="offl">off-label</sup> детям <em class="key">старше 7 лет</em> — 10 мг/кг 1 раз в день перед едой в 1, 2, 4, 6, 8, 11, 14, 17, 20 день. После курса при клещевом энцефалите — технологически обработанные антитела к гамма-интерферону.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <div class="rec" data-v="t-abx"><p>Антибактериальные препараты системного действия назначаются только при вторичных бактериальных осложнениях (стартово — <span class="drug" data-name="цефотаксим">цефотаксим</span>, <span class="drug" data-name="цефтриаксон">цефтриаксон</span>, <span class="drug" data-name="цефоперазон+сульбактам">цефоперазон + сульбактам</span>); при отсутствии очагов бактериальной инфекции не показаны.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Патогенетическая терапия</h3>
+        <div class="rec" data-v="t-pat"><ol class="enum"><li><b class="lt">внутричерепная гипертензия и отёк мозга</b> — консультация анестезиолога-реаниматолога</li><li><b class="lt">отёк головного мозга</b> — кортикостероиды системного действия, предпочтительно <span class="drug" data-name="дексаметазон">дексаметазон</span></li><li><b class="lt">синдром внутричерепной гипертензии</b> — ангиопротекторы: <span class="drug" data-name="эсцина лизинат">эсцина лизинат</span><sup class="offl">off-label</sup> 0,15 мг/кг 2 раза в сутки внутривенно капельно, курс от 10 дней</li><li><b class="lt">нейропротекция с острого периода</b> — <span class="drug" data-name="инозин+никотинамид+рибофлавин+янтарная кислота">инозин + никотинамид + рибофлавин + янтарная кислота</span><sup class="offl">off-label</sup> 0,6 мл/кг (максимум 10 мл) внутривенно 1 раз в день <em class="key">до 10 дней</em>; <span class="drug" data-name="левокарнитин">левокарнитин</span></li><li><b class="lt">крайне тяжёлое течение</b> — иммуноглобулин человека нормальный внутривенно</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Симптоматическая терапия</h3>
+        <div class="rec" data-v="t-sym"><p>При температуре <em class="key">выше 38,5 °С</em> и/или плеоцитозе <em class="key">более 300 клеток в 1 мкл</em> применяют <span class="drug" data-name="ибупрофен">ибупрофен</span> (детям <em class="key">старше 3 месяцев</em>) или другие анальгетики и антипиретики — <span class="drug" data-name="парацетамол">парацетамол</span> (детям <em class="key">старше 1 месяца</em>).</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <div class="rec" data-v="t-conv"><p>При судорогах применяют противоэпилептические препараты; препарат выбора — <span class="drug" data-name="вальпроевая кислота">вальпроевая кислота</span>, показанием служит даже однократный приступ. Одновременно с <span class="drug" data-name="меропенем">меропенемом</span> вальпроевая кислота не назначается: он снижает её концентрацию.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <div class="rec more" data-v="t-neuro"><p>Для нейропротекции и купирования экстрапирамидных нарушений <em class="key">с 5–7 дня</em> назначается <span class="drug" data-name="пирацетам">пирацетам</span>, а также <span class="drug" data-name="деанола ацеглумат">деанола ацеглумат</span><sup class="offl">off-label</sup>, <span class="drug" data-name="гопантеновая кислота">гопантеновая кислота</span>, <span class="drug" data-name="полипептиды коры головного мозга скота">полипептиды коры головного мозга скота</span><sup class="offl">off-label</sup>; при тяжёлых формах <em class="key">с 3–5 дня</em> — <span class="drug" data-name="поливитамины">поливитамины</span> (детям старше 1 года).</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Медицинская реабилитация</h3>
+        <div class="rec" data-v="r-rehab"><p>В раннем восстановительном периоде показана консультация врача по лечебной физкультуре; при стихании острого процесса — лечебная физкультура в зависимости от тяжести.</p><span class="enum-h">Принципы реабилитации</span><ol class="enum"><li>начало в периоде ранней реконвалесценции;</li><li>последовательность и преемственность этапов;</li><li>комплексный характер с участием разных специалистов;</li><li>адекватность нагрузок адаптационным возможностям, постоянный контроль эффективности.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="4 Медицинская реабилитация">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <p class="more-hint"></p>
+      </div>
+    </section>
+
+    <section class="block b-risk" id="risk" data-panel="over" data-sec="Профилактика и госпитализация">
+      <header><h2>Профилактика и диспансерное наблюдение. Показания к госпитализации</h2></header>
+      <div class="body">
+        <h3>Профилактика</h3>
+        <div class="rec" data-v="p-vac"><p>Рекомендуется вакцинация детей против вирусных инфекций, которые могут осложняться <span class="term" data-t="a:ВМ">ВМ</span>, по Национальному календарю профилактических прививок; плановые схемы имеют приоритет над экстренными.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="5 Профилактика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="p-nonsp"><ol class="enum"><li>учёт контактов с инфекционными больными;</li><li>личная гигиена и термическая обработка продуктов;</li><li>предупреждение контактов с переносчиками.</li></ol></div></div>
+        <h3>Диспансерное наблюдение</h3>
+        <div class="rec" data-v="p-disp"><p>Все дети-реконвалесценты ВМ находятся под диспансерным наблюдением; кратность и сроки определяет лечащий врач. Снятие с учёта — при полном восстановлении работоспособности, удовлетворительном самочувствии, отсутствии клинических признаков и очаговой симптоматики, <span class="term" data-t="d:Сероконверсия">сероконверсии</span>.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="5.3 Диспансерное наблюдение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Показания к госпитализации</h3>
+        <div class="rec" data-v="h-hosp"><p>При подозрении на ВМ показана экстренная госпитализация вне зависимости от этиологии, формы и тяжести — в стационар с ОРИТ; при нарастающей внутричерепной гипертензии и отёке мозга транспортировка — бригадой анестезиологии-реанимации.</p><span class="enum-h">Критерии выписки</span><ol class="enum"><li>нормализация общего состояния;</li><li>отсутствие интоксикации;</li><li>значительное снижение или исчезновение неврологического дефицита.</li></ol><span class="enum-h">Лабораторные критерии выздоровления</span><ol class="enum"><li>вирусная РНК, ДНК или антиген методом ПЦР не обнаруживаются;</li><li>отсутствие IgM <em class="key">не позднее 3 месяцев</em> от начала или их снижение после терапии;</li><li>отсутствие нарастания титра IgG через 3 и более месяцев, нормализация состава <span class="term" data-t="a:ЦСЖ">ЦСЖ</span>.</li></ol>
+          <button class="ev" data-loc="6 Организация медицинской помощи" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ИСТОЧНИК ================= -->
+    <section class="block b-mkb" data-panel="over" data-sec="Коды МКБ-10" id="over">
+      <header><h2>Коды МКБ-10</h2></header>
+      <div class="mkb-list">
+        <button class="mkb-row" data-code="A87.0" data-v="m870"><code>A87.0</code><span>Энтеровирусный менингит</span></button>
+        <button class="mkb-row" data-code="A87.1" data-v="m871"><code>A87.1</code><span>Аденовирусный менингит</span></button>
+        <button class="mkb-row" data-code="A87.2" data-v="m872"><code>A87.2</code><span>Лимфоцитарный хориоменингит, лимфоцитарный менингоэнцефалит</span></button>
+        <button class="mkb-row" data-code="A87.8" data-v="m878"><code>A87.8</code><span>Другой вирусный менингит</span></button>
+        <button class="mkb-row" data-code="A87.9" data-v="m879"><code>A87.9</code><span>Вирусный менингит неуточнённый</span></button>
+        <button class="mkb-row" data-code="B00.3" data-v="m003"><code>B00.3</code><span>Герпетический менингит (G02.0)</span></button>
+        <button class="mkb-row" data-code="B05.1" data-v="m051"><code>B05.1</code><span>Корь, осложнённая менингитом (G02.0)</span></button>
+        <button class="mkb-row" data-code="B26.1" data-v="m261"><code>B26.1</code><span>Паротитный менингит (G02.0)</span></button>
+        <button class="mkb-row" data-code="B01.0" data-v="m010"><code>B01.0</code><span>Ветряная оспа с менингитом (G02.0)</span></button>
+        <button class="mkb-row" data-code="B02.1" data-v="m021"><code>B02.1</code><span>Опоясывающий лишай с менингитом (G02.0)</span></button>
+        <button class="mkb-row" data-code="G02.0" data-v="mg020"><code>G02.0</code><span>Менингит при вирусных болезнях, классифицированных в других рубриках</span></button>
+        <button class="mkb-row" data-code="G03.9" data-v="mg039"><code>G03.9</code><span>Менингит неуточнённый</span></button>
+      </div>
+    </section>
+    <section class="block b-src" id="src" data-panel="over" data-sec="Источник и актуальность">
+      <header><h2>Источник и актуальность</h2></header>
+      <div class="body"><ul class="list doc-links"><li><a class="row ext" href="pdf/virusnye-meningity-u-detei.pdf?v=b36a2c8481" target="_blank" rel="noopener"><span class="rt">PDF этого разбора<span class="rs">сохранить или распечатать</span></span></a></li><li><a class="row ext" href="https://cr.minzdrav.gov.ru/view-cr/995_1" target="_blank" rel="noopener"><span class="rt">Полный текст рекомендации<span class="rs">рубрикатор Минздрава</span></span></a></li></ul><label class="switch"><span>Показывать под каждым пунктом раздел КР, УУР и УДД</span><input type="checkbox" id="srcToggle"></label>
+        <dl class="meta">
+          <dt>Документ</dt><dd>Клинические рекомендации «Вирусные менингиты у детей»</dd>
+          <dt>Версия</dt><dd>1-я, опубликована в рубрикаторе 24.12.2025</dd>
+          <dt>Статус</dt><dd><b style="color:var(--ok)">Применяется</b> (каталог рубрикатора на 22.10.2026)</dd>
+          <dt>Актуализация</dt><dd>По общему правилу КР пересматривают не реже раза в три года, следующая версия ожидается не позднее 2028 года</dd>
+          <dt>Код в рубрикаторе</dt><dd><code>995_1</code> · <a href="https://cr.minzdrav.gov.ru/view-cr/995_1" target="_blank" rel="noopener">открыть текст КР ↗</a></dd>
+          <dt>Разработчик</dt><dd>Евро-Азиатское общество по инфекционным болезням; Ассоциация врачей инфекционистов Санкт-Петербурга и Ленинградской области</dd>
+          <dt>Пациенты</dt><dd>Дети</dd>
+        </dl>
+
+        <h3>Журнал сверки</h3>
+        <div id="vlog" class="vlog"></div>
+
+        <h3>Неточности и противоречия в тексте рекомендации</h3>
+        <ul class="fixlist">
+          <li>Клинически значимых противоречий в тексте рекомендации при сверке не выявлено.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+
+
+<script src="assets/data.js?v=561d0f7a04d3"></script>
+<script src="assets/verify-995_1.js?v=561d0f7a04d3"></script>
+<script src="assets/grls.js?v=561d0f7a04d3"></script>
+<script src="assets/app.js?v=561d0f7a04d3"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>

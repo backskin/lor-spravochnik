@@ -1877,10 +1877,12 @@ function lorTextbook(){
     aside = document.createElement("aside");
     aside.className = "tb-aside";
     aside.setAttribute("aria-label", "Оглавление учебника");
-    aside.innerHTML = modeHtml + groups.map(function(g){
+    /* наверху колонки, закреплённо, — переход в оглавление учебника и режим чтения (вопрос пользователя 28.10.2026: из главы было не понять,
+       как вернуться в учебник — ссылка стояла в самом конце списка глав, а «← Все главы учебника» над текстом уходит при прокрутке) */
+    aside.innerHTML = '<div class="tb-aside-top"><a class="tb-aside-all" href="uchebnik.html">← Оглавление учебника</a>' + modeHtml + '</div>' + groups.map(function(g){
         return '<p class="tb-aside-h">' + g.title + '</p><ul class="tb-aside-ch">' + TB_CHAPTERS.filter(function(ch){ return ch.cat === g.cat; }).map(function(ch){
           return '<li data-href="' + ch.href + '"><a href="' + ch.href + '"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></a></li>'; }).join("") + '</ul>';
-      }).join("") + '<a class="tb-aside-all" href="uchebnik.html">Оглавление учебника →</a>';
+      }).join("");
     aside.addEventListener("scroll", function(){ try{ sessionStorage.setItem("lor-tb-aside-st", String(aside.scrollTop)); }catch(e){} }, {passive: true});
     window.__tbAside = aside;
     var fresh = true;
