@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Рассеянный склероз · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=28662fea9e29">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body class="brief" data-title="Рассеянный склероз" data-year="2025" data-crid="739_2" data-rev="2028" data-group="neuro">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+
+
+<div class="page">
+<main id="main">
+    <p class="demo-strip">Сверка с PDF рубрикатора выполняется…</p>
+
+    <nav class="crumbs"><a href="index.html">Главная</a> › <span>Неврология</span></nav>
+    <h1>Рассеянный склероз</h1>
+    <div class="dochead"><p class="docline">Клинические рекомендации от 03.07.2025 · взрослые и дети</p></div>
+
+    <nav class="tabbar" id="tabbar" role="tablist" aria-label="Разделы"><button role="tab" data-tab="over" aria-selected="true">Обзор</button><button role="tab" data-tab="clin" aria-selected="false">Клиника</button><button role="tab" data-tab="diag" aria-selected="false">Диагностика</button><button role="tab" data-tab="treat" aria-selected="false">Лечение</button></nav>
+
+    <!-- ================= ОБЗОР ================= -->
+
+    <section class="summary" id="sum" data-sec="Главное" data-panel="over">
+      <h2>Основные положения</h2>
+      <ul>
+        <li data-v="s1">Рассеянный склероз — хроническое демиелинизирующее заболевание с аутоиммунно-воспалительными и нейродегенеративными процессами, приводящими к множественному очаговому и диффузному поражению ЦНС.</li>
+        <li data-v="s-ent">Поражение ствола мозга проявляется межъядерной офтальмоплегией, центральным <span class="term" data-t="d:Нистагм">нистагмом</span>, дисфункцией отводящего нерва, гипестезией половины лица; менее характерны снижение слуха, невралгия тройничного нерва, периферический парез мимических мышц.</li>
+        <li data-v="s-dx">Диагноз устанавливается прежде всего по клинической картине; МРТ головного мозга с контрастированием — дополнительный метод, но диагноз только по данным МРТ не ставят.</li>
+        <li data-v="s-tx">Обострение у пациентов <em class="key">с 18 лет</em> лечат <span class="drug" data-name="метилпреднизолон">метилпреднизолоном</span> внутривенно в режиме пульс-терапии по 1000 мг <em class="key">3–5 дней</em> (максимально 7).</li>
+      </ul>
+    </section>
+
+    <!-- ================= КЛИНИКА ================= -->
+    <section class="block b-clin" id="clin" data-panel="clin" data-sec="Клиника">
+      <header><h2>Клиническая картина и классификация</h2></header>
+      <div class="body">
+        <h3>Определение</h3>
+        <div class="rec" data-v="c-def"><p>Рассеянный склероз (<span class="term" data-t="a:РС">РС</span>) — хроническое демиелинизирующее заболевание, в основе которого лежит комплекс аутоиммунно-воспалительных и нейродегенеративных процессов, приводящих к множественному очаговому и диффузному поражению центральной нервной системы, следствием которого является инвалидизация пациентов и значительное снижение качества жизни.</p>
+          <button class="ev" data-loc="1.1 Определение" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Классификация</h3>
+        <div class="rec" data-v="c-type"><span class="enum-h">Типы течения</span><ol class="enum"><li><b class="lt">ремиттирующий</b> — обострения, между которыми не отмечается прогрессирование инвалидизации</li><li><b class="lt">вторично-прогрессирующий</b> — после периода ремиттирующего РС, с подтверждённым прогрессированием инвалидизации, независимым от обострений</li><li><b class="lt">первично-прогрессирующий</b> — заболевание дебютирует не с обострений, а с прогрессирования</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Клиническая картина</h3>
+        <div class="rec" data-v="cl-stem"><span class="enum-h">Поражение ствола головного мозга</span><ol class="enum"><li>межъядерная офтальмоплегия;</li><li>нистагм (центральный);</li><li>дисфункция отводящего нерва;</li><li><span class="term" data-t="d:Гипестезия">гипестезия</span> половины лица.</li></ol>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="cl-stem2"><span class="enum-h">Менее характерны</span><ol class="enum"><li>снижение слуха;</li><li>невралгия тройничного нерва;</li><li>периферический парез мимических мышц;</li><li><span class="term" data-t="d:Лицевая миокимия">лицевая миокимия</span>.</li></ol></div></div>
+        <div class="rec" data-v="cl-cer"><p>Поражение мозжечка и его путей — статико-локомоторная и динамическая мозжечковая <span class="term" data-t="d:Атаксия">атаксия</span>: неустойчивость при ходьбе, дисметрия и мимопопадание в координаторных пробах, интенционное дрожание, мозжечковая дизартрия (скандированная речь).</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="cl-opt"><p>Поражение зрительного нерва — односторонний оптический неврит со снижением остроты зрения или <span class="term" data-t="d:Скотома">скотомами</span>, часто с болью при движении глазного яблока.</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ДИАГНОСТИКА ================= -->
+    <section class="block b-diag" id="diag" data-panel="diag" data-sec="Диагностика">
+      <header><h2>Диагностика</h2></header>
+      <div class="body">
+        <h3>Магнитно-резонансная томография</h3>
+        <div class="rec" data-v="d-mri"><p>Диагноз РС только на основании данных МРТ не ставят: он устанавливается прежде всего по характерной клинической картине, МРТ повышает точность и скорость диагностики.</p>
+          <button class="ev C" data-uur="C" data-udd="4" data-loc="2.4 Инструментальные исследования">УУР <b>C</b> · УДД 4<span class="st"></span></button>
+          <div class="sub" data-v="d-mri2"><p>Всем пациентам с подозрением на РС выполняется МРТ головного мозга с контрастированием — для исключения иной природы заболевания и оценки <span class="term" data-t="d:Диссеминация в пространстве">диссеминации в пространстве</span> и времени.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ================= ЛЕЧЕНИЕ ================= -->
+    <section class="block b-treat" id="treat" data-panel="treat" data-sec="Лечение">
+      <header><h2>Лечение</h2></header>
+      <div class="body">
+        <h3>Терапия обострений</h3>
+        <div class="rec" data-v="t-mp"><p>Препарат первого выбора у пациентов <em class="key">с 18 лет</em> — <span class="drug" data-name="метилпреднизолон">метилпреднизолон</span> внутривенно в режиме пульс-терапии по 1000 мг в течение <em class="key">3–5 дней</em> (максимально 7).</p>
+          <button class="ev A" data-uur="A" data-udd="1" data-loc="3.1 Терапия обострений">УУР <b>A</b> · УДД 1<span class="st"></span></button></div>
+        <h3>Медицинская реабилитация</h3>
+        <div class="rec" data-v="t-dys"><p>Пациентам с нарушениями речи и глотания показаны ранние комплексные логопедические процедуры при дисфагии и дизартрии, индивидуальная программа логопедической реабилитации, обучение компенсаторным стратегиям и альтернативным способам коммуникации.</p>
+          <button class="ev" data-loc="Критерии оценки качества" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ИСТОЧНИК ================= -->
+    <section class="block b-mkb" data-panel="over" data-sec="Коды МКБ-10" id="over">
+      <header><h2>Коды МКБ-10</h2></header>
+      <div class="mkb-list">
+        <button class="mkb-row" data-code="G35" data-v="mg35"><code>G35</code><span>Рассеянный склероз</span></button>
+      </div>
+    </section>
+    <section class="block b-src" id="src" data-panel="over" data-sec="Источник и актуальность">
+      <header><h2>Источник и актуальность</h2></header>
+      <div class="body"><ul class="list doc-links"><li><a class="row ext" href="pdf/rasseyannyi-skleroz.pdf?v=cb78880538" target="_blank" rel="noopener"><span class="rt">PDF этого разбора<span class="rs">сохранить или распечатать</span></span></a></li><li><a class="row ext" href="https://cr.minzdrav.gov.ru/view-cr/739_2" target="_blank" rel="noopener"><span class="rt">Полный текст рекомендации<span class="rs">рубрикатор Минздрава</span></span></a></li></ul><label class="switch"><span>Показывать под каждым пунктом раздел КР, УУР и УДД</span><input type="checkbox" id="srcToggle"></label>
+        <dl class="meta">
+          <dt>Документ</dt><dd>Клинические рекомендации «Рассеянный склероз»</dd>
+          <dt>Версия</dt><dd>2-я, опубликована в рубрикаторе 03.07.2025</dd>
+          <dt>Статус</dt><dd><b style="color:var(--ok)">Применяется</b> (каталог рубрикатора на 22.10.2026)</dd>
+          <dt>Актуализация</dt><dd>По общему правилу КР пересматривают не реже раза в три года, следующая версия ожидается не позднее 2028 года</dd>
+          <dt>Код в рубрикаторе</dt><dd><code>739_2</code> · <a href="https://cr.minzdrav.gov.ru/view-cr/739_2" target="_blank" rel="noopener">открыть текст КР ↗</a></dd>
+          <dt>Разработчик</dt><dd>Медицинская ассоциация врачей и центров рассеянного склероза и других нейроиммунологических заболеваний; Всероссийское общество неврологов; Национальное общество нейрорадиологов</dd>
+          <dt>Пациенты</dt><dd>Взрослые и дети</dd>
+        </dl>
+
+        <h3>Журнал сверки</h3>
+        <div id="vlog" class="vlog"></div>
+
+        <h3>Неточности и противоречия в тексте рекомендации</h3>
+        <ul class="fixlist">
+          <li>Клинически значимых противоречий в тексте рекомендации при сверке не выявлено.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+
+
+<script src="assets/data.js?v=28662fea9e29"></script>
+<script src="assets/verify-739_2.js?v=28662fea9e29"></script>
+<script src="assets/grls.js?v=28662fea9e29"></script>
+<script src="assets/app.js?v=28662fea9e29"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>

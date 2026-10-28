@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Туберкулёз у взрослых · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=28662fea9e29">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body class="brief" data-title="Туберкулёз у взрослых" data-year="2026" data-crid="16_4" data-rev="2029" data-group="infect">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+
+
+<div class="page">
+<main id="main">
+    <p class="demo-strip">Сверка с PDF рубрикатора выполняется…</p>
+
+    <nav class="crumbs"><a href="index.html">Главная</a> › <span>Инфекции</span></nav>
+    <h1>Туберкулёз у взрослых</h1>
+    <div class="dochead"><p class="docline">Клинические рекомендации от 16.01.2026 · взрослые</p></div>
+
+    <nav class="tabbar" id="tabbar" role="tablist" aria-label="Разделы"><button role="tab" data-tab="over" aria-selected="true">Обзор</button><button role="tab" data-tab="clin" aria-selected="false">Клиника</button><button role="tab" data-tab="diag" aria-selected="false">Диагностика</button><button role="tab" data-tab="treat" aria-selected="false">Лечение</button></nav>
+
+    <!-- ================= ОБЗОР ================= -->
+
+    <section class="summary" id="sum" data-sec="Главное" data-panel="over">
+      <h2>Основные положения</h2>
+      <ul>
+        <li data-v="s1">Туберкулёз — инфекционное заболевание, вызываемое микобактериями группы Mycobacterium tuberculosis complex. Среди внелегочных форм — туберкулёз уха, туберкулёзная периферическая лимфаденопатия; среди форм органов дыхания — туберкулёз гортани.</li>
+        <li data-v="s-ent">Внелегочный туберкулёз заподозрить следует при неэффективности стандартного лечения, частых рецидивах «неспецифического» заболевания и свищах любой локализации. Для исключения внелегочного туберкулёза назначается осмотр оториноларинголога.</li>
+        <li data-v="s-oto">Перед назначением <span class="drug" data-name="канамицин">канамицина</span>, <span class="drug" data-name="амикацин">амикацина</span> и <span class="drug" data-name="капреомицин">капреомицина</span> выполняется тональная аудиометрия, во время лечения — <em class="key">ежемесячно</em>: аминогликозиды ототоксичны и вестибулотоксичны.</li>
+        <li data-v="s-hosp">Госпитализация в круглосуточный стационар показана при бактериовыделении, осложнениях, среднетяжёлом и тяжёлом течении, распространённых и внелегочных формах.</li>
+      </ul>
+    </section>
+
+    <!-- ================= КЛИНИКА ================= -->
+    <section class="block b-clin" id="clin" data-panel="clin" data-sec="Клиника">
+      <header><h2>Клиническая картина и классификация</h2></header>
+      <div class="body">
+        <h3>Определение</h3>
+        <div class="rec" data-v="c-def"><p>Туберкулёз — инфекционное заболевание, которое вызывается патогенными микобактериями, относящимися к группе Mycobacterium tuberculosis complex.</p>
+          <button class="ev" data-loc="1.1 Определение" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Классификация</h3>
+        <div class="rec" data-v="c-eptb"><span class="enum-h">Внелегочные формы</span><ol class="enum"><li>туберкулёз костей и суставов;</li><li>туберкулёз мочеполовых органов;</li><li>туберкулёзная периферическая лимфаденопатия;</li><li>туберкулёз глаза;</li><li>туберкулёз уха;</li><li>туберкулёз кожи и подкожной клетчатки и другие.</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="c-ln"><span class="enum-h">Стадии туберкулёза периферических лимфатических узлов</span><ol class="enum"><li>инфильтративная;</li><li>казеозная;</li><li>абсцедирующая.</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ДИАГНОСТИКА ================= -->
+    <section class="block b-diag" id="diag" data-panel="diag" data-sec="Диагностика">
+      <header><h2>Диагностика</h2></header>
+      <div class="body">
+        <h3>Жалобы и анамнез</h3>
+        <div class="rec" data-v="d-sus"><span class="enum-h">Когда заподозрить внелегочный туберкулёз</span><ol class="enum"><li>неэффективность стандартного лечения;</li><li>частые рецидивы «неспецифического» заболевания, под маской которого протекает внелегочный туберкулёз;</li><li>появление свищей любой локализации.</li></ol>
+          <button class="ev" data-loc="2.1 Жалобы и анамнез" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="d-sus2"><p>Патогномоничных симптомов у внелегочного туберкулёза нет; важны длительность заболевания, проведённое лечение, контакт с больными туберкулёзом.</p></div></div>
+        <h3>Лабораторные исследования</h3>
+        <div class="rec" data-v="d-pcr"><p>Для этиологической диагностики выполняется молекулярно-биологическое исследование мокроты или другого диагностического материала на ДНК Mycobacterium tuberculosis complex; при выявлении ДНК повторно исследование не выполняется.</p>
+          <button class="ev B" data-uur="B" data-udd="2" data-loc="2.3 Лабораторные исследования">УУР <b>B</b> · УДД 2<span class="st"></span></button></div>
+        <h3>Туберкулёз периферических лимфатических узлов</h3>
+        <div class="rec" data-v="d-ln"><p>При периферической лимфаденопатии и подозрении на туберкулёз выполняется УЗИ лимфатических узлов с последующей биопсией и гистологической верификацией; материал исследуют также молекулярно-биологическими и культуральными методами.</p>
+          <button class="ev" data-loc="Приложение А3" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="d-ln2"><p>Пункционная биопсия малоинформативна при сохранённой ультразвуковой структуре узла. Получение гноя при пункции — показание к вскрытию и дренированию аденофлегмоны; заживление раны может длиться до 3–4 месяцев.</p></div></div>
+        <h3>Консультации специалистов</h3>
+        <div class="rec" data-v="d-cons"><p>Для исключения внелегочного туберкулёза назначается осмотр специалистов, в том числе оториноларинголога, офтальмолога, уролога, гинеколога, невролога, хирурга.</p>
+          <button class="ev" data-loc="2.5 Иные исследования" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ЛЕЧЕНИЕ ================= -->
+    <section class="block b-treat" id="treat" data-panel="treat" data-sec="Лечение">
+      <header><h2>Лечение</h2></header>
+      <div class="body">
+        <h3>Химиотерапия лекарственно-чувствительного туберкулёза</h3>
+        <div class="rec" data-v="t-ds"><p>В интенсивную фазу назначается комбинация из 4 препаратов первого ряда: <span class="drug" data-name="изониазид">изониазид</span>, <span class="drug" data-name="рифампицин">рифампицин</span>, <span class="drug" data-name="пиразинамид">пиразинамид</span> и <span class="drug" data-name="этамбутол">этамбутол</span>; в фазу продолжения — как минимум 3 препарата первого ряда.</p>
+          <button class="ev A" data-uur="A" data-udd="4" data-loc="3.1 Химиотерапия">УУР <b>A</b> · УДД 4<span class="st"></span></button></div>
+        <h3>Ототоксичность противотуберкулёзных препаратов</h3>
+        <div class="rec" data-v="t-ae"><p>Среди наиболее частых побочных реакций химиотерапии — ототоксические реакции.</p>
+          <button class="ev" data-loc="Приложение А3" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="t-audio"><p>Перед назначением <span class="drug" data-name="канамицин">канамицина</span>, <span class="drug" data-name="амикацин">амикацина</span> и <span class="drug" data-name="капреомицин">капреомицина</span> выполняется тональная аудиометрия; при лечении — <em class="key">ежемесячно</em>.</p></div></div>
+        <div class="rec" data-v="t-oto"><span class="enum-h">Наблюдение при лечении канамицином и амикацином</span><ol class="enum"><li><b class="lt">ототоксичность</b> — оценка жалоб на шум в ушах, снижение слуха; тональная аудиометрия ежемесячно</li><li><b class="lt">вестибулотоксичность</b> — оценка жалоб на головокружение, неустойчивость, тошноту, рвоту; выявление <span class="term" data-t="d:Нистагм">нистагма</span></li></ol>
+          <button class="ev" data-loc="Приложение А3" data-kind="def">источник<span class="st"></span></button></div>
+        <p class="more-hint"></p>
+      </div>
+    </section>
+
+    <section class="block b-risk" id="risk" data-panel="over" data-sec="Профилактика и госпитализация">
+      <header><h2>Профилактика и диспансерное наблюдение. Показания к госпитализации</h2></header>
+      <div class="body">
+        <h3>Показания к госпитализации</h3>
+        <div class="rec" data-v="h-hosp"><span class="enum-h">Показания к госпитализации в круглосуточный стационар</span><ol class="enum"><li>бактериовыделение, определяемое любым микробиологическим методом;</li><li>осложнения туберкулёза;</li><li>среднетяжёлое и тяжёлое течение, распространённые диссеминированные формы, внелегочная локализация;</li><li>среднетяжёлые и тяжёлые неустранимые побочные реакции на противотуберкулёзные препараты при амбулаторном лечении;</li><li>сопутствующие заболевания среднетяжёлого или тяжёлого течения.</li></ol>
+          <button class="ev" data-loc="6 Организация медицинской помощи" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ИСТОЧНИК ================= -->
+    <section class="block b-mkb" data-panel="over" data-sec="Коды МКБ-10" id="over">
+      <header><h2>Коды МКБ-10</h2></header>
+      <div class="mkb-list">
+        <button class="mkb-row" data-code="A15.5" data-v="ma155"><code>A15.5</code><span>Туберкулёз гортани, трахеи и бронхов, подтверждённый бактериологически и гистологически</span></button>
+        <button class="mkb-row" data-code="A16.4" data-v="ma164"><code>A16.4</code><span>Туберкулёз гортани, трахеи и бронхов без упоминания о бактериологическом или гистологическом подтверждении</span></button>
+        <button class="mkb-row" data-code="A18.2" data-v="ma182"><code>A18.2</code><span>Туберкулёзная периферическая лимфаденопатия</span></button>
+        <button class="mkb-row" data-code="A18.6" data-v="ma186"><code>A18.6</code><span>Туберкулёз уха</span></button>
+      </div>
+    </section>
+    <section class="block b-src" id="src" data-panel="over" data-sec="Источник и актуальность">
+      <header><h2>Источник и актуальность</h2></header>
+      <div class="body"><ul class="list doc-links"><li><a class="row ext" href="pdf/tuberkulez-u-vzroslykh.pdf?v=6c616b5e29" target="_blank" rel="noopener"><span class="rt">PDF этого разбора<span class="rs">сохранить или распечатать</span></span></a></li><li><a class="row ext" href="https://cr.minzdrav.gov.ru/view-cr/16_4" target="_blank" rel="noopener"><span class="rt">Полный текст рекомендации<span class="rs">рубрикатор Минздрава</span></span></a></li></ul><label class="switch"><span>Показывать под каждым пунктом раздел КР, УУР и УДД</span><input type="checkbox" id="srcToggle"></label>
+        <dl class="meta">
+          <dt>Документ</dt><dd>Клинические рекомендации «Туберкулёз у взрослых»</dd>
+          <dt>Версия</dt><dd>4-я, опубликована в рубрикаторе 16.01.2026</dd>
+          <dt>Статус</dt><dd><b style="color:var(--ok)">Применяется</b> (каталог рубрикатора на 22.10.2026)</dd>
+          <dt>Актуализация</dt><dd>По общему правилу КР пересматривают не реже раза в три года, следующая версия ожидается не позднее 2029 года</dd>
+          <dt>Код в рубрикаторе</dt><dd><code>16_4</code> · <a href="https://cr.minzdrav.gov.ru/view-cr/16_4" target="_blank" rel="noopener">открыть текст КР ↗</a></dd>
+          <dt>Разработчик</dt><dd>Российское общество фтизиатров; Ассоциация фтизиатров</dd>
+          <dt>Пациенты</dt><dd>Взрослые</dd>
+        </dl>
+
+        <h3>Журнал сверки</h3>
+        <div id="vlog" class="vlog"></div>
+
+        <h3>Неточности и противоречия в тексте рекомендации</h3>
+        <ul class="fixlist">
+          <li>Клинически значимых противоречий в тексте рекомендации при сверке не выявлено.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+
+
+<script src="assets/data.js?v=28662fea9e29"></script>
+<script src="assets/verify-16_4.js?v=28662fea9e29"></script>
+<script src="assets/grls.js?v=28662fea9e29"></script>
+<script src="assets/app.js?v=28662fea9e29"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>
