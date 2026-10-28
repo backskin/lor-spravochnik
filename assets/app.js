@@ -224,8 +224,10 @@ function showTab(id){
   document.querySelectorAll(".toc [data-tosec]").forEach(function(a){ var s = $(a.dataset.tosec); a.hidden = !s || panelOf(s) !== id; });
   tabInd(true);
 }
-/* заливка выбранной вкладки — одна плашка, которая переезжает к нажатой: разгон, лёгкий «удар» о край (сжалась у стенки)
-   и распрямление. Выключается вместе с плавными анимациями (просьба 27.10.2026) */
+/* заливка выбранной вкладки — одна плашка, которая переезжает к нажатой (просьба 28.10.2026):
+   разгоняется и на ходу слегка сужается; передним краем врезается в дальнюю границу новой вкладки и там останавливается,
+   ещё немного поджимается к ней, затем задний край по инерции, с замедлением, расправляется до ближней границы —
+   за границы новой вкладки плашка не выходит. Выключается вместе с плавными анимациями */
 function tabInd(move){
   if(!tabbar) return;
   var ind = tabbar.querySelector(".tab-ind"), b = tabbar.querySelector('[aria-selected="true"]');
@@ -239,16 +241,16 @@ function tabInd(move){
   if(ind._a){ ind._a.cancel(); ind._a = null; }
   ind.style.left = L1 + "px"; ind.style.width = W1 + "px";
   if(!move || !W0 || L0 === L1 || !ind.animate || root.dataset.anim === "off" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  var right = L1 > L0, d = Math.min(W1 * .08, 10);
-  /* сжатие у «стенки»: край, которым плашка ударилась, стоит, противоположный подтягивается */
-  var squash = right ? {left: (L1 + d) + "px", width: (W1 - d) + "px"} : {left: L1 + "px", width: (W1 - d) + "px"};
+  var right = L1 > L0, R1 = L1 + W1;
+  var wHit = Math.min(W0, W1) * .84, wSq = wHit * .9;  /* ширина в момент удара и в момент наибольшего сжатия у стенки */
+  /* левый край плашки при заданной ширине, когда передний край прижат к стенке */
+  var at = function(w){ return (right ? R1 - w : L1) + "px"; };
   ind._a = ind.animate([
-    {left: L0 + "px", width: W0 + "px", easing: "cubic-bezier(.55,0,.85,.45)"},
-    {left: (right ? L0 + (L1 - L0) * .35 : L1 + (L0 - L1) * .65 - (W0 + W1) * .06) + "px", width: ((W0 + W1) / 2 * 1.12) + "px", offset: .38, easing: "cubic-bezier(.3,.6,.7,1)"},
-    {left: L1 + "px", width: W1 + "px", offset: .66, easing: "ease-out"},
-    {left: squash.left, width: squash.width, offset: .82, easing: "cubic-bezier(.3,1.4,.6,1)"},
-    {left: L1 + "px", width: W1 + "px"}
-  ], {duration: 460});
+    {left: L0 + "px", width: W0 + "px", easing: "cubic-bezier(.45,0,.9,.55)"},          /* разгон с сужением */
+    {left: at(wHit), width: wHit + "px", offset: .56, easing: "cubic-bezier(.2,.6,.4,1)"}, /* удар о дальнюю границу */
+    {left: at(wSq), width: wSq + "px", offset: .68, easing: "cubic-bezier(.25,.8,.3,1)"},  /* поджалась к стенке */
+    {left: L1 + "px", width: W1 + "px"}                                                    /* расправилась, без выхода за границы */
+  ], {duration: Math.round(Math.min(600, 380 + Math.abs(L1 - L0) * .45))});
   ind._a.onfinish = function(){ ind._a = null; };
 }
 function findEl(id){ return id ? (document.getElementById(id) || document.querySelector('[data-v="' + id.replace(/"/g, "") + '"]')) : null; }
