@@ -2099,6 +2099,12 @@ html[data-anim="off"] .tb-aside{transition:none!important}
 /* колонка при переходе между главами — тот же элемент: старый снимок не показываем (иначе два оглавления накладывались), новый — без затухания */
 ::view-transition-old(tb-aside){display:none}
 ::view-transition-new(tb-aside){animation:none}
+/* шапка при смене страницы — тот же элемент и стоит на месте (жалоба 28.10.2026: при переходе с главной в разбор она гасла
+   и проявлялась заново — по умолчанию у именованной группы 0,25 с затухания старого снимка и проявления нового) */
+header.top{view-transition-name:top}
+::view-transition-group(top){animation:none}
+::view-transition-old(top){display:none}
+::view-transition-new(top){animation:none}
 html.tb-paged .crumbs,html.tb-paged .tb-ch-bar,html.tb-paged .tb-ch-hero,html.tb-paged .tb-inline-toc,
 html.tb-paged .site-foot,html.tb-paged .foot,html.tb-paged footer{display:none!important}
 html.tb-paged .tb-flow{column-count:1;column-gap:40px;column-fill:auto;overflow:hidden;touch-action:pan-y pinch-zoom}
