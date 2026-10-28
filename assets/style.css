@@ -2198,3 +2198,14 @@ html.tb-paged .fab-box{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .bm-foot{margin-top:var(--s5)}
 .tb-aside-links{display:flex;justify-content:space-between;gap:8px}
 @media (prefers-reduced-motion:reduce){.fab,.bm-btn,.bm-del{transition:none}}
+/* 28.10.2026: на большом экране шапка главной — по центру, крупнее, подпись одной строкой без переносов (замечание пользователя:
+   подпись в две строки при пустом месте справа выглядела бессмысленно); отступы сверху и снизу меньше — карточки поднимаются выше */
+@media (min-width:860px){
+  .home .page{padding-top:var(--s3)}
+  .home-id{text-align:center;margin:0 0 var(--s4)}
+  .home-title{font-size:calc(var(--t1) * 1.45);line-height:1.15;letter-spacing:.01em}
+  .home-tag{max-width:none;margin:6px auto 0;font-size:var(--t3);line-height:var(--l3);hyphens:none;-webkit-hyphens:none}
+}
+/* быстрые карточки главной: четыре в ряд — только когда им хватает ширины; на 768–1099 px подписи рвались по буквам («Учебни-к») */
+@media (min-width:768px) and (max-width:1099px){.home-qnav{grid-template-columns:repeat(2, minmax(0, 1fr))}}
+@media (min-width:860px) and (max-width:1099px){.home-tag{font-size:var(--t4);line-height:var(--l4);text-wrap:balance}}
