@@ -2281,7 +2281,16 @@ html.tb-paged .tb-sec-content .tb-h3{break-after:avoid}
   .tb-tocbar-in{position:relative;background:var(--bg);border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.08)}
   .tb-tocbar-btn{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:6px 16px;border:0;background:none;color:var(--fg);font:inherit;font-size:var(--t4);text-align:left;cursor:pointer}
   /* строка и список — по ширине колонки текста (.page), а не от края экрана */
-  .tb-tocbar-btn,.tb-tocbar-list{max-width:calc(var(--col) + 32px);margin:0 auto}
+  /* строка — по ширине колонки текста (.page): слева содержание, справа переход в постраничный режим с этого же места */
+  .tb-tocbar-in{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;padding:0 max(0px,calc((100% - var(--col) - 32px) / 2))}
+  .tb-tocbar-list{grid-column:1/-1}
+  .tb-tocbar-btn{padding-right:8px}
+  .tb-tocbar-mode{display:inline-flex;align-items:center;gap:6px;min-height:34px;margin:0 12px 0 0;padding:0 10px;border:1px solid var(--line);border-radius:var(--r-ctl);
+    background:var(--bg2);color:var(--fg);font:inherit;font-size:var(--t4);font-weight:600;white-space:nowrap;cursor:pointer;transition:transform .09s ease}
+  .tb-tocbar-mode svg{flex:none;color:var(--ac)}
+  .tb-tocbar-mode:active{transform:translateY(1px)}
+  .tb-tocbar.open .tb-tocbar-mode{visibility:hidden}  /* при открытом списке — только список */
+  @media (max-width:400px){.tb-tocbar-cur{visibility:hidden}}  /* на узком телефоне в строке не хватает места: текущий раздел выделен в раскрытом списке */
   .tb-tocbar-l{flex:none;font-weight:700;color:var(--ac);white-space:nowrap}
   .tb-tocbar-cur{flex:1;min-width:0;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tb-tocbar-cur:not(:empty)::before{content:"· "}

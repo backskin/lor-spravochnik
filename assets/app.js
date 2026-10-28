@@ -2142,6 +2142,7 @@ function lorTextbook(){
     tbar.className = "tb-tocbar";
     tbar.innerHTML = '<div class="tb-tocbar-scrim" hidden></div><div class="tb-tocbar-in"><button type="button" class="tb-tocbar-btn" aria-expanded="false">'
       + '<span class="tb-tocbar-l">Содержание главы</span><span class="tb-tocbar-cur"></span><i aria-hidden="true"></i></button>'
+      + '<button type="button" class="tb-tocbar-mode" data-tb-mode="paged" title="Читать постранично с этого места"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5h7a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H3z"/><path d="M21 5.5h-7a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h7z"/></svg><span>Постранично</span></button>'
       + '<nav class="tb-tocbar-list" aria-label="Разделы главы" hidden><ol>' + secList.map(function(sx){
         return '<li><a href="#' + sx.id + '" data-bsec="' + sx.id + '"><span class="tb-itoc-n">' + sx.num + '</span><span>' + sx.title + '</span></a></li>'; }).join("")
       + '</ol><a class="tb-tocbar-all" href="uchebnik.html">Оглавление учебника</a></nav></div>';
@@ -2189,10 +2190,28 @@ function lorTextbook(){
   main.appendChild(pager);
   var pg = 0, pgN = 1, pgStep = 1;
   function animOn(){ return root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches; }
-  function pageOf(el){ return Math.max(0, Math.floor((el.getBoundingClientRect().left - flow.getBoundingClientRect().left + flow.scrollLeft + 2) / pgStep)); }
-  function pgGo(n, smooth){
+  function rectOf(x){ var rs = x.getClientRects ? x.getClientRects() : null; return rs && rs.length ? rs[0] : x.getBoundingClientRect(); }
+  function pageOf(el){ return Math.max(0, Math.floor((rectOf(el).left - flow.getBoundingClientRect().left + flow.scrollLeft + 2) / pgStep)); }
+  /* Листание (жалоба 28.10.2026: «медленное и неживое»): страница идёт за пальцем, после отпускания — короткая доводка
+     с замедлением в конце; скорость доводки — от скорости жеста. Встроенная плавная прокрутка браузера заменена своей. */
+  var slideRaf = 0;
+  function slideStop(){ if(slideRaf){ cancelAnimationFrame(slideRaf); slideRaf = 0; } }
+  function slideTo(x, dur){
+    slideStop();
+    var x0 = flow.scrollLeft, d = x - x0;
+    if(!animOn() || Math.abs(d) < 1 || !dur){ flow.scrollLeft = x; return; }
+    var t0 = performance.now();
+    (function step(now){
+      var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      flow.scrollLeft = x0 + d * e;
+      slideRaf = k < 1 ? requestAnimationFrame(step) : 0;
+    })(t0);
+  }
+  function pgGo(n, smooth, v){
     pg = Math.max(0, Math.min(pgN - 1, n));
-    flow.scrollTo({left: pg * pgStep, behavior: smooth && animOn() ? "smooth" : "auto"});
+    var x = pg * pgStep, dist = Math.abs(x - flow.scrollLeft);
+    /* соседняя страница — доводка 240 мс (после жеста — по его скорости, 120–260 мс); дальняя — без пролёта через десятки страниц */
+    slideTo(x, !smooth || dist > pgStep * 1.5 ? 0 : v ? Math.max(120, Math.min(260, dist / v)) : 240);
     pager.querySelector(".tb-pg-info span").innerHTML = '<i class="tb-pg-w">страница </i>' + (pg + 1) + " из " + pgN;
     pager.querySelector('[data-pg="-1"]').disabled = pg === 0;
     pager.querySelector('[data-pg="1"]').disabled = pg === pgN - 1;
@@ -2205,9 +2224,29 @@ function lorTextbook(){
     aside.classList.toggle("open", on);
     var tb = pager.querySelector(".tb-pg-toc"); if(tb) tb.setAttribute("aria-expanded", String(on));
   }
-  function atPageStart(){  /* первый абзац видимой страницы — чтобы при смене размера окна или режима не потерять место */
-    var r = flow.getBoundingClientRect(), el = document.elementFromPoint(r.left + 24, r.top + 24);
-    return el && flow.contains(el) ? el : null;
+  /* Место чтения — точка в тексте (жалоба 28.10.2026: при смене режима глава открывалась с начала раздела — под точкой
+     оказывался весь раздел, и запоминался он, а не строка) */
+  function textAt(x, y){  /* точка в тексте (Range) под координатами; если там рисунок — элемент */
+    var rg = null;
+    if(document.caretRangeFromPoint) rg = document.caretRangeFromPoint(x, y);
+    else if(document.caretPositionFromPoint){ var cp = document.caretPositionFromPoint(x, y); if(cp){ rg = document.createRange(); rg.setStart(cp.offsetNode, cp.offset); } }
+    if(rg && rg.startContainer.nodeType === 3 && flow.contains(rg.startContainer) && rectOf(rg).height) return rg;
+    var el = document.elementFromPoint(x, y);
+    return el && flow.contains(el) && el !== flow && !/^(DIV|SECTION)$/.test(el.tagName) ? el : null;
+  }
+  function readLine(){  /* верх читаемого текста в режиме прокрутки: под шапкой и плашкой «Содержание главы» */
+    var hd = (document.querySelector(".top") || {}).offsetHeight || 56, bi = document.querySelector(".tb-tocbar.on .tb-tocbar-in");
+    return hd + 1 + (bi ? bi.offsetHeight : 0) + 8;
+  }
+  function atPageStart(){  /* первая строка видимой страницы — чтобы при смене размера окна или режима не потерять место */
+    var r = flow.getBoundingClientRect(), y;
+    for(y = r.top + 6; y < r.top + 160; y += 12){ var a = textAt(r.left + 20, y); if(a) return a; }
+    return null;
+  }
+  function atReadLine(){  /* первая строка под шапкой в режиме прокрутки */
+    var r = flow.getBoundingClientRect(), y0 = readLine(), y;
+    for(y = y0; y < y0 + 200; y += 12){ var a = textAt(r.left + 40, y); if(a) return a; }
+    return null;
   }
   function pgLayout(keep){
     var hd = (document.querySelector(".top") || {}).offsetHeight || 56;
@@ -2220,13 +2259,25 @@ function lorTextbook(){
     pgGo(keep ? pageOf(keep) : pg, false);
     void hd;
   }
-  function setMode(mode, keep){
+  function setMode(mode, keep, fade){
     var paged = mode === "paged";
     document.querySelectorAll("[data-tb-mode]").forEach(function(b){ if(b.closest(".tb-mode")) b.setAttribute("aria-pressed", String(b.dataset.tbMode === mode)); });
     try{ localStorage.setItem("lor-tb-mode", mode); }catch(e){}
     if(paged === root.classList.contains("tb-paged")) return;
+    /* смена режима по нажатию: место запоминается до перестройки, экран меняется одним коротким перетеканием (0,14 с, как переходы
+       между страницами) — без промежуточных кадров, где текст уже перестроен, а прокрутка ещё старая */
+    if(fade && document.startViewTransition && animOn()){
+      var k0 = keep || (paged ? atReadLine() : atPageStart());
+      document.startViewTransition(function(){
+        /* выдвижное содержание (кнопка в нём) закрывается в том же перетекании, а не отдельным движением следом */
+        if(aside.classList.contains("open")){ aside.style.transition = "none"; asideOpen(false); requestAnimationFrame(function(){ requestAnimationFrame(function(){ aside.style.transition = ""; }); }); }
+        setMode(mode, k0, false);
+      });
+      return;
+    }
+    slideStop();
     if(paged){
-      if(!keep){ var c = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 3); keep = c && flow.contains(c) ? c : null; }
+      if(!keep) keep = atReadLine();
       root.classList.add("tb-paged");
       pgLayout(keep);
       /* ленивые картинки внутри обрезанных столбцов сами не загружаются: грузим сразу, после загрузки — пересчёт страниц */
@@ -2235,12 +2286,16 @@ function lorTextbook(){
       Promise.all(lazy.map(function(im){ return im.complete ? 0 : new Promise(function(ok){ im.addEventListener("load", ok, {once: true}); im.addEventListener("error", ok, {once: true}); }); }))
         .then(function(){ if(!root.classList.contains("tb-paged")) return;
           /* при «назад» страница сохранена в разбивке с загруженными картинками — после их загрузки возвращаемся именно на неё */
+          if(!lazy.length) return;
           if(restored && pos && pos.p != null){ pgLayout(null); pgGo(pos.p, false); } else pgLayout(atPageStart()); });
     } else {
       keep = keep || atPageStart();
       root.classList.remove("tb-paged");
       flow.style.height = ""; flow.scrollLeft = 0;
-      if(keep) keep.scrollIntoView({block: "start"});  /* отступ под шапку даёт scroll-padding-top у html */
+      if(keep){  /* та же строка — у верха текста под шапкой; второй шаг — когда плашка содержания успела появиться */
+        window.scrollTo(0, window.scrollY + rectOf(keep).top - readLine() - 44);
+        requestAnimationFrame(function(){ window.scrollTo(0, window.scrollY + rectOf(keep).top - readLine()); });
+      }
     }
   }
   main.addEventListener("click", function(e){
@@ -2248,7 +2303,7 @@ function lorTextbook(){
     var fb = e.target.closest(".tb-aside-fold");
     if(fb){ var fli = fb.closest("li[data-href]"); aside.__tbOpen[fli.dataset.href] = aside.__tbOpen[fli.dataset.href] ? 0 : 1; aside.__tbSave(); aside.__tbRender(fli); return; }
     if(aside.classList.contains("open") && !aside.contains(e.target)) asideOpen(false);
-    var m = e.target.closest("[data-tb-mode]"); if(m){ asideOpen(false); setMode(m.dataset.tbMode); return; }
+    var m = e.target.closest("[data-tb-mode]"); if(m){ if(!(document.startViewTransition && animOn())) asideOpen(false); setMode(m.dataset.tbMode, null, true); return; }
     var b = e.target.closest("[data-pg]"); if(b){ pgGo(pg + (+b.dataset.pg), true); return; }
     if(!root.classList.contains("tb-paged")) return;
     var a = e.target.closest('a[href^="#"]'); if(!a) return;
@@ -2269,13 +2324,32 @@ function lorTextbook(){
     var now = Date.now(); if(now - wheelT < 450) return; wheelT = now;
     pgGo(pg + (e.deltaY > 0 ? 1 : -1), true);
   }, {passive: false});
-  var tx = null, ty = 0;
-  flow.addEventListener("touchstart", function(e){ if(e.touches.length === 1){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; } else tx = null; }, {passive: true});
+  var tx = null, ty = 0, tLeft = 0, tFrom = 0, tDrag = null, tHist = [];
+  flow.addEventListener("touchstart", function(e){
+    if(e.touches.length !== 1 || !root.classList.contains("tb-paged")){ tx = null; return; }
+    slideStop();  /* палец ловит страницу на ходу */
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY; tLeft = flow.scrollLeft; tFrom = pg; tDrag = null; tHist = [[performance.now(), tx]];
+  }, {passive: true});
+  flow.addEventListener("touchmove", function(e){
+    if(tx === null || e.touches.length !== 1) return;
+    var cx = e.touches[0].clientX, dx = cx - tx, dy = e.touches[0].clientY - ty;
+    if(tDrag === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) tDrag = Math.abs(dx) > Math.abs(dy) * 1.2;
+    if(!tDrag) return;
+    var maxL = (pgN - 1) * pgStep, x = tLeft - dx;
+    if(x < 0) x = x * 0.3; else if(x > maxL) x = maxL + (x - maxL) * 0.3;  /* у первой и последней страницы — упругий край */
+    flow.scrollLeft = x;
+    tHist.push([performance.now(), cx]); if(tHist.length > 6) tHist.shift();
+  }, {passive: true});
   flow.addEventListener("touchend", function(e){
     if(tx === null || !root.classList.contains("tb-paged")) return;
-    var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
-    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) pgGo(pg + (dx < 0 ? 1 : -1), true);
+    var cx = e.changedTouches[0].clientX, dx = cx - tx; tx = null;
+    if(!tDrag){ if(Math.abs(flow.scrollLeft - pg * pgStep) > 1) pgGo(pg, true); return; }
+    var h0 = tHist[0], dt = performance.now() - h0[0], v = dt > 0 ? (cx - h0[1]) / dt : 0;  /* px/мс за последние кадры */
+    var dir = Math.abs(dx) > pgStep * 0.22 || Math.abs(v) > 0.35 ? (dx < 0 ? 1 : -1) : 0;
+    if(dir && Math.abs(v) > 0.2 && (v < 0) !== (dir > 0)) dir = 0;  /* потянул и вернул палец обратно — страница остаётся */
+    pgGo(tFrom + dir, true, Math.max(0.6, Math.abs(v)));
   }, {passive: true});
+  flow.addEventListener("touchcancel", function(){ if(tx === null) return; tx = null; pgGo(tFrom, true); }, {passive: true});
   var rsT = 0;
   window.addEventListener("resize", function(){
     if(!root.classList.contains("tb-paged")) return;
