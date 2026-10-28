@@ -848,7 +848,7 @@ if(home){
   core.forEach(function(g, idx){
     var all = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return rank(g.id, a) - rank(g.id, b) || (b.href ? 1 : 0) - (a.href ? 1 : 0); });
     var isOpen = !!savedOpen[g.id];
-    var cardTitle = g.id === "nose" ? "Нос и пазухи" : g.title;
+    var cardTitle = g.id === "nose" ? "Нос и ОНП" : g.title;  /* название карточки выбрано пользователем — «Нос и ОНП» */
     h += '<section class="grp grp-card' + (isOpen ? ' is-open' : '') + '" data-sec-id="' + g.id + '" style="--stagger:' + idx + '">'
       + '<button type="button" class="grp-head" aria-expanded="' + String(isOpen) + '" data-grp-toggle="' + g.id + '">'
       + gicon(g.id)
