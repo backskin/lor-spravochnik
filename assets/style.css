@@ -1076,7 +1076,9 @@ body.home .trust .lead{
   font-size:var(--t3);
   line-height:1.55;
   color:var(--fg);
-  max-width:70ch;
+  /* на всю ширину шапки и без переноса по слогам: строка не обрывается посреди экрана (жалоба 28.10.2026) */
+  max-width:none;
+  -webkit-hyphens:manual;hyphens:manual;
 }
 
 .tb-filters{
