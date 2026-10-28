@@ -2221,3 +2221,13 @@ html.tb-paged .fab-box{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (min-width:768px) and (max-width:1099px){.home-qnav{grid-template-columns:repeat(2, minmax(0, 1fr))}}
 @media (min-width:860px) and (max-width:1099px){.home-tag{font-size:var(--t4);line-height:var(--l4);text-wrap:balance}}
 .tb-aside-top + .tb-aside-h{margin-top:var(--s3)!important}
+/* свёрнутая карточка: под нижним краем полосы — подложка её цвета (просьба 28.10.2026).
+   При дробном положении карточки на экране нижний ряд пикселей полосы сглаживался с фоном карточки,
+   и между полосой и рамкой проступала белая горизонтальная линия в 1 px. Подложка в 3 px у нижнего края
+   закрывает этот ряд; ширина — до нижней точки скошенного края. Геометрия карточки не меняется. */
+.grp-card:not(.is-open){--band-foot:#0f745b;
+  background-image:linear-gradient(var(--band-foot),var(--band-foot));background-repeat:no-repeat;background-position:left bottom;
+  background-size:calc(66px - 74px * var(--k) * .2126 - 2px) 3px}
+html[data-theme="dark"] .grp-card:not(.is-open){--band-foot:#0b5441}
+@media (prefers-color-scheme:dark){html:not([data-theme="light"]) .grp-card:not(.is-open){--band-foot:#0b5441}}
+@media (min-width:860px){.grp-card:not(.is-open){background-size:calc(96px - 138px * var(--k) * .2126 - 2px) 3px}}
