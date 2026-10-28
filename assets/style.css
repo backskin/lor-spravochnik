@@ -2241,3 +2241,7 @@ html[data-anim="off"] .lor-scan{animation:none}
 .tb-sec-content .tb-h3{margin:var(--s4) 0 var(--s2);font-size:var(--t3);line-height:1.3;font-weight:700;color:var(--ac)}
 .tb-sec-content .tb-h3:first-child{margin-top:0}
 html.tb-paged .tb-sec-content .tb-h3{break-after:avoid}
+/* учебник — книжный абзац: красная строка (просьба 28.10.2026). Без отступа — подписи источника, подписи таблиц и списков */
+.tb-sec-content p{text-indent:1.5em}
+.tb-sec-content p.tb-tcap,.tb-sec-content p.tb-ol-cite,.tb-sec-content figcaption,.tb-sec-content td p,.tb-sec-content li p{text-indent:0}
+.tb-sec-content .tb-cite{text-indent:0}
