@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Одонтогенный остеомиелит челюсти · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=77843596408c">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body class="brief" data-title="Одонтогенный остеомиелит челюсти" data-year="2026" data-crid="1049_1" data-rev="2029" data-group="maxface">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+
+
+<div class="page">
+<main id="main">
+    <p class="demo-strip">Сверка с PDF рубрикатора выполняется…</p>
+
+    <nav class="crumbs"><a href="index.html">Главная</a> › <span>Челюстно-лицевая область</span></nav>
+    <h1>Одонтогенный остеомиелит челюсти</h1>
+    <div class="dochead"><p class="docline">Клинические рекомендации от 19.06.2026 · взрослые</p></div>
+
+    <nav class="tabbar" id="tabbar" role="tablist" aria-label="Разделы"><button role="tab" data-tab="over" aria-selected="true">Обзор</button><button role="tab" data-tab="clin" aria-selected="false">Клиника</button><button role="tab" data-tab="diag" aria-selected="false">Диагностика</button><button role="tab" data-tab="treat" aria-selected="false">Лечение</button></nav>
+
+    <!-- ================= ОБЗОР ================= -->
+
+    <section class="summary" id="sum" data-sec="Главное" data-panel="over">
+      <h2>Основные положения</h2>
+      <ul>
+        <li data-v="s1">Остеомиелит челюсти — гнойно-некротическое воспаление всех структур челюстной кости одонтогенного или неодонтогенного происхождения; острый одонтогенный остеомиелит выходит за пределы одного зубо-альвеолярного сегмента.</li>
+        <li data-v="s-ent"><b class="lt">Для оториноларинголога</b>: при остеомиелите верхней челюсти с «причинным» премоляром или моляром возможен верхнечелюстной синусит (чаще острый серозный, на фоне хронического — обострение гнойного); показаны консультация оториноларинголога и КТ околоносовых пазух.</li>
+        <li data-v="s-tx">Лечение остеомиелита — в стационаре в неотложном порядке: удаление «причинного» зуба, вскрытие и дренирование очага, антибактериальная терапия; при подострой и хронической стадии — <span class="term" data-t="d:Секвестрэктомия">секвестрэктомия</span>, при поражении стенок пазухи — по типу операции Колдуэлла — Люка.</li>
+      </ul>
+    </section>
+
+    <!-- ================= КЛИНИКА ================= -->
+    <section class="block b-clin" id="clin" data-panel="clin" data-sec="Клиника">
+      <header><h2>Клиническая картина и классификация</h2></header>
+      <div class="body">
+        <h3>Определения</h3>
+        <div class="rec" data-v="c-def"><p>Остеомиелит челюсти — гнойно-некротическое воспалительное заболевание костной ткани челюстной кости (одновременно всех её структурных компонентов) инфекционно-аллергической природы одонтогенного или неодонтогенного происхождения.</p><p>Острый одонтогенный остеомиелит — процесс, при котором зона поражения распространяется за пределы входного зубо-альвеолярного сегмента — на пародонт соседних зубов или тело челюсти.</p><p>Периостит, в отличие от него, ограничен пределами одного зубо-альвеолярного сегмента.</p>
+          <button class="ev" data-loc="1.1 Определение" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="c-seg"><p>Верхней границей зубо-альвеолярных сегментов верхней челюсти является дно полости носа и верхнечелюстных синусов.</p>
+          <button class="ev" data-loc="Термины и определения" data-kind="def">источник<span class="st"></span></button></div>
+        <h3 class="more">Этиология и эпидемиология</h3>
+        <div class="rec more" data-v="c-etio"><p>Периостит развивается на фоне острого или обострения хронических одонтогенных заболеваний, чаще всего хронического периодонтита, реже пародонтита, перикоронита. Возбудители — условно-патогенная микробиота полости рта: факультативные и строгие анаэробы.</p>
+          <button class="ev" data-loc="1.2 Этиология и патогенез" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec more" data-v="c-epi"><p>Одонтогенный остеомиелит составляет до 74,2% всех остеомиелитов челюстей; встречается преимущественно у мужчин среднего возраста. У госпитализированных пациентов поражение нижней челюсти — в 85% случаев.</p>
+          <button class="ev" data-loc="1.3 Эпидемиология" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Классификация</h3>
+        <div class="rec" data-v="c-class"><ol class="enum"><li><b class="lt">периостит челюсти</b> — острый (серозный, гнойный — ограниченный, диффузный) и хронический (простой, оссифицирующий, рарефицирующий)</li><li><b class="lt">остеомиелит по этиологии</b> — одонтогенный, гематогенный, травматический (в том числе огнестрельный), контактный</li><li><b class="lt">по В. И. Лукьяненко (1968)</b> — форма — острая, подострая, хроническая, обострение хронической; тяжесть — лёгкая, средняя, тяжёлая; локализация — верхняя, нижняя челюсть; распространённость — ограниченный, распространённый, диффузный</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Клиническая картина</h3>
+        <div class="rec" data-v="cl-sinus"><p>При распространении воспаления в костных структурах верхней челюсти вверх, в верхнечелюстную пазуху, возможно развитие верхнечелюстного синусита.</p><ol class="enum"><li><b class="lt">как правило</b> — острый серозный синусит</li><li><b class="lt">«причинный» премоляр или моляр на фоне хронического одонтогенного или смешанного синусита</b> — обострение хронического гнойного синусита</li><li><b class="lt">тактика</b> — консультация оториноларинголога и контрольное рентгенологическое исследование околоносовых пазух, при технической возможности — КТ</li></ol>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="cl-cuff"><p>При локализации процесса в зоне моляров верхней челюсти возможен пристеночный отёк слизистой оболочки альвеолярной бухты в области дна верхнечелюстной пазухи над «причинным» зубом — его расценивают как «муфтообразный» инфильтрат.</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ДИАГНОСТИКА ================= -->
+    <section class="block b-diag" id="diag" data-panel="diag" data-sec="Диагностика">
+      <header><h2>Диагностика</h2></header>
+      <div class="body">
+        <h3>Жалобы и анамнез</h3>
+        <div class="rec" data-v="d-anam"><span class="enum-h">При дифференциальной диагностике учитывают жалобы</span><ol class="enum"><li>локализация и характер боли — в области одного «причинного» зуба, нескольких зубов и/или челюсти;</li><li>иррадиация по ходу ветвей тройничного нерва;</li><li>подвижность одного, двух или нескольких соседних зубов;</li><li>отёк слизистой оболочки и околочелюстных мягких тканей;</li><li>парестезии губы, зубов, кожи анатомической области;</li><li>ограничение открывания рта.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2 Диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Консультации специалистов</h3>
+        <div class="rec" data-v="d-cons"><p>Всем пациентам показана консультация челюстно-лицевого хирурга и/или стоматолога-хирурга.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2 Диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-cons-t"><p>Консультация терапевта — при сопутствующей патологии.</p></div>
+          <div class="sub" data-v="d-cons-o"><p>Консультация офтальмолога — при тотальном или субтотальном гнойно-некротическом процессе верхней челюсти с распространением на глазницу.</p></div>
+          <div class="sub" data-v="d-cons-n"><p>Консультация невролога — при неврологических нарушениях.</p></div>
+          <div class="sub" data-v="d-cons-a"><p>Консультация анестезиолога-реаниматолога — перед операцией под сочетанной анестезией или наркозом и при тяжёлой сопутствующей патологии.</p></div></div>
+        <div class="rec" data-v="d-ent"><p>При локализации гнойного процесса в верхней челюсти и признаках верхнечелюстного синусита показана консультация оториноларинголога.</p><span class="enum-h">Задачи оториноларинголога</span><ol class="enum"><li>оценка состояния ЛОР-органов и уточнение диагноза;</li><li>определение показаний к <span class="term" data-t="d:Пункция верхнечелюстной пазухи">пункции верхнечелюстной пазухи</span>;</li><li>коррекция комплексного, в том числе местного, лечения;</li><li>согласование со стоматологом протокола лечения для предупреждения осложнений со стороны ЛОР-органов.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2 Диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Физикальное обследование</h3>
+        <div class="rec" data-v="d-phys"><p>Проводится общеклинический осмотр: кожа, слизистые оболочки, ЧСС, артериальное давление, частота дыхания.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2 Диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-ext"><p>Внешний осмотр.</p></div>
+          <div class="sub" data-v="d-oral"><p>Пальпация и осмотр органов полости рта.</p></div>
+          <div class="sub" data-v="d-mouth"><p>Определение степени открывания рта.</p></div>
+          <div class="sub" data-v="d-perc"><p>Перкуссия и определение патологической подвижности зубов на поражённом участке челюсти.</p></div>
+          <div class="sub" data-v="d-sens"><p>Оценка чувствительности нижней губы и подбородка или верхней губы и подглазничной области на стороне поражения.</p></div></div>
+        <h3>Лучевые и лабораторные исследования</h3>
+        <div class="rec" data-v="d-xray"><p>Всем пациентам выполняется рентгенологическое исследование челюстно-лицевой зоны для уточнения «причинного» зуба и характера поражения кости: внутриротовая контактная, окклюзионная рентгенография, обзорная рентгенограмма челюсти, рентгенография черепа.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2 Диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-ct"><p>При остром диффузном периостите, субтотальном или тотальном остром, хроническом и обострении хронического остеомиелита, при технической возможности, выполняется КТ челюстно-лицевой области (КЛКТ или МСКТ челюстей).</p></div>
+          <div class="sub" data-v="d-us"><p>При предполагаемом остром субтотальном или тотальном остеомиелите показано УЗИ тканей полости рта.</p></div></div>
+        <div class="rec" data-v="d-lab"><p>Перед экстренной операцией выполняется комплекс лабораторных исследований.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2 Диагностика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-micro"><p>У всех пациентов в стационаре проводится микробиологическое исследование отделяемого из лунки «причинного» зуба и свищевых ходов с определением чувствительности к антимикробным препаратам.</p></div>
+          <div class="sub" data-v="d-hist"><p>Цитологическое и патолого-анатомическое исследование проводится для дифференциальной диагностики со специфическими заболеваниями (актиномикоз, туберкулёз, сифилис), опухолями (саркома Юинга) и опухолеподобными образованиями челюстей.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ================= ЛЕЧЕНИЕ ================= -->
+    <section class="block b-treat" id="treat" data-panel="treat" data-sec="Лечение">
+      <header><h2>Лечение</h2></header>
+      <div class="body">
+        <h3>Условия лечения</h3>
+        <div class="rec" data-v="t-where"><p>Лечение периостита возможно в стоматологической поликлинике в режиме неотложной помощи — только при отсутствии сопутствующей патологии, нормергическом течении и без рисков осложнений.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3 Лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-where2"><p>Одонтогенный остеомиелит лечится в стационаре в режиме неотложной помощи.</p></div>
+          <div class="sub" data-v="t-where3"><p>При декомпенсированной сопутствующей патологии или гиперергическом течении — многопрофильный стационар.</p></div></div>
+        <h3>Хирургическое лечение</h3>
+        <div class="rec" data-v="t-surg"><p>Хирургическое вмешательство выполняется с учётом патогенеза и фазы гнойно-воспалительного процесса.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3 Лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-s1"><p>Удаление «причинного» зуба — для оттока экссудата из первичного очага.</p></div>
+          <div class="sub" data-v="t-s2"><p>Обязательное вскрытие и дренирование абсцесса полости рта.</p></div>
+          <div class="sub" data-v="t-s3"><p>При остром периостите — вскрытие и дренирование поднадкостничного абсцесса.</p></div>
+          <div class="sub" data-v="t-s4"><p>При остром и обострении хронического остеомиелита — вскрытие очага в полости рта с обеих сторон челюсти; при флегмоне или свище — внеротовой или сочетанный доступ.</p></div>
+          <div class="sub" data-v="t-s5"><p>При подострой стадии и хроническом остеомиелите — секвестрэктомия под сочетанной анестезией или комбинированным эндотрахеальным наркозом.</p></div>
+          <div class="sub" data-v="t-cl"><p>На верхней челюсти рационально использовать внутриротовые доступы. При осложнении остеомиелита верхней челюсти верхнечелюстным синуситом или секвестрации стенок верхнечелюстной пазухи секвестрэктомию целесообразно выполнять по типу радикальной синусотомии (операция по Колдуэллу — Люку).</p></div></div>
+        <div class="rec more" data-v="t-tooth"><p>При остром серозном периостите, если «причинный» зуб — резец или клык, решается вопрос о его сохранении.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3 Лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-tooth2"><p>При декомпенсированной сопутствующей патологии и приёме антикоагулянтов удаление зуба отсрочено.</p></div>
+          <div class="sub" data-v="t-tooth3"><p>При технических трудностях удаления — отсроченное удаление при обязательном дренировании очага: периостеотомия и «остеоперфорация» в проекции зуба.</p></div></div>
+        <h3>Медикаментозное лечение</h3>
+        <div class="rec" data-v="t-abx"><p>Рациональная антибактериальная терапия входит в комплексное лечение.</p>
+          <button class="ev C" data-uur="C" data-udd="4" data-loc="3 Лечение">УУР <b>C</b> · УДД 4<span class="st"></span></button>
+          <div class="sub" data-v="t-abx1"><p>При назначении соблюдаются рекомендации «СКАТ».</p></div>
+          <div class="sub" data-v="t-abx2"><p>Эмпирическую терапию начинают после дренирования очага, обязательно направляя материал на микробиологическое исследование.</p></div>
+          <div class="sub" data-v="t-abx3"><p>После результатов посева переходят на целенаправленную терапию; длительность определяется динамикой процесса, состоянием и анализами.</p></div>
+          <div class="sub" data-v="t-abx4"><p>При отсутствии динамики схему корректируют, проводят ревизию очага и исключают распространение на соседние клетчаточные пространства.</p></div></div>
+        <div class="rec" data-v="t-other"><p>С дезинтоксикационной целью применяют кровезаменители и перфузионные растворы.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3 Лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-o1"><p>Контроль нутритивного статуса и <span class="term" data-t="d:Нутритивная поддержка">нутритивная поддержка</span> при хирургическом лечении.</p></div>
+          <div class="sub" data-v="t-o2"><p>Антикоагулянты — при диффузном остеомиелите верхней челюсти, осложнённом течении, декомпенсированной патологии, с профилактикой ВТЭО.</p></div>
+          <div class="sub" data-v="t-o3"><p>Антигистаминные средства — для снижения гиперергического фона.</p></div>
+          <div class="sub" data-v="t-o4"><p>НПВП и анальгетики — для купирования боли.</p></div>
+          <div class="sub" data-v="t-o5"><p>Гипербарическая оксигенация — при технической возможности; озонотерапия — при вялотекущем и хроническом течении.</p></div></div>
+        <div class="rec more" data-v="t-local"><p>Местное лечение раны — по фазам раневого процесса: противомикробные препараты и антисептики, при некрозе — протеолитические ферменты, затем средства, оптимизирующие регенерацию.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3 Лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <p class="more-hint"></p>
+      </div>
+    </section>
+
+    <section class="block b-risk" id="risk" data-panel="over" data-sec="Профилактика и госпитализация">
+      <header><h2>Профилактика и диспансерное наблюдение. Показания к госпитализации</h2></header>
+      <div class="body">
+        <h3>Профилактика</h3>
+        <div class="rec" data-v="p-san"><p>Рекомендуется своевременная санация полости рта: выявление и лечение <span class="term" data-t="d:Кариес">кариеса</span> и его осложнений, воспалительных заболеваний <span class="term" data-t="d:Пародонт">пародонта</span>.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="5 Профилактика">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Показания к госпитализации</h3>
+        <div class="rec" data-v="h-hosp"><span class="enum-h">Экстренная госпитализация</span><ol class="enum"><li>острый серозный или гнойный периостит при суб- или декомпенсированной сопутствующей патологии;</li><li>гиперергическое течение воспаления;</li><li>злокачественные новообразования любой локализации;</li><li>иммунодефицитные состояния.</li></ol><span class="enum-h">Плановая госпитализация</span><ol class="enum"><li>подострая фаза и хронический остеомиелит при сформированном <span class="term" data-t="d:Секвестр">секвестре</span>;</li><li>затяжное, торпидное или прогрессирующее течение хронического остеомиелита с длительным формированием секвестров.</li></ol><span class="enum-h">Критерии выписки</span><ol class="enum"><li>неосложнённое течение раннего послеоперационного периода, удовлетворительное состояние, боль купируется пероральными средствами, антибиотики можно принимать амбулаторно;</li><li>перевод в другое учреждение;</li><li>требование пациента или его законного представителя;</li><li>несоблюдение предписаний, если это не угрожает жизни.</li></ol>
+          <button class="ev" data-loc="6 Организация медицинской помощи" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="o-org"><p>Помощь оказывается в многопрофильном стационаре с возможностью консультаций терапевта и узких специалистов (невролога, оториноларинголога, офтальмолога): при «причинных» премолярах и молярах возможно развитие одонтогенного верхнечелюстного синусита.</p>
+          <button class="ev" data-loc="7 Дополнительная информация" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ИСТОЧНИК ================= -->
+    <section class="block b-mkb" data-panel="over" data-sec="Коды МКБ-10" id="over">
+      <header><h2>Коды МКБ-10</h2></header>
+      <div class="mkb-list">
+        <button class="mkb-row" data-code="K10.2" data-v="mk102"><code>K10.2</code><span>Воспалительные заболевания челюстей</span></button>
+      </div>
+    </section>
+    <section class="block b-src" id="src" data-panel="over" data-sec="Источник и актуальность">
+      <header><h2>Источник и актуальность</h2></header>
+      <div class="body"><ul class="list doc-links"><li><a class="row ext" href="pdf/odontogennyi-osteomielit-chelyusti.pdf?v=a7f0de7754" target="_blank" rel="noopener"><span class="rt">PDF этого разбора<span class="rs">сохранить или распечатать</span></span></a></li><li><a class="row ext" href="https://cr.minzdrav.gov.ru/view-cr/1049_1" target="_blank" rel="noopener"><span class="rt">Полный текст рекомендации<span class="rs">рубрикатор Минздрава</span></span></a></li></ul><label class="switch"><span>Показывать под каждым пунктом раздел КР, УУР и УДД</span><input type="checkbox" id="srcToggle"></label>
+        <dl class="meta">
+          <dt>Документ</dt><dd>Клинические рекомендации «Воспалительные заболевания челюстей. Одонтогенный остеомиелит челюсти»</dd>
+          <dt>Версия</dt><dd>1-я, опубликована в рубрикаторе 19.06.2026</dd>
+          <dt>Статус</dt><dd><b style="color:var(--ok)">Применяется</b> (каталог рубрикатора на 22.10.2026)</dd>
+          <dt>Актуализация</dt><dd>По общему правилу КР пересматривают не реже раза в три года, следующая версия ожидается не позднее 2029 года</dd>
+          <dt>Код в рубрикаторе</dt><dd><code>1049_1</code> · <a href="https://cr.minzdrav.gov.ru/view-cr/1049_1" target="_blank" rel="noopener">открыть текст КР ↗</a></dd>
+          <dt>Разработчик</dt><dd>Общество специалистов в области челюстно-лицевой хирургии</dd>
+          <dt>Пациенты</dt><dd>Взрослые</dd>
+        </dl>
+
+        <h3>Журнал сверки</h3>
+        <div id="vlog" class="vlog"></div>
+
+        <h3>Неточности и противоречия в тексте рекомендации</h3>
+        <ul class="fixlist">
+          <li>Клинически значимых противоречий в тексте рекомендации при сверке не выявлено.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+
+
+<script src="assets/data.js?v=77843596408c"></script>
+<script src="assets/verify-1049_1.js?v=77843596408c"></script>
+<script src="assets/grls.js?v=77843596408c"></script>
+<script src="assets/app.js?v=77843596408c"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>
