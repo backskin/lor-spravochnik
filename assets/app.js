@@ -2155,7 +2155,7 @@ function lorTextbook(){
   function pgGo(n, smooth){
     pg = Math.max(0, Math.min(pgN - 1, n));
     flow.scrollTo({left: pg * pgStep, behavior: smooth && animOn() ? "smooth" : "auto"});
-    pager.querySelector(".tb-pg-info span").textContent = "страница " + (pg + 1) + " из " + pgN;
+    pager.querySelector(".tb-pg-info span").innerHTML = '<i class="tb-pg-w">страница </i>' + (pg + 1) + " из " + pgN;
     pager.querySelector('[data-pg="-1"]').disabled = pg === 0;
     pager.querySelector('[data-pg="1"]').disabled = pg === pgN - 1;
     /* текущий раздел в содержании — и при листании страниц */

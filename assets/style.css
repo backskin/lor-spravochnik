@@ -2255,3 +2255,15 @@ html.tb-paged .tb-sec-content .tb-h3{break-after:avoid}
 /* главная: у последнего пункта списка карточки нет линии-разделителя — её роль играет рамка карточки (просьба 28.10.2026) */
 .grp-card .list > li:last-child > .row,.grp-card .list > li:last-child > a.row,
 .grp-card .rel-item:last-child > .row,.grp-card .sublist > li:last-child > .row{border-bottom:0!important}
+
+/* нижняя панель постраничного режима на телефоне (жалоба 28.10.2026: при крупном шрифте «Прокруткой» и «страница 3 из N» не помещались
+   и переносились по слогам). На узком экране в панели — «Содержание», «‹ 3 из N ›»; переход к прокрутке — в выдвижном содержании (.tb-mode) */
+.tb-pg-info i{font-style:normal}
+.tb-pg-info>span{white-space:nowrap}
+@media (max-width:600px){
+  .tb-pg-exit{display:none}
+  html.tb-paged .tb-pager{gap:6px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+  .tb-pg-w{display:none}
+  .tb-pg-btn{width:44px}
+  .tb-pg-toc{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
