@@ -2252,3 +2252,6 @@ html.tb-paged .tb-sec-content .tb-h3{break-after:avoid}
 .tb-sec-content .tb-key .tb-key-h{margin:0 0 var(--s1);font-weight:700;color:var(--ac)}
 /* схемы-данные учебника (шкалы сроков): цвета темы, по ширине колонки */
 .fig svg.tb-anat{max-width:100%;height:auto;display:block;margin:0 auto}
+/* главная: у последнего пункта списка карточки нет линии-разделителя — её роль играет рамка карточки (просьба 28.10.2026) */
+.grp-card .list > li:last-child > .row,.grp-card .list > li:last-child > a.row,
+.grp-card .rel-item:last-child > .row,.grp-card .sublist > li:last-child > .row{border-bottom:0!important}
