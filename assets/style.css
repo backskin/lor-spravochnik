@@ -1945,10 +1945,12 @@ html[data-anim="off"] .themes button:active,html[data-anim="off"] .tsize-row .ts
   transform:none!important;
 }
 
-/* ===== 27.10.2026: заливка вкладок разбора — одна плашка переезжает между кнопками (app.js, tabInd) ===== */
-.tabbar.has-ind .tab-ind{position:absolute;top:0;bottom:0;left:0;z-index:0;background:var(--ac);pointer-events:none}
-.tabbar.has-ind button{position:relative;z-index:1;transition:color .22s ease,background-color .15s ease}
-.tabbar.has-ind button[aria-selected="true"]{background:transparent!important}
+/* ===== 28.10.2026: вкладки разбора нажимаются как клавиши кнопок темы в меню (.themes): при нажатии «проминаются»,
+   выбранная залита акцентом и слегка утоплена. Переезжающая плашка убрана по просьбе пользователя ===== */
+.tabbar button{transition:transform .09s ease,box-shadow .09s ease,background-color .15s ease,color .15s ease}
+.tabbar button:active{transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.16)}
+.tabbar button[aria-selected="true"]{box-shadow:inset 0 2px 5px rgba(0,0,0,.18);transform:translateY(1px)}
+@media (prefers-reduced-motion:reduce){.tabbar button{transition:none}}
 /* ===== 27.10.2026: блок «Размер текста» — свои размеры в px (не зависит от собственной настройки); пока палец на нём, он поверх меню ===== */
 .d-sec.pinned{position:relative;z-index:5;box-shadow:0 10px 28px rgba(0,0,0,.18)}
 .d-sec{transition:box-shadow .2s ease}

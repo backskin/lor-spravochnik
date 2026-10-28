@@ -222,36 +222,6 @@ function showTab(id){
   document.querySelectorAll("[data-panel]").forEach(function(p){ p.hidden = p.dataset.panel !== id; });
   document.querySelectorAll(".toc [data-totab]").forEach(function(a){ a.classList.toggle("on", a.dataset.totab === id); });
   document.querySelectorAll(".toc [data-tosec]").forEach(function(a){ var s = $(a.dataset.tosec); a.hidden = !s || panelOf(s) !== id; });
-  tabInd(true);
-}
-/* заливка выбранной вкладки — одна плашка, которая переезжает к нажатой (просьба 28.10.2026):
-   разгоняется и на ходу слегка сужается; передним краем врезается в дальнюю границу новой вкладки и там останавливается,
-   ещё немного поджимается к ней, затем задний край по инерции, с замедлением, расправляется до ближней границы —
-   за границы новой вкладки плашка не выходит. Выключается вместе с плавными анимациями */
-function tabInd(move){
-  if(!tabbar) return;
-  var ind = tabbar.querySelector(".tab-ind"), b = tabbar.querySelector('[aria-selected="true"]');
-  if(!b) return;
-  if(!ind){
-    ind = document.createElement("span"); ind.className = "tab-ind"; ind.setAttribute("aria-hidden", "true");
-    tabbar.insertBefore(ind, tabbar.firstChild); tabbar.classList.add("has-ind"); move = false;
-    if(window.ResizeObserver){ var ro = new ResizeObserver(function(){ tabInd(false); }); ro.observe(tabbar); tabbar.querySelectorAll("[data-tab]").forEach(function(x){ ro.observe(x); }); }  /* кнопки меняют ширину с размером текста и после загрузки шрифта */
-  }
-  var L1 = b.offsetLeft, W1 = b.offsetWidth, L0 = ind.offsetLeft, W0 = ind.offsetWidth;
-  if(ind._a){ ind._a.cancel(); ind._a = null; }
-  ind.style.left = L1 + "px"; ind.style.width = W1 + "px";
-  if(!move || !W0 || L0 === L1 || !ind.animate || root.dataset.anim === "off" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  var right = L1 > L0, R1 = L1 + W1;
-  var wHit = Math.min(W0, W1) * .84, wSq = wHit * .9;  /* ширина в момент удара и в момент наибольшего сжатия у стенки */
-  /* левый край плашки при заданной ширине, когда передний край прижат к стенке */
-  var at = function(w){ return (right ? R1 - w : L1) + "px"; };
-  ind._a = ind.animate([
-    {left: L0 + "px", width: W0 + "px", easing: "cubic-bezier(.45,0,.9,.55)"},          /* разгон с сужением */
-    {left: at(wHit), width: wHit + "px", offset: .56, easing: "cubic-bezier(.2,.6,.4,1)"}, /* удар о дальнюю границу */
-    {left: at(wSq), width: wSq + "px", offset: .68, easing: "cubic-bezier(.25,.8,.3,1)"},  /* поджалась к стенке */
-    {left: L1 + "px", width: W1 + "px"}                                                    /* расправилась, без выхода за границы */
-  ], {duration: Math.round(Math.min(600, 380 + Math.abs(L1 - L0) * .45))});
-  ind._a.onfinish = function(){ ind._a = null; };
 }
 function findEl(id){ return id ? (document.getElementById(id) || document.querySelector('[data-v="' + id.replace(/"/g, "") + '"]')) : null; }
 function panelOf(el){ var p = el && el.closest("[data-panel]"); return p ? p.dataset.panel : null; }
@@ -989,14 +959,25 @@ if(home){
 
 tabbar = $("tabbar"); TABS = tabbar ? Array.prototype.map.call(tabbar.querySelectorAll("[data-tab]"), function(b){ return b.dataset.tab; }) : [];
 if(tabbar){
+  /* место чтения каждой вкладки (просьба 28.10.2026): пока разбор открыт, вкладка возвращается туда, где её оставили.
+     Хранится только в памяти этой страницы — при уходе из разбора стирается (pagehide, в том числе при уходе в кэш «назад») */
+  var TABPOS = {};
+  addEventListener("pagehide", function(){ TABPOS = {}; });
   tabbar.addEventListener("click", function(e){
     var b = e.target.closest("[data-tab]"); if(!b) return;
-    showTab(b.dataset.tab);
-    try{ history.replaceState(null, "", "#" + b.dataset.tab); }catch(err){}
-    /* новая вкладка открывается с начала: экран возвращается к заголовку разбора (панель вкладок «липкая», её offsetTop не годится) */
-    var h1 = document.querySelector("main h1"), hd = document.querySelector(".top, header.app, body > header");
-    var y = (h1 ? h1.getBoundingClientRect().top + window.scrollY : 0) - (hd ? hd.offsetHeight : 56) - 8;
-    if(window.scrollY > y) window.scrollTo(0, Math.max(0, y));
+    var cur = tabbar.querySelector('[aria-selected="true"]'), from = cur && cur.dataset.tab, to = b.dataset.tab;
+    if(from && from !== to) TABPOS[from] = window.scrollY;
+    showTab(to);
+    try{ history.replaceState(null, "", "#" + to); }catch(err){}
+    /* шапка и панель вкладок при переключении не сдвигаются — меняется только содержимое под ними.
+       Прокрутка трогается, только когда панель уже прилипла к шапке, и не опускается выше точки прилипания:
+       иначе панель поехала бы по экрану. yStick — прокрутка, при которой панель как раз прилипает */
+    var prev = tabbar.previousElementSibling, cs = getComputedStyle(tabbar);
+    var yStick = Math.max(0, (prev ? prev.getBoundingClientRect().bottom + window.scrollY : 0) + parseFloat(cs.marginTop || 0) - parseFloat(cs.top || 0));
+    if(window.scrollY < yStick - 1) return;
+    /* уже читанная вкладка — на прежнее место, новая (или повторное нажатие на открытую) — с начала */
+    var y = from !== to && TABPOS[to] != null ? Math.max(TABPOS[to], yStick) : yStick;
+    if(Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y);
   });
   var start = (location.hash || "#over").slice(1);
   if(TABS.indexOf(start) >= 0) showTab(start);
