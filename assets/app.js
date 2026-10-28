@@ -1214,6 +1214,8 @@ function bmAdd(){
   inp.addEventListener("focus", function(){ setTimeout(function(){ try{ inp.select(); }catch(e){} }, 0); }, {once: true});
   if(matchMedia("(hover:hover) and (pointer:fine)").matches) setTimeout(function(){ try{ inp.focus(); }catch(e){} }, 60);
 }
+/* lorTextbook объявлена вне этого замыкания: кнопке закладки в панели листания функция нужна через window (жалоба 28.10.2026: не срабатывала) */
+window.lorBmAdd = bmAdd;
 /* постоянные кнопки справа внизу: создаются один раз и не перерисовываются при переходах */
 var fab = $("fabBox");
 if(!fab){
@@ -2187,7 +2189,7 @@ function lorTextbook(){
     tbar.innerHTML = '<div class="tb-tocbar-scrim" hidden></div><div class="tb-tocbar-in"><button type="button" class="tb-tocbar-btn" aria-expanded="false">'
       + '<span class="tb-tocbar-l">Содержание главы</span><span class="tb-tocbar-cur"></span><i aria-hidden="true"></i></button>'
       + '<button type="button" class="tb-tocbar-fs tb-fs-open" aria-label="Размер текста" title="Размер текста"><span class="tb-aa" aria-hidden="true"><small>А</small>А</span></button>'
-      + '<button type="button" class="tb-tocbar-mode" data-tb-mode="paged" title="Читать постранично с этого места"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5h7a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H3z"/><path d="M21 5.5h-7a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h7z"/></svg><span>Постранично</span></button>'
+      + '<button type="button" class="tb-tocbar-mode" data-tb-mode="paged" aria-label="Постранично" title="Читать постранично с этого места"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5h7a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H3z"/><path d="M21 5.5h-7a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h7z"/></svg><span>Постранично</span></button>'
       + '<nav class="tb-tocbar-list" aria-label="Разделы главы" hidden><ol>' + secList.map(function(sx){
         return '<li><a href="#' + sx.id + '" data-bsec="' + sx.id + '"><span class="tb-itoc-n">' + sx.num + '</span><span>' + sx.title + '</span></a></li>'; }).join("")
       + '</ol><a class="tb-tocbar-all" href="uchebnik.html">Оглавление учебника</a></nav></div>';
@@ -2236,7 +2238,7 @@ function lorTextbook(){
     + '<button type="button" class="tb-pg-btn tb-pg-bm" aria-label="Добавить закладку" title="Добавить закладку"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/><path d="M12 8v6M9 11h6"/></svg></button>';
   pager.querySelector(".tb-pg-info b").textContent = flowTitle.textContent;
   main.appendChild(pager);
-  pager.querySelector(".tb-pg-bm").addEventListener("click", function(){ if(typeof bmAdd === "function") bmAdd(); });
+  pager.querySelector(".tb-pg-bm").addEventListener("click", function(){ if(typeof window.lorBmAdd === "function") window.lorBmAdd(); });
   /* чтение без панелей: внизу остаются номер страницы и полоса прогресса; нажатие на неё возвращает панели */
   var prog = document.createElement("div");
   prog.className = "tb-pg-prog";
@@ -2456,7 +2458,7 @@ function lorTextbook(){
   /* Без панелей освободившееся место занимает текст (жалоба 28.10.2026: пустые полосы сверху и снизу): страница перестраивается
      на новую высоту, первая строка страницы остаётся первой. Шапка и панель уезжают, текст перетекает — в одном переходе */
   /* Размер текста (просьба 28.10.2026: для книги это главный инструмент) — кнопка «Аа» в панели листания и в плашке содержания;
-     окно по центру: «А−», значение, «А+» и шкала. Текст за окном перестраивается сразу, место чтения не теряется (якорь —
+     окно по центру: «А−», значение, «А+» и ползунок (просьба 28.10.2026: не только две кнопки). Текст за окном перестраивается сразу, место чтения не теряется (якорь —
      строка, запомненная при открытии окна). Окно уходит само через 1,8 с после последнего изменения или по нажатию мимо него */
   var fsBox = null, fsT = 0, fsKeep = null;
   function fsOpen(){
@@ -2466,9 +2468,17 @@ function lorTextbook(){
       fsBox.innerHTML = '<div class="tb-fs-scrim"></div><div class="tb-fs-card" role="dialog" aria-label="Размер текста"><p class="tb-fs-h">Размер текста</p>'
         + '<div class="tb-fs-row"><button type="button" class="tb-fs-b" data-fs="-1" aria-label="Уменьшить текст"><span style="font-size:15px">А</span>−</button>'
         + '<output class="tb-fs-v"></output><button type="button" class="tb-fs-b" data-fs="1" aria-label="Увеличить текст"><span style="font-size:22px">А</span>+</button></div>'
-        + '<div class="tb-fs-scale" aria-hidden="true">' + new Array(13).join("<i></i>") + '<i></i></div></div>';
+        + '<input type="range" class="tb-fs-range" min="0.7" max="1.3" step="0.05" aria-label="Размер текста"></div>';
       main.appendChild(fsBox);
       fsBox.querySelector(".tb-fs-scrim").addEventListener("click", fsClose);
+      /* ползунок: текст перестраивается на ходу (не чаще кадра), пока палец на ползунке — окно не уходит */
+      var rng = fsBox.querySelector(".tb-fs-range"), rngF = 0, rngHold = false;
+      rng.addEventListener("input", function(){
+        window.lorK.set(+rng.value); fsShow(); if(rngHold) clearTimeout(fsT); else fsArm();
+        if(!rngF) rngF = requestAnimationFrame(function(){ rngF = 0; fsRelayoutNow(); });
+      });
+      rng.addEventListener("pointerdown", function(){ rngHold = true; clearTimeout(fsT); });
+      ["pointerup", "pointercancel", "change"].forEach(function(t){ rng.addEventListener(t, function(){ rngHold = false; fsArm(); }); });
       fsBox.addEventListener("click", function(e){
         var b = e.target.closest("[data-fs]"); if(!b) return;
         var d = 0.05 * (+b.dataset.fs);
@@ -2490,7 +2500,7 @@ function lorTextbook(){
     fsBox.querySelector(".tb-fs-v").textContent = Math.round(k * 100) + "\u00a0%";
     fsBox.querySelector('[data-fs="-1"]').disabled = k <= 0.7 + 1e-6;
     fsBox.querySelector('[data-fs="1"]').disabled = k >= 1.3 - 1e-6;
-    [].forEach.call(fsBox.querySelectorAll(".tb-fs-scale i"), function(x, i){ x.classList.toggle("on", i <= n); x.classList.toggle("cur", i === n); });
+    var rng = fsBox.querySelector(".tb-fs-range"); rng.value = k; rng.style.setProperty("--p", (n / 12 * 100) + "%");
   }
   function fsArm(){ clearTimeout(fsT); fsT = setTimeout(fsClose, 1800); }
   function fsClose(){
