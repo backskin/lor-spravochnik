@@ -1219,7 +1219,7 @@ function swap(html, url, atomic){
     if(n.nodeType === 1 && n.tagName === "SCRIPT"){
       var src = n.getAttribute("src");
       if(src && SHARED.test(src)) return;
-      if(!src && (/serviceWorker/.test(n.textContent) || n.type === "speculationrules")) return;
+      if(!src && (/serviceWorker/.test(n.textContent) || n.type === "speculationrules" || n.hasAttribute("data-shell"))) return;  /* шапка встроена в страницу (build_site.py) — она уже есть */
       scripts.push({src: src ? new URL(src, url).href : "", text: n.textContent});
       return;
     }

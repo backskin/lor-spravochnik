@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Словарь: Х · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=ddcff2c4f01e">
+<link rel="stylesheet" href="assets/style.css?v=665be7fcc4ca">
 <style>
 .gl-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:var(--s4);padding:0;list-style:none}
 .gl-tiles a{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64px;border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--fg)}
@@ -34,7 +34,36 @@
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body data-page="glossary" data-kr="76" data-terms="2191">
-<script src="assets/shell.js?v=ddcff2c4f01e"></script>
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
 
 <main class="page">
   <a class="tb-back-btn gl-back" href="slovar.html">← Все буквы словаря</a>  <!-- на главную ведёт домик в шапке -->
@@ -45,10 +74,10 @@
   <div class="gl-pn"><a href="slovar-f.html">← Ф</a><a href="slovar.html">Все буквы</a><a href="slovar-ts.html">Ц →</a></div>
 </main>
 
-<script src="assets/data.js?v=ddcff2c4f01e"></script>
-<script src="assets/grls.js?v=ddcff2c4f01e"></script>
-<script src="assets/app.js?v=ddcff2c4f01e"></script>
+<script src="assets/data.js?v=665be7fcc4ca"></script>
+<script src="assets/grls.js?v=665be7fcc4ca"></script>
+<script src="assets/app.js?v=665be7fcc4ca"></script>
 <script>if(location.hash){ var t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if(t) setTimeout(function(){ t.scrollIntoView({block:"start"}); }, 50); }</script>
-<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;sw.addEventListener("controllerchange",function(){if(had&&!done){done=true;location.reload();}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
 </html>
