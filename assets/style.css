@@ -2231,3 +2231,7 @@ html.tb-paged .fab-box{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 html[data-theme="dark"] .grp-card:not(.is-open){--band-foot:#0b5441}
 @media (prefers-color-scheme:dark){html:not([data-theme="light"]) .grp-card:not(.is-open){--band-foot:#0b5441}}
 @media (min-width:860px){.grp-card:not(.is-open){background-size:calc(96px - 138px * var(--k) * .2126 - 2px) 3px}}
+/* строка развёртки (lorScan в app.js): содержимое открывается сверху вниз, без прозрачности и без сдвига */
+@keyframes lorScan{0%{clip-path:inset(0 0 100% 0)}99.9%{clip-path:inset(0 0 calc(100% - var(--scan-h,100%)) 0)}100%{clip-path:none}}
+.lor-scan{animation:lorScan .26s cubic-bezier(.45,.05,.55,.95) both}
+html[data-anim="off"] .lor-scan{animation:none}

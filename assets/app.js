@@ -1470,6 +1470,13 @@ function go(url, push){
     /* из главы учебника в главу — без затухания всего экрана: полупрозрачный старый и новый текст накладывались друг на друга
        (жалоба 27.10.2026); колонка-оглавление — тот же элемент, сменяется только текст справа */
     var tbToTb = !!document.querySelector("main.tb-chap") && /^uchebnik-.+\.html$/.test(u.pathname.split("/").pop()) && !!window.__tbAside;
+    /* буква словаря → буква словаря: без затухания экрана; подзаголовок и буква меняются мгновенно,
+       статьи перерисовываются сверху вниз невидимой строкой развёртки (просьба 28.10.2026) */
+    var glToGl = /^slovar/.test(location.pathname.split("/").pop()) && /^slovar/.test(u.pathname.split("/").pop());
+    if(glToGl){
+      run().finally(function(){ lorScan(document.querySelector("main dl.gl")); });
+      return;
+    }
     if(!tbToTb && document.startViewTransition && document.visibilityState === "visible" && root.dataset.anim !== "off"){
       var vt = document.startViewTransition(run);
       if(vt && vt.finished){
@@ -2276,6 +2283,18 @@ document.addEventListener("click", function(e){
   history.replaceState({lor:1}, "", u.href);
   go(u.href, false);
 });
+
+/* «Строка развёртки»: новый текст проявляется сверху вниз за долю секунды, без затухания и сдвига.
+   Сама полоса не видна — видно только, как содержимое дорисовывается (просьба 28.10.2026: Словарь, Препараты) */
+function lorScan(el){
+  if(!el || document.documentElement.dataset.anim === "off" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  /* развёртка идёт по видимой части, а не по всей длине списка: иначе на длинной букве экран открывался мгновенно */
+  var r = el.getBoundingClientRect(), vis = Math.max(40, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
+  el.style.setProperty("--scan-h", (Math.max(r.top, 0) - r.top + vis) + "px");
+  el.classList.remove("lor-scan"); void el.offsetWidth; el.classList.add("lor-scan");
+  el.addEventListener("animationend", function(){ el.classList.remove("lor-scan"); }, {once:true});
+}
+window.lorScan = lorScan;
 
 /* Тактильный отклик на нажатие букв в Препаратах и Словаре */
 document.addEventListener("pointerdown", function(e){

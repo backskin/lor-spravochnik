@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Препараты · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=8cfdddf429ea">
+<link rel="stylesheet" href="assets/style.css?v=fb1dc1e901fe">
 <style>
 /* алфавит и направления — единый «чип выбора» из assets/style.css (пересмотр дизайна 27.10.2026) */
 .dz-chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -88,9 +88,9 @@
   <p class="src-of">Источник: Государственный реестр лекарственных средств Минздрава России · <a href="https://grls.rosminzdrav.ru/" target="_blank" rel="noopener">grls.rosminzdrav.ru ↗</a></p>
 </main>
 
-<script src="assets/data.js?v=8cfdddf429ea"></script>
-<script src="assets/grls.js?v=8cfdddf429ea"></script>
-<script src="assets/app.js?v=8cfdddf429ea"></script>
+<script src="assets/data.js?v=fb1dc1e901fe"></script>
+<script src="assets/grls.js?v=fb1dc1e901fe"></script>
+<script src="assets/app.js?v=fb1dc1e901fe"></script>
 <script>
 (function(){
   var q = document.getElementById("q"), res = document.getElementById("dres"), st = document.getElementById("dstatus"), homeEl = document.getElementById("dhome"), E = GRLS.esc;
@@ -160,6 +160,7 @@
         return card(x, inf && inf.why && inf.why.length ? inf.why.join("; ") : "", "", inf);
       }).join("") + '</ul><p class="dz-sub">Вещества из КР на «' + E(b.dataset.c) + '». Нажмите на вещество для просмотра всех торговых названий и инструкций ГРЛС.</p>';
       letEl.hidden = false;
+      if(window.lorScan) lorScan(letEl);
     });
     document.getElementById("dCommon").innerHTML = P.common.map(chip).join("");
     var dirsEl = document.getElementById("dDirs"), dirEl = document.getElementById("dDir");
@@ -173,7 +174,7 @@
         + (d.more.length ? '<p class="dz-sub">Ещё в КР по направлению (нажмите для показаний, противопоказаний и торговых названий)</p><div class="dz-chips small">' + d.more.map(chip).join("") + "</div>" : "");
       store("lor-drug-dir", d.id);
     }
-    dirsEl.addEventListener("click", function(e){ var b = e.target.closest("button"); if(b) showDir(b.dataset.id); });
+    dirsEl.addEventListener("click", function(e){ var b = e.target.closest("button"); if(b && b.getAttribute("aria-selected") !== "true"){ showDir(b.dataset.id); if(window.lorScan) lorScan(dirEl); } });
     showDir(store("lor-drug-dir") || P.dirs[0].id);
     homeEl.addEventListener("keydown", function(e){ var c = e.target.closest && e.target.closest("li.dz-card-li"); if(c && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); c.click(); } });
     homeEl.classList.add("ready");
