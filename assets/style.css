@@ -2290,7 +2290,7 @@ html.tb-paged .tb-sec-content .tb-h3{break-after:avoid}
   .tb-tocbar-mode svg{flex:none;color:var(--ac)}
   .tb-tocbar-mode:active{transform:translateY(1px)}
   .tb-tocbar.open .tb-tocbar-mode{visibility:hidden}  /* при открытом списке — только список */
-  @media (max-width:400px){.tb-tocbar-cur{visibility:hidden}}  /* на узком телефоне в строке не хватает места: текущий раздел выделен в раскрытом списке */
+  @media (max-width:479px){.tb-tocbar-cur{visibility:hidden}}  /* на узком телефоне в строке не хватает места: текущий раздел выделен в раскрытом списке */
   .tb-tocbar-l{flex:none;font-weight:700;color:var(--ac);white-space:nowrap}
   .tb-tocbar-cur{flex:1;min-width:0;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tb-tocbar-cur:not(:empty)::before{content:"· "}
@@ -2307,3 +2307,61 @@ html.tb-paged .tb-sec-content .tb-h3{break-after:avoid}
 }
 @media (prefers-reduced-motion:reduce){.tb-tocbar{transition:none!important}}
 html[data-anim="off"] .tb-tocbar{transition:none!important}
+
+/* ===== 28.10.2026, вечер: страница закладок, прожимание кнопок учебника, переход между режимами чтения ===== */
+/* сортировка — одна строка, три равные части (было: кнопки разной длины переносились, «По имени» оставалась одна на строке) */
+.bm-sort{display:flex;width:100%;margin:var(--s4) 0 var(--s2);border:1px solid var(--line);border-radius:var(--r-ctl);overflow:hidden;background:var(--bg)}
+.bm-sort button{flex:1 1 auto;min-width:0;min-height:44px;padding:6px;text-align:center;border:0;background:none;color:var(--fg2);font:inherit;font-size:var(--t4);font-weight:600;line-height:1.2;cursor:pointer;
+  transition:background-color .15s ease,color .15s ease,transform .09s ease}
+.bm-sort button+button{border-left:1px solid var(--line)}
+.bm-sort button[aria-selected="true"]{background:var(--ac);color:#fff}
+:root[data-theme="dark"] .bm-sort button[aria-selected="true"]{color:var(--bg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bm-sort button[aria-selected="true"]{color:var(--bg)}}
+/* список закладок — карточка; строка целиком ведёт к месту, справа — значок удаления без рамки, линия-разделитель — на всю строку */
+.bm-list{margin-top:var(--s2);padding:0 0 0 var(--s4);border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.bm-item{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--line)}
+.bm-item:last-child{border-bottom:0}
+.bm-item .row{flex:1;min-width:0;border-bottom:0}
+.bm-item .row .rt{font-weight:600}
+.bm-item .row .rs{font-weight:400;margin-top:2px}
+.bm-del{flex:none;display:grid;place-items:center;width:44px;height:44px;margin-right:6px;padding:0;border:0;border-radius:50%;background:none;color:var(--fg2);cursor:pointer;
+  transition:transform .09s ease,background-color .15s ease,color .15s ease}
+.bm-del:active,.bm-del.is-pressed{transform:scale(.9);background:color-mix(in srgb,var(--warn) 12%,var(--bg));color:var(--warn)}
+@media (hover:hover){.bm-del:hover{color:var(--warn);background:color-mix(in srgb,var(--warn) 8%,var(--bg))}}
+.bm-gh{margin:var(--s5) 0 var(--s2)}
+.bm-foot{margin-top:var(--s5)}
+
+/* прожимание: кнопка уходит вниз на 2 px с тенью внутрь, пункт списка — подсветкой (как у остальных кнопок справочника);
+   is-pressed держит состояние 120 мс — короткое касание на телефоне тоже видно */
+.tb-tocbar-mode,.tb-pg-btn,.tb-pg-toc,.tb-pg-exit,.tb-mode button,.bm-sort button,.bm-btn{transition:transform .09s ease,box-shadow .09s ease,background-color .15s ease,color .15s ease}
+.tb-tocbar-mode:active,.tb-tocbar-mode.is-pressed,.tb-pg-btn:not(:disabled):active,.tb-pg-btn.is-pressed:not(:disabled),.tb-pg-toc:active,.tb-pg-toc.is-pressed,
+.tb-pg-exit:active,.tb-pg-exit.is-pressed,.bm-btn.is-pressed{transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.16)}
+.tb-mode button:active,.tb-mode button.is-pressed,.bm-sort button:active,.bm-sort button.is-pressed{box-shadow:inset 0 3px 7px rgba(0,0,0,.18)}
+.tb-tocbar-btn,.tb-tocbar-list a,.tb-itoc-link,.tb-itoc-head,.tb-aside a,.tb-pn-card{transition:background-color .15s ease,transform .09s ease,border-color .15s ease}
+.tb-tocbar-btn:active,.tb-tocbar-btn.is-pressed,.tb-itoc-head:active,.tb-itoc-head.is-pressed{background:color-mix(in srgb,var(--ac) 8%,var(--bg))}
+.tb-tocbar-list a:active,.tb-tocbar-list a.is-pressed,.tb-aside a:active,.tb-aside a.is-pressed,.tb-itoc-link:active,.tb-itoc-link.is-pressed{background:color-mix(in srgb,var(--ac) 14%,var(--bg));transform:scale(.985)}
+.tb-pn-card:active,.tb-pn-card.is-pressed{transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.1)}
+.tb-aside-fold:active,.tb-aside-fold.is-pressed{transform:scale(.9)}
+/* список в плашке содержания — выезжает вниз, подложка — проявляется */
+@keyframes tbDrop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes tbFadeIn{from{opacity:0}to{opacity:1}}
+.tb-tocbar-list:not([hidden]){animation:tbDrop .2s cubic-bezier(.2,.8,.2,1)}
+.tb-tocbar-scrim:not([hidden]){animation:tbFadeIn .2s ease}
+
+/* смена режима чтения (app.js, setMode): прежняя раскладка гаснет, новая въезжает — к страницам справа, как перелистнутая,
+   к прокрутке снизу; шапка остаётся на месте (у неё своё имя перехода) */
+@keyframes tbVtOut{to{opacity:0;transform:scale(.97)}}
+@keyframes tbVtInX{from{opacity:0;transform:translateX(56px)}to{opacity:1;transform:none}}
+@keyframes tbVtInY{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+html.tb-vt-paged::view-transition-old(root),html.tb-vt-scroll::view-transition-old(root){animation:tbVtOut .18s ease-in both}
+html.tb-vt-paged::view-transition-new(root){animation:tbVtInX .34s cubic-bezier(.2,.8,.2,1) .06s both}
+html.tb-vt-scroll::view-transition-new(root){animation:tbVtInY .34s cubic-bezier(.2,.8,.2,1) .06s both}
+@media (prefers-reduced-motion:reduce){.tb-tocbar-list,.tb-tocbar-scrim{animation:none!important}}
+html[data-anim="off"] .tb-tocbar-list,html[data-anim="off"] .tb-tocbar-scrim{animation:none!important}
+/* в переходе между режимами въезжает только текст: нижняя панель, плашка и кнопки справа — проявляются и гаснут на месте */
+html.tb-vt-paged .tb-pager,html.tb-vt-scroll .tb-pager{view-transition-name:tb-pager}
+html.tb-vt-paged .tb-tocbar.on,html.tb-vt-scroll .tb-tocbar.on{view-transition-name:tb-tocbar}
+html.tb-vt-paged .fab-box,html.tb-vt-scroll .fab-box{view-transition-name:tb-fab}
+html.tb-vt-paged::view-transition-group(tb-pager),html.tb-vt-scroll::view-transition-group(tb-pager),
+html.tb-vt-paged::view-transition-group(tb-tocbar),html.tb-vt-scroll::view-transition-group(tb-tocbar),
+html.tb-vt-paged::view-transition-group(tb-fab),html.tb-vt-scroll::view-transition-group(tb-fab){animation-duration:.22s}

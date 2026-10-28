@@ -1193,7 +1193,10 @@ function bmAdd(){
   pop.querySelector("[data-bm-ok]").onclick = save;
   inp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); save(); } });
   openSheet(pop);
-  setTimeout(function(){ try{ inp.focus(); inp.select(); }catch(e){} }, 60);
+  /* на телефоне клавиатура сама не открывается (жалоба 28.10.2026: экран трясся) — название уже готово, править по нажатию;
+     при нажатии в поле текст выделяется целиком, чтобы заменить одним вводом. С мышью — поле сразу в фокусе */
+  inp.addEventListener("focus", function(){ setTimeout(function(){ try{ inp.select(); }catch(e){} }, 0); }, {once: true});
+  if(matchMedia("(hover:hover) and (pointer:fine)").matches) setTimeout(function(){ try{ inp.focus(); }catch(e){} }, 60);
 }
 /* постоянные кнопки справа внизу: создаются один раз и не перерисовываются при переходах */
 var fab = $("fabBox");
@@ -1241,8 +1244,8 @@ function lorBookmarks(){
   var sort = "sec"; try{ sort = localStorage.getItem(BM[k].key + "-sort") || "sec"; }catch(e){}
   var draw = function(){
     var list = bmLoad(k), html;
-    var bar = '<div class="tb-filters bm-sort" role="tablist" aria-label="Сортировка закладок">'
-      + [["sec", "По разделам"], ["time", "По времени создания"], ["name", "По имени"]].map(function(s){
+    var bar = '<div class="bm-sort" role="tablist" aria-label="Сортировка закладок">'
+      + [["sec", "По разделам"], ["time", "По дате"], ["name", "По названию"]].map(function(s){
           return '<button type="button" role="tab" data-bm-sort="' + s[0] + '" aria-selected="' + (s[0] === sort) + '">' + s[1] + '</button>'; }).join("") + '</div>';
     if(!list.length){
       box.innerHTML = '<p class="bm-empty">Закладок пока нет. Чтобы добавить, откройте ' + BM[k].where + ' и нажмите кнопку с флажком справа внизу.</p>';
@@ -1251,7 +1254,8 @@ function lorBookmarks(){
     var item = function(b){
       return '<li class="bm-item" data-id="' + esc(b.id) + '"><a class="row" href="' + esc(b.href) + '"><span class="rt">' + esc(b.name)
         + '<span class="rs">' + esc(b.page) + (b.sec && b.sec !== b.page ? " · " + esc(b.sec) : "") + " · " + bmDate(b.t) + '</span></span></a>'
-        + '<button type="button" class="bm-del" data-bm-del="' + esc(b.id) + '" aria-label="Удалить закладку «' + esc(b.name) + '»" title="Удалить закладку">✕</button></li>';
+        + '<button type="button" class="bm-del" data-bm-del="' + esc(b.id) + '" aria-label="Удалить закладку «' + esc(b.name) + '»" title="Удалить закладку">'
+        + '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button></li>';
     };
     if(sort === "sec"){
       var groups = [], by = {};
@@ -2268,11 +2272,13 @@ function lorTextbook(){
        между страницами) — без промежуточных кадров, где текст уже перестроен, а прокрутка ещё старая */
     if(fade && document.startViewTransition && animOn()){
       var k0 = keep || (paged ? atReadLine() : atPageStart());
-      document.startViewTransition(function(){
+      root.classList.add("tb-vt-" + mode);
+      var vt = document.startViewTransition(function(){
         /* выдвижное содержание (кнопка в нём) закрывается в том же перетекании, а не отдельным движением следом */
         if(aside.classList.contains("open")){ aside.style.transition = "none"; asideOpen(false); requestAnimationFrame(function(){ requestAnimationFrame(function(){ aside.style.transition = ""; }); }); }
         setMode(mode, k0, false);
       });
+      vt.finished.then(function(){ root.classList.remove("tb-vt-" + mode); }, function(){ root.classList.remove("tb-vt-" + mode); });
       return;
     }
     slideStop();
@@ -2410,7 +2416,7 @@ window.lorScan = lorScan;
 
 /* Тактильный отклик на нажатие букв в Препаратах и Словаре */
 document.addEventListener("pointerdown", function(e){
-  var btn = e.target.closest(".dz-abc button, .gl-strip a");
+  var btn = e.target.closest(".dz-abc button, .gl-strip a, .tb-tocbar-btn, .tb-tocbar-mode, .tb-tocbar-list a, .tb-pg-btn, .tb-pg-toc, .tb-pg-exit, .tb-mode button, .tb-itoc-link, .tb-itoc-head, .tb-aside a, .tb-aside-fold, .bm-sort button, .bm-del, .bm-item .row, .bm-btn, .tb-pn-card");
   if(!btn) return;
   btn.classList.add("is-pressed");
   var clear = function(){ setTimeout(function(){ btn.classList.remove("is-pressed"); }, 120); };
