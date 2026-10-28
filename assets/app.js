@@ -268,10 +268,10 @@ document.addEventListener("click", function(e){
 
 
 /* ---------- вещество в тексте разбора: карточка ГРЛС в нижнем окне, оттуда — экран «Препараты» ---------- */
-/* страница словаря для термина: каждая буква — своя страница, латиница — одна (tools/build_glossary.py) */
+/* страница словаря для термина: каждая буква — своя страница, в том числе латинская (tools/build_glossary.py) */
 var GL_TR = {"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"h","ц":"ts","ч":"ch","ш":"sh","щ":"sch","ъ":"tvz","ы":"yy","ь":"mz","э":"ee","ю":"yu","я":"ya"};
 function glossaryHref(t){
-  var ch = t.charAt(0).toLowerCase(), f = GL_TR[ch] ? "slovar-" + GL_TR[ch] : (/[a-z]/.test(ch) ? "slovar-lat" : "slovar-other");
+  var ch = t.charAt(0).toLowerCase(), f = GL_TR[ch] ? "slovar-" + GL_TR[ch] : (/[a-z]/.test(ch) ? "slovar-lat-" + ch : "slovar-other");
   return f + ".html#" + encodeURIComponent(t);
 }
 function openDrug(name, shown, offl){

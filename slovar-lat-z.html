@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Словарь: Z · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=c8d5a88fb025">
+<style>
+.gl-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:var(--s4);padding:0;list-style:none}
+.gl-tiles a{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64px;border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--fg)}
+.gl-tiles a b{font-size:22px;line-height:1.1;color:var(--ac)}
+.gl-tiles a small{color:var(--fg2);font-size:13px}
+.gl-tiles a[aria-current]{border-color:var(--ac);background:var(--bg2)}
+.gl-strip{margin-top:var(--s3)}  /* вид букв — единый «чип выбора» из assets/style.css */
+.gl-pn{display:flex;justify-content:space-between;gap:var(--s3);margin-top:var(--s5)}
+.gl-pn a{font-weight:600}
+.gl{margin:var(--s3) 0 0}
+.gl-e{padding:var(--s3) 0;border-bottom:1px solid var(--line);scroll-margin-top:0}
+.gl-e:target{background:var(--mark);border-radius:8px;padding-inline:8px}
+.gl-e dt{font-weight:600}
+.gl-e dt small{font-weight:400;color:var(--fg2);margin-left:6px}
+.gl-e dd{margin:4px 0 0}
+.gl-q{display:block;max-width:68ch}
+.gl-src{display:block;font-size:.88em;color:var(--fg2);margin-top:2px}
+.gl-e dd + dd{margin-top:var(--s3)}
+.gl-e dd:target{background:var(--mark);border-radius:8px;padding:4px 8px}
+.gl-n{float:left;min-width:1.6em;font-weight:600;color:var(--ac)}
+.gl-n ~ span{margin-left:1.6em}
+.gl-fig{margin:var(--s3) 0 0;max-width:340px}
+.gl-fig img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--line);background:#fff}
+.gl-fig figcaption{font-size:.88em;color:var(--fg2);margin-top:6px;line-height:1.4}
+.gl-fig .fig-src{display:block;margin-top:2px}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body data-page="glossary" data-kr="78" data-terms="2200">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+<main class="page">
+  <h1 class="pt">Словарь: Z</h1>
+  <p class="meta-line">2 термина на эту букву. Источник у каждой записи — раздел и страница PDF рекомендации.</p>
+  <nav class="gl-strip" aria-label="Буквы"><a href="slovar-a.html" class="gl-alpha">А–Я</a><a href="slovar-lat-a.html">A</a><a href="slovar-lat-b.html">B</a><a href="slovar-lat-c.html">C</a><a href="slovar-lat-d.html">D</a><a href="slovar-lat-e.html">E</a><a href="slovar-lat-f.html">F</a><a href="slovar-lat-g.html">G</a><a href="slovar-lat-h.html">H</a><a href="slovar-lat-i.html">I</a><a href="slovar-lat-k.html">K</a><a href="slovar-lat-l.html">L</a><a href="slovar-lat-m.html">M</a><a href="slovar-lat-n.html">N</a><a href="slovar-lat-o.html">O</a><a href="slovar-lat-p.html">P</a><a href="slovar-lat-q.html">Q</a><a href="slovar-lat-r.html">R</a><a href="slovar-lat-s.html">S</a><a href="slovar-lat-t.html">T</a><a href="slovar-lat-u.html">U</a><a href="slovar-lat-v.html">V</a><a href="slovar-lat-w.html">W</a><a href="slovar-lat-z.html" aria-current="page">Z</a></nav>
+  <dl class="gl"><div class="gl-e" id="Z-линия"><dt>Z-линия</dt><dd><span class="gl-q">Место соединения многослойного плоского и цилиндрического эпителия пищевода. Вместе с пищеводным отверстием диафрагмы и пищеводно-желудочным соединением служит эндоскопическим ориентиром; сегмент метаплазии определяют между пищеводно-желудочным соединением и смещённой выше него Z-линией.</span><span class="gl-src">не из КР: КР «Гастроэзофагеальная рефлюксная болезнь у детей», раздел 2.4, с. 16</span></dd></div><div class="gl-e" id="Z-пластика по Furlow"><dt>Z-пластика по Furlow</dt><dd><span class="gl-q">Способ пластики нёба: двойная встречная Z-пластика удлиняет мышцы мягкого нёба и меняет их направление; мышцы смещаются кзади, нёбо несколько удлиняется. По результатам речи способ сопоставим с интравелярной велопластикой.</span><span class="gl-src">не из КР: Watkinson J., Clarke R. (eds.). Scott-Brown&#x27;s Otorhinolaryngology, Head and Neck Surgery, 8th ed., vol. 2 (CRC Press, 2018), ch. 18 «Cleft lip and palate», p. 191</span></dd></div></dl>
+  <div class="gl-pn"><a href="slovar-lat-w.html">← W</a><span></span></div>
+</main>
+
+<script src="assets/data.js?v=c8d5a88fb025"></script>
+<script src="assets/grls.js?v=c8d5a88fb025"></script>
+<script src="assets/app.js?v=c8d5a88fb025"></script>
+<script>if(location.hash){ var t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if(t) setTimeout(function(){ t.scrollIntoView({block:"start"}); }, 50); }</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>
