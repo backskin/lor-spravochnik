@@ -2245,3 +2245,10 @@ html.tb-paged .tb-sec-content .tb-h3{break-after:avoid}
 .tb-sec-content p{text-indent:1.5em}
 .tb-sec-content p.tb-tcap,.tb-sec-content p.tb-ol-cite,.tb-sec-content figcaption,.tb-sec-content td p,.tb-sec-content li p{text-indent:0}
 .tb-sec-content .tb-cite{text-indent:0}
+/* учебник: итог сопоставления источников («Совпадает во всех источниках») — выделенный блок с полосой акцента */
+.tb-sec-content .tb-key{margin:var(--s4) 0 0;padding:var(--s3) var(--s4);border-left:4px solid var(--ac);border-radius:0 var(--r-card,12px) var(--r-card,12px) 0;
+  background:color-mix(in srgb,var(--ac) 8%,var(--bg))}
+.tb-sec-content .tb-key p{text-indent:0}
+.tb-sec-content .tb-key .tb-key-h{margin:0 0 var(--s1);font-weight:700;color:var(--ac)}
+/* схемы-данные учебника (шкалы сроков): цвета темы, по ширине колонки */
+.fig svg.tb-anat{max-width:100%;height:auto;display:block;margin:0 auto}
