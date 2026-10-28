@@ -1208,6 +1208,31 @@ if(!fab){
   addEventListener("scroll", fabTick, {passive: true});
   fab.tick = fabTick;
 }
+/* окно со списком закладок (просьба 28.10.2026): кнопка «Закладки» в колонке учебника не уводит со страницы —
+   список открывается поверх, новые сверху, прокручивается; без удаления и добавления. Нажатие на закладку — переход к ней,
+   полное управление — по ссылке внизу окна */
+function bmShow(k){
+  var list = bmLoad(k).slice().sort(function(a, b){ return b.t - a.t; });
+  var h = '<div class="sheet-h"><h3>' + esc(BM[k].title) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>';
+  h += list.length
+    ? '<ul class="list bm-list bm-pop">' + list.map(function(b){
+        return '<li><a class="row" href="' + esc(b.href) + '" data-bm-go="1"><span class="rt">' + esc(b.name) + '<span class="rs">'
+          + esc(b.page) + (b.sec && b.sec !== b.page ? " · " + esc(b.sec) : "") + " · " + bmDate(b.t) + '</span></span></a></li>'; }).join("") + '</ul>'
+    : '<p class="bm-empty">Закладок пока нет. Чтобы добавить, нажмите кнопку с флажком справа внизу.</p>';
+  h += '<ul class="list" style="margin-top:12px">' + row(BM[k].page, "Управление закладками", "сортировка, удаление") + '</ul>';
+  pop.innerHTML = h;
+  pop.onclick = function(e){
+    var a = e.target.closest("a[data-bm-go]"); if(!a) return;
+    e.preventDefault(); e.stopPropagation(); closeSheets(); go(new URL(a.getAttribute("href"), location.href).href, true);
+  };
+  openSheet(pop);
+}
+document.addEventListener("click", function(e){
+  var a = e.target.closest('a.tb-aside-all[href="zakladki-uchebnik.html"]'); if(!a || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  e.preventDefault(); e.stopPropagation();
+  var tg = document.querySelector('.tb-pg-toc[aria-expanded="true"]'); if(tg) tg.click();  /* в постраничном режиме колонка — выдвижная, закрыть её */
+  bmShow("tb");
+}, true);
 function lorBookmarks(){
   fab.hidden = !bmKind();
   fab.tick();
