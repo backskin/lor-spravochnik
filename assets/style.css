@@ -2124,7 +2124,7 @@ html.tb-paged .tb-body{display:block}
 html.tb-paged .tb-sec{border:0;border-radius:0;padding:0;background:none;box-shadow:none}
 html.tb-paged .tb-sec+.tb-sec{margin-top:var(--s5)}
 html.tb-paged .tb-sec-head{break-after:avoid;break-inside:avoid;border:0;padding-bottom:0}
-html.tb-paged .tb-sec-content p{orphans:3;widows:3;hyphens:auto}
+html.tb-paged .tb-sec-content p{orphans:2;widows:2;hyphens:auto}
 html.tb-paged figure,html.tb-paged .tb-pn-card,html.tb-paged .tb-fn p{break-inside:avoid}
 html.tb-paged .tb-sec-content figure{padding:var(--s2)}
 html.tb-paged figure img,html.tb-paged figure svg{max-height:calc(var(--tb-h,70vh) * .5);width:auto;height:auto;max-width:100%;margin:0 auto;object-fit:contain}
@@ -2376,3 +2376,107 @@ html.tb-immersive .tb-pager{transform:translateY(calc(100% + 2px))}
 html.tb-immersive .fab-box{transform:translateX(calc(100% + 24px + env(safe-area-inset-right,0px)));opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.fab-box,html.tb-paged header.top,html.tb-paged .tb-pager{transition:none}}
 html[data-anim="off"] .fab-box,html[data-anim="off"].tb-paged header.top,html[data-anim="off"] .tb-pager{transition:none}
+
+/* ===== постраничный режим: закладка в панели, чтение без панелей на всю высоту (28.10.2026, поздно вечером) ===== */
+html.tb-paged .fab-box{display:none}  /* плавающие кнопки не закрывают текст: закладка — в нижней панели */
+.tb-pg-bm svg{color:var(--ac)}
+@media (max-width:600px){html.tb-paged .tb-pg-btn{width:40px}}
+html.tb-paged main.tb-chap{padding-top:var(--s3)}
+/* без панелей: шапка уходит вверх и выходит из потока — страница начинается от верха экрана; снизу — номер и полоса прогресса */
+html.tb-immersive header.top{position:fixed;left:0;right:0;top:0}
+html.tb-immersive main.tb-chap{padding-top:max(var(--s4),env(safe-area-inset-top,0px))}
+.tb-pg-prog{display:none}
+html.tb-paged.tb-immersive .tb-pg-prog{display:flex;flex-direction:column;align-items:center;gap:4px;position:fixed;z-index:39;left:0;right:0;bottom:0;
+  padding:0 16px max(6px,env(safe-area-inset-bottom,0px));font-size:var(--t5,13px);line-height:1.2;color:var(--fg2);cursor:pointer;
+  animation:tbFadeIn .3s ease .1s both}
+.tb-pg-prog i{display:block;width:min(240px,60vw);height:2px;border-radius:2px;background:var(--line);overflow:hidden}
+.tb-pg-prog b{display:block;height:100%;background:var(--ac);transform-origin:left center;transition:transform .24s ease}
+/* переход «с панелями ↔ без панелей»: шапка и панель получают свои имена — браузер сам ведёт их на новое место (вверх и вниз),
+   текст перетекает; свои CSS-переходы на это время отключены, иначе движение задвоилось бы */
+html.tb-vt-imm header.top{view-transition-name:tb-hdr}
+html.tb-vt-imm .tb-pager{view-transition-name:tb-pgbar}
+html.tb-vt-imm header.top,html.tb-vt-imm .tb-pager{transition:none!important}
+html.tb-vt-imm::view-transition-group(tb-hdr),html.tb-vt-imm::view-transition-group(tb-pgbar){animation-duration:.3s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+/* текст: прежняя раскладка гаснет, затем проявляется новая — без кадров, где строки двух раскладок просвечивают друг сквозь друга */
+@keyframes tbImmOut{to{opacity:0}}
+@keyframes tbImmIn{from{opacity:0}}
+html.tb-vt-imm::view-transition-old(root){animation:tbImmOut .12s ease-in both}
+html.tb-vt-imm::view-transition-new(root){animation:tbImmIn .2s ease-out .1s both}
+html[data-anim="off"] .tb-pg-prog{animation:none}
+
+/* «Содержание» в панели листания: значок списка и подпись; на узком телефоне — только значок, иначе не помещался номер страницы */
+.tb-pg-toc{display:inline-flex;align-items:center;gap:6px}
+.tb-pg-toc svg{flex:none;color:var(--ac)}
+@media (max-width:400px){.tb-pg-toc{width:44px;padding:0;justify-content:center}.tb-pg-toc span{display:none}}
+
+/* ===== размер текста в учебнике: кнопка «Аа» и окно по центру (28.10.2026) ===== */
+.tb-aa{display:inline-flex;align-items:baseline;gap:1px;font-family:var(--serif,Georgia,serif);font-weight:700;font-size:19px;line-height:1;color:var(--ac)}
+.tb-aa small{font-size:13px}
+.tb-tocbar-fs{display:none}
+@media (max-width:1023px){
+  .tb-tocbar-fs{display:grid;place-items:center;width:40px;min-height:34px;margin:0 6px 0 4px;padding:0;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--bg2);cursor:pointer;
+    transition:transform .09s ease,box-shadow .09s ease}
+  .tb-tocbar-fs:active,.tb-tocbar-fs.is-pressed{transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.16)}
+  .tb-tocbar-in{grid-template-columns:minmax(0,1fr) auto auto}
+  .tb-tocbar.open .tb-tocbar-fs{visibility:hidden}
+}
+@media (max-width:479px){.tb-pg-toc{width:44px;padding:0;justify-content:center}.tb-pg-toc span{display:none}}
+.tb-fs{display:none}
+.tb-fs.on{display:grid;place-items:center;position:fixed;inset:0;z-index:60}
+.tb-fs-scrim{position:absolute;inset:0;background:rgba(0,0,0,.18)}
+.tb-fs-card{position:relative;width:min(300px,calc(100vw - 48px));padding:var(--s4);border:1px solid var(--line);border-radius:16px;background:var(--bg);
+  box-shadow:0 12px 40px rgba(0,0,0,.22);text-align:center;font-size:16px}
+.tb-fs-h{margin:0 0 var(--s3);font-weight:700;color:var(--fg)}
+.tb-fs-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tb-fs-b{display:inline-flex;align-items:baseline;justify-content:center;gap:2px;width:64px;height:52px;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--bg2);
+  color:var(--ac);font:inherit;font-weight:700;font-size:18px;cursor:pointer;transition:transform .09s ease,box-shadow .09s ease,opacity .15s ease;align-items:center}
+.tb-fs-b span{font-family:var(--serif,Georgia,serif);line-height:1}
+.tb-fs-b:active:not(:disabled),.tb-fs-b.is-pressed:not(:disabled){transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.16)}
+.tb-fs-b:disabled{opacity:.35;cursor:default}
+.tb-fs-v{min-width:4.5em;font-size:22px;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums}
+.tb-fs-scale{display:flex;gap:4px;justify-content:center;margin-top:var(--s3)}
+.tb-fs-scale i{width:14px;height:4px;border-radius:2px;background:var(--line);transition:background-color .15s ease,transform .15s ease}
+.tb-fs-scale i.on{background:color-mix(in srgb,var(--ac) 55%,var(--bg))}
+.tb-fs-scale i.cur{background:var(--ac);transform:scaleY(1.6)}
+/* появление — из лёгкого уменьшения, уход — обратно; подложка проявляется и гаснет */
+@keyframes tbFsIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes tbFsOut{to{opacity:0;transform:scale(.96)}}
+.tb-fs.on .tb-fs-card{animation:tbFsIn .2s cubic-bezier(.2,.8,.2,1) both}
+.tb-fs.on .tb-fs-scrim{animation:tbFadeIn .2s ease both}
+.tb-fs.out .tb-fs-card{animation:tbFsOut .18s ease-in both}
+.tb-fs.out .tb-fs-scrim{animation:tbImmOut .18s ease-in both}
+@media (prefers-reduced-motion:reduce){.tb-fs-card,.tb-fs-scrim{animation:none!important}}
+html[data-anim="off"] .tb-fs-card,html[data-anim="off"] .tb-fs-scrim{animation:none!important}
+
+/* ===== меню: значки у пунктов (28.10.2026) — у каждого пункта свой цвет, тот же рисунок, что у разделов главной ===== */
+.drawer-nav .row .gh-ico-wrap{width:40px;height:40px;border-radius:11px}
+.drawer-nav .row .gh-ico{width:26px;height:26px}
+.gh-ico-wrap[data-ico-type="pdf"]{--ico-c:#a0422f}
+.gh-ico-wrap[data-ico-type="bmtb"]{--ico-c:#8a6414}
+.gh-ico-wrap[data-ico-type="bmkr"]{--ico-c:#6b4696}
+.gh-ico-wrap[data-ico-type="help"]{--ico-c:#28688c}
+.gh-ico-wrap[data-ico-type="sources"]{--ico-c:#2f6b4a}
+html[data-theme="dark"] .gh-ico-wrap[data-ico-type="pdf"]{--ico-c:#f0907a}
+html[data-theme="dark"] .gh-ico-wrap[data-ico-type="bmtb"]{--ico-c:#e3b866}
+html[data-theme="dark"] .gh-ico-wrap[data-ico-type="bmkr"]{--ico-c:#b794e6}
+html[data-theme="dark"] .gh-ico-wrap[data-ico-type="help"]{--ico-c:#6cb8e6}
+html[data-theme="dark"] .gh-ico-wrap[data-ico-type="sources"]{--ico-c:#6fcf9a}
+@media (prefers-color-scheme:dark){
+  html:not([data-theme="light"]) .gh-ico-wrap[data-ico-type="pdf"]{--ico-c:#f0907a}
+  html:not([data-theme="light"]) .gh-ico-wrap[data-ico-type="bmtb"]{--ico-c:#e3b866}
+  html:not([data-theme="light"]) .gh-ico-wrap[data-ico-type="bmkr"]{--ico-c:#b794e6}
+  html:not([data-theme="light"]) .gh-ico-wrap[data-ico-type="help"]{--ico-c:#6cb8e6}
+  html:not([data-theme="light"]) .gh-ico-wrap[data-ico-type="sources"]{--ico-c:#6fcf9a}
+}
+/* рисунок значка в меню — цветом своего пункта (общее правило .gh-ico красит всё в цвет акцента) и с деталями: значки мелкие, но различимы */
+.drawer-nav .row .gh-ico{color:var(--ico-c);padding:0;background:none;border-radius:0}
+.drawer-nav .row .gh-ico .ico-det{opacity:.75;stroke-width:1.4}
+.drawer-nav .row .gh-ico circle.ico-det{display:inline}
+.drawer-nav .row:active .gh-ico-wrap,.drawer-nav .row.is-pressed .gh-ico-wrap{transform:scale(.94)}
+
+/* смена размера текста: окно «Размер текста» не участвует в перетекании, текст — 0,18 с */
+html.tb-vt-fs .tb-fs-card{view-transition-name:tb-fscard}
+html.tb-vt-fs::view-transition-group(tb-fscard),html.tb-vt-fs::view-transition-old(tb-fscard),html.tb-vt-fs::view-transition-new(tb-fscard){animation:none}
+html.tb-vt-fs::view-transition-old(tb-fscard){display:none}
+html.tb-vt-fs::view-transition-old(root){animation:tbImmOut .18s ease both}
+html.tb-vt-fs::view-transition-new(root){animation:tbImmIn .18s ease both}

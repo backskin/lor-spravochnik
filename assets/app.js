@@ -100,18 +100,23 @@ function updateDrawerNav(){
   var isSources = fname === "istochniki.html";
 
   var items = [];
+  /* строка меню со значком раздела перед названием */
+  var irow = function(ico){
+    var h = row.apply(null, [].slice.call(arguments, 1)), I = window.LOR_ICONS;  /* набор значков объявлен ниже; до него — строка без значка */
+    return I && I[ico] ? h.replace('<span class="rt">', '<span class="gh-ico-wrap" data-ico-type="' + ico + '"><svg class="gh-ico" viewBox="0 0 48 48" aria-hidden="true">' + I[ico] + '</svg></span><span class="rt">') : h;
+  };
   if(!isHome){
     /* «← На главную» не нужна: в шапке каждой страницы есть кнопка с домиком (замечание пользователя 27.10.2026) */
-    if(!isTb) items.push(row("uchebnik.html", "Учебник", "анатомия и болезни ЛОР-органов по руководствам"));
-    if(!isDrugs) items.push(row("preparaty.html", "Препараты", "вещества из КР, торговые названия и инструкции ГРЛС"));
-    if(!isMkb) items.push(row("mkb.html", "Коды МКБ-10", "ЛОР-рубрики по разделам, нажатие копирует код"));
-    if(!isGlossary) items.push(row("slovar.html", "Словарь", "термины и сокращения из текста КР"));
+    if(!isTb) items.push(irow("textbook", "uchebnik.html", "Учебник", "анатомия и болезни ЛОР-органов по руководствам"));
+    if(!isDrugs) items.push(irow("drugs", "preparaty.html", "Препараты", "вещества из КР, торговые названия и инструкции ГРЛС"));
+    if(!isMkb) items.push(irow("mkb", "mkb.html", "Коды МКБ-10", "ЛОР-рубрики по разделам, нажатие копирует код"));
+    if(!isGlossary) items.push(irow("glossary", "slovar.html", "Словарь", "термины и сокращения из текста КР"));
   }
-  items.push(row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"'));
-  if(fname !== "zakladki-uchebnik.html") items.push(row("zakladki-uchebnik.html", "Закладки учебника", "сохранённые места в главах учебника"));
-  if(fname !== "zakladki-kr.html") items.push(row("zakladki-kr.html", "Закладки разборов", "сохранённые места в разборах КР"));
-  if(!isHelp) items.push(row("kak-polzovatsya.html", "Как пользоваться", "краткая справка по возможностям"));
-  if(!isSources) items.push(row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены"));
+  items.push(irow("pdf", "pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"'));
+  if(fname !== "zakladki-uchebnik.html") items.push(irow("bmtb", "zakladki-uchebnik.html", "Закладки учебника", "сохранённые места в главах учебника"));
+  if(fname !== "zakladki-kr.html") items.push(irow("bmkr", "zakladki-kr.html", "Закладки разборов", "сохранённые места в разборах КР"));
+  if(!isHelp) items.push(irow("help", "kak-polzovatsya.html", "Как пользоваться", "краткая справка по возможностям"));
+  if(!isSources) items.push(irow("sources", "istochniki.html", "Источники и проверка", "откуда данные и как они сверены"));
 
   nav.innerHTML = items.join("");
 }
@@ -191,6 +196,7 @@ sizeSec.addEventListener("pointerdown", pinStart);
 ["pointerup", "pointercancel", "touchend", "touchcancel"].forEach(function(ev){ addEventListener(ev, pinEnd); });
 function setK(k){ k = Math.min(1.3, Math.max(0.7, Math.round(k * 20) / 20)); root.style.setProperty("--k", k); sizeRange.value = k; pinHold(); if(sizeVal){ sizeVal.textContent = Math.round(k * 100) + "%"; sizeVal.classList.remove("pop"); void sizeVal.offsetWidth; sizeVal.classList.add("pop"); } store("lor-k", String(k)); }
 sizeRange.addEventListener("input", function(){ setK(+sizeRange.value); });
+window.lorK = {set: setK, get: function(){ return +sizeRange.value || 1; }};  /* для окна «Размер текста» в учебнике */
 /* у кнопок click приходит после pointerup — закрепляем блок на время самого шага */
 $("sizeDown").onclick = function(){ pinStart(); setK(+sizeRange.value - 0.05); pinEnd(); };
 $("sizeUp").onclick = function(){ pinStart(); setK(+sizeRange.value + 0.05); pinEnd(); };
@@ -797,6 +803,16 @@ var LOR_ICONS = {
   /* «Источники и проверка» — щит с галочкой; «Как пользоваться» — круг с вопросом (тот же рисунок линий, что у разделов) */
   sources: '<path class="ico-fill-1" d="M24 6L39 11.5V23C39 32 32.5 38.8 24 42C15.5 38.8 9 32 9 23V11.5Z"/>'
     + '<path class="ico-str" d="M24 6L39 11.5V23C39 32 32.5 38.8 24 42C15.5 38.8 9 32 9 23V11.5ZM17 24L22 29L31 19"/>',
+  /* меню (просьба 28.10.2026: значки у пунктов — чтобы различались с одного взгляда): PDF — лист со стрелкой загрузки,
+     закладки учебника — книга с лентой, закладки разборов — документ с лентой */
+  pdf: '<path class="ico-fill-1" d="M12 6H29L37 14V42H12Z"/><path class="ico-fill-hi" d="M29 6V14H37Z"/>'
+    + '<path class="ico-det" d="M17 17H24M17 22H31"/><path class="ico-str" d="M12 6H29L37 14V42H12ZM29 6V14H37M24.5 27V37M20 32.5L24.5 37L29 32.5"/>',
+  bmtb: '<path class="ico-fill-1" d="M7 11.5C11.5 9.5 18.5 10 24 13C29.5 10 36.5 9.5 41 11.5V36.5C36.5 34.5 29.5 35 24 38C18.5 35 11.5 34.5 7 36.5Z"/>'
+    + '<path class="ico-fill-hi" d="M29 11.2H35.5V26L32.25 23.2L29 26Z"/><path class="ico-det" d="M11.5 18.5H19.5M11.5 23H19.5M11.5 27.5H17.5"/>'
+    + '<path class="ico-str" d="M7 11.5C11.5 9.5 18.5 10 24 13C29.5 10 36.5 9.5 41 11.5V36.5C36.5 34.5 29.5 35 24 38C18.5 35 11.5 34.5 7 36.5ZM24 13V38M29 11.2V26L32.25 23.2L35.5 26V10.6"/>',
+  bmkr: '<rect class="ico-fill-1" x="9" y="8" width="30" height="32" rx="4"/><path class="ico-fill-hi" d="M26 8H33V23L29.5 20L26 23Z"/>'
+    + '<path class="ico-det" d="M14 15H21M14 21H21M14 28H34M14 33H28"/>'
+    + '<path class="ico-str" d="M9 12A4 4 0 0 1 13 8H35A4 4 0 0 1 39 12V36A4 4 0 0 1 35 40H13A4 4 0 0 1 9 36ZM26 8V23L29.5 20L33 23V8"/>',
   help: '<circle class="ico-fill-1" cx="24" cy="24" r="16"/><circle class="ico-str" cx="24" cy="24" r="16"/>'
     + '<path class="ico-str" d="M19 19.5A5 5 0 0 1 29 19.5C29 23 24 23.5 24 27.5"/><path class="ico-str" d="M24 32.5V33"/>'
 };
@@ -1571,6 +1587,18 @@ requestAnimationFrame(function(){ root.classList.remove("lor-boot"); });  /* э�
     {id:"srcof", sel:"main .src-of", when:function(){ return !!tabs; }, text:"Под каждым разделом указано, из какой рекомендации и из каких её разделов взят текст, со ссылкой на официальный документ."},
     {id:"more", sel:".more-btn", when:function(){ return !!tabs; }, text:"Редкие подробности свёрнуты. Эта строка их раскрывает."},
     {id:"drug", sel:".drug", when:function(){ return !!tabs; }, text:"Название препарата нажимается: под ним откроются торговые названия из Государственного реестра лекарственных средств."},
+    {id:"tbmode", sel:".tb-ch-bar .tb-mode", when:function(){ return B.page === "textbook" && !wide && !document.documentElement.classList.contains("tb-paged"); },
+      text:"Главу можно читать прокруткой, как длинную страницу, или постранично, как книгу. Режим переключается в любой момент, место чтения сохраняется."},
+    {id:"tbmodew", sel:".tb-aside .tb-mode", when:function(){ return B.page === "textbook" && wide; },
+      text:"Главу можно читать прокруткой или постранично, как книгу. Режим переключается в любой момент, место чтения сохраняется."},
+    {id:"tbitoc", sel:".tb-inline-toc", when:function(){ return B.page === "textbook" && !wide && !document.documentElement.classList.contains("tb-paged"); },
+      text:"Содержание главы. Когда оно уйдёт вверх, под шапкой появится строка с текущим разделом: нажатие открывает список разделов, кнопка «Постранично» справа переключает режим с этого же места."},
+    {id:"tbswipe", sel:".tb-pager", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
+      text:"Страницы листаются свайпом влево и вправо или кнопками ‹ ›. «Содержание» открывает разделы главы и переключатель режима, флажок справа — закладка на этом месте."},
+    {id:"tbfs", sel:".tb-pager .tb-fs-open", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
+      text:"Кнопка «Аа» — размер текста. Окно уходит само после выбора или по нажатию мимо него; место чтения сохраняется."},
+    {id:"tbtap", sel:".tb-flow", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
+      text:"Нажмите на текст, чтобы убрать панели и читать на весь экран: внизу останутся номер страницы и полоса прогресса. Ещё одно нажатие возвращает панели."},
     {id:"drugsearch", sel:".searchbox", when:function(){ return B.page === "drugs"; }, text:"На этой странице поиск ищет по реестру: торговое название покажет действующее вещество, а вещество — все торговые названия."}
   ];
   var queue = [], i = 0, box, ring;
@@ -1589,8 +1617,10 @@ requestAnimationFrame(function(){ root.classList.remove("lor-boot"); });  /* э�
     if(i >= queue.length || off){ close(); return; }
     var q = queue[i]; seen[q.st.id] = 1; set("lor-help-seen", JSON.stringify(seen));
     var tall = q.el.getBoundingClientRect().height > innerHeight * 0.4;
-    q.el.scrollIntoView({block: tall ? "start" : "center"});
-    if(tall) window.scrollBy(0, -80);
+    if(!q.st.fixed){  /* постраничный экран не прокручивается: элемент уже на месте */
+      q.el.scrollIntoView({block: tall ? "start" : "center"});
+      if(tall) window.scrollBy(0, -80);
+    }
     requestAnimationFrame(function(){
       var r = q.el.getBoundingClientRect(), pad = 6;
       if(!ring){ ring = document.createElement("div"); ring.className = "help-ring"; document.body.appendChild(ring); ring.onclick = next; }
@@ -2150,12 +2180,13 @@ function lorTextbook(){
   /* Плашка «Содержание главы» на телефоне и планшете (просьба 28.10.2026, как в java-backend-bible): тонкая строка под шапкой появляется,
      когда встроенное содержание ушло вверх; в ней — текущий раздел, по нажатию раскрывается список разделов поверх текста.
      Места в потоке не занимает — текст не прыгает. В постраничном режиме и на компьютере не нужна: там своя колонка. */
-  var itoc = main.querySelector(".tb-inline-toc");
+  var itoc = main.querySelector(".tb-inline-toc"), tbar = null;
   if(itoc && secList.length > 1){
-    var tbar = document.createElement("div");
+    tbar = document.createElement("div");
     tbar.className = "tb-tocbar";
     tbar.innerHTML = '<div class="tb-tocbar-scrim" hidden></div><div class="tb-tocbar-in"><button type="button" class="tb-tocbar-btn" aria-expanded="false">'
       + '<span class="tb-tocbar-l">Содержание главы</span><span class="tb-tocbar-cur"></span><i aria-hidden="true"></i></button>'
+      + '<button type="button" class="tb-tocbar-fs tb-fs-open" aria-label="Размер текста" title="Размер текста"><span class="tb-aa" aria-hidden="true"><small>А</small>А</span></button>'
       + '<button type="button" class="tb-tocbar-mode" data-tb-mode="paged" title="Читать постранично с этого места"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5h7a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H3z"/><path d="M21 5.5h-7a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h7z"/></svg><span>Постранично</span></button>'
       + '<nav class="tb-tocbar-list" aria-label="Разделы главы" hidden><ol>' + secList.map(function(sx){
         return '<li><a href="#' + sx.id + '" data-bsec="' + sx.id + '"><span class="tb-itoc-n">' + sx.num + '</span><span>' + sx.title + '</span></a></li>'; }).join("")
@@ -2195,13 +2226,22 @@ function lorTextbook(){
   var pager = document.createElement("nav");
   pager.className = "tb-pager";
   pager.setAttribute("aria-label", "Листание страниц главы");
-  pager.innerHTML = '<button type="button" class="tb-pg-toc" aria-expanded="false">Содержание</button>'
+  pager.innerHTML = '<button type="button" class="tb-pg-toc" aria-expanded="false" aria-label="Содержание"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg><span>Содержание</span></button>'
     + '<button type="button" class="tb-pg-exit" data-tb-mode="scroll">Прокруткой</button>'
     + '<button type="button" class="tb-pg-btn" data-pg="-1" aria-label="Предыдущая страница">‹</button>'
     + '<span class="tb-pg-info"><b></b><span></span></span>'
-    + '<button type="button" class="tb-pg-btn" data-pg="1" aria-label="Следующая страница">›</button>';
+    + '<button type="button" class="tb-pg-btn" data-pg="1" aria-label="Следующая страница">›</button>'
+    /* закладка постранично — здесь, а не плавающей кнопкой поверх текста (жалоба 28.10.2026: мешала читать) */
+    + '<button type="button" class="tb-pg-btn tb-fs-open" aria-label="Размер текста" title="Размер текста"><span class="tb-aa" aria-hidden="true"><small>А</small>А</span></button>'
+    + '<button type="button" class="tb-pg-btn tb-pg-bm" aria-label="Добавить закладку" title="Добавить закладку"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/><path d="M12 8v6M9 11h6"/></svg></button>';
   pager.querySelector(".tb-pg-info b").textContent = flowTitle.textContent;
   main.appendChild(pager);
+  pager.querySelector(".tb-pg-bm").addEventListener("click", function(){ if(typeof bmAdd === "function") bmAdd(); });
+  /* чтение без панелей: внизу остаются номер страницы и полоса прогресса; нажатие на неё возвращает панели */
+  var prog = document.createElement("div");
+  prog.className = "tb-pg-prog";
+  prog.innerHTML = '<i><b></b></i><span></span>';
+  main.appendChild(prog);
   var pg = 0, pgN = 1, pgStep = 1;
   function animOn(){ return root.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function rectOf(x){ var rs = x.getClientRects ? x.getClientRects() : null; return rs && rs.length ? rs[0] : x.getBoundingClientRect(); }
@@ -2229,6 +2269,8 @@ function lorTextbook(){
     pager.querySelector(".tb-pg-info span").innerHTML = '<i class="tb-pg-w">страница </i>' + (pg + 1) + " из " + pgN;
     pager.querySelector('[data-pg="-1"]').disabled = pg === 0;
     pager.querySelector('[data-pg="1"]').disabled = pg === pgN - 1;
+    prog.querySelector("span").textContent = (pg + 1) + "\u00a0из\u00a0" + pgN;
+    prog.querySelector("b").style.transform = "scaleX(" + (pgN > 1 ? pg / (pgN - 1) : 1) + ")";
     /* текущий раздел в содержании — и при листании страниц */
     var curSec = null;
     bodyEl.querySelectorAll(".tb-sec").forEach(function(sx){ if(pageOf(sx) <= pg) curSec = sx.id; });
@@ -2263,15 +2305,44 @@ function lorTextbook(){
     return null;
   }
   function pgLayout(keep){
-    var hd = (document.querySelector(".top") || {}).offsetHeight || 56;
     window.scrollTo(0, 0);
-    var h = Math.max(260, window.innerHeight - flow.getBoundingClientRect().top - pager.offsetHeight - 16);
+    var imm = root.classList.contains("tb-immersive");
+    var h = Math.max(260, window.innerHeight - flow.getBoundingClientRect().top - (imm ? prog.offsetHeight + 4 : pager.offsetHeight + 12));
     flow.style.height = h + "px"; flow.style.setProperty("--tb-h", h + "px");
     var gap = parseFloat(getComputedStyle(flow).columnGap) || 48;
     pgStep = flow.clientWidth + gap;
+    fitFigures(gap);
     pgN = Math.max(1, Math.ceil((flow.scrollWidth + gap - 4) / pgStep));
     pgGo(keep ? pageOf(keep) : pg, false);
-    void hd;
+  }
+  /* Разбивка на страницы с пониманием рисунков (просьба 28.10.2026: «умнее, понимая, как текст бьётся между страницами»).
+     Снимок не режется между страницами; если целиком не влез, он уходил на следующую, а внизу предыдущей оставалась пустота.
+     Теперь такой снимок уменьшается до размера этой пустоты (не меньше 140 px) и встаёт на прежнюю страницу; текст после него
+     подтягивается. Несколько проходов — уменьшение одного рисунка двигает следующие. */
+  function fitFigures(gap){
+    var imgs = [].slice.call(flow.querySelectorAll("figure img, figure svg"));
+    imgs.forEach(function(im){ if(im.dataset.fit){ im.style.maxHeight = ""; delete im.dataset.fit; } });
+    if(!imgs.length) return;
+    var cols = Math.max(1, parseInt(getComputedStyle(flow).columnCount, 10) || 1), colStep = (flow.clientWidth + gap) / cols;
+    var fr = flow.getBoundingClientRect(), base = fr.left - flow.scrollLeft;
+    var colOf = function(r){ return Math.floor((r.left - base + 2) / colStep); };
+    for(var pass = 0; pass < 3; pass++){
+      var bottom = {}, changed = false;
+      flow.querySelectorAll("p, li, h2, h3, figure, .tbl-wrap, .tb-tcap, .tb-pn-card, .tb-flow-title").forEach(function(el){
+        if(el.closest("li") && el.tagName !== "LI") return;
+        [].forEach.call(el.getClientRects(), function(r){ if(!r.height) return; var c = colOf(r); if(!(bottom[c] >= r.bottom)) bottom[c] = r.bottom; });
+      });
+      imgs.forEach(function(im){
+        var fig = im.closest("figure"), r = fig.getClientRects()[0]; if(!r) return;
+        var c = colOf(r); if(c < 1 || r.top - fr.top > 24 || bottom[c - 1] == null) return;  /* рисунок не в начале страницы — не трогаем */
+        /* место: пустота внизу предыдущей страницы; рисунку нужны поля рамки, снимок и первая строка подписи (остальное может уйти дальше) */
+        var imH = im.getBoundingClientRect().height, cap = fig.querySelector("figcaption"), capH = cap ? cap.getBoundingClientRect().height : 0;
+        var free = fr.bottom - bottom[c - 1] - 16, chrome = r.height - imH - capH;
+        var want = Math.floor(free - chrome - Math.min(capH, 24) - 4);
+        if(want >= 140 && want < im.getBoundingClientRect().height - 4){ im.style.maxHeight = want + "px"; im.dataset.fit = "1"; changed = true; }
+      });
+      if(!changed) break;
+    }
   }
   function setMode(mode, keep, fade){
     var paged = mode === "paged";
@@ -2288,11 +2359,12 @@ function lorTextbook(){
         if(aside.classList.contains("open")){ aside.style.transition = "none"; asideOpen(false); requestAnimationFrame(function(){ requestAnimationFrame(function(){ aside.style.transition = ""; }); }); }
         setMode(mode, k0, false);
       });
+      if(window.lorTour) setTimeout(window.lorTour, 450);
       vt.finished.then(function(){ root.classList.remove("tb-vt-" + mode); }, function(){ root.classList.remove("tb-vt-" + mode); });
       return;
     }
     slideStop();
-    root.classList.remove("tb-immersive");
+    if(root.classList.contains("tb-immersive")){ root.classList.remove("tb-immersive"); if(!paged){ flow.style.height = ""; } }
     if(paged){
       if(!keep) keep = atReadLine();
       root.classList.add("tb-paged");
@@ -2378,11 +2450,75 @@ function lorTextbook(){
     var sel = window.getSelection && String(window.getSelection());
     if(sel) return;
     if(aside.classList.contains("open")){ asideOpen(false); return; }
-    var on = !root.classList.contains("tb-immersive");
-    root.classList.toggle("tb-immersive", on);
-    if(on){ var hint = 0; try{ hint = +localStorage.getItem("lor-tb-tap") || 0; localStorage.setItem("lor-tb-tap", String(hint + 1)); }catch(x){}
-      if(hint < 2 && typeof say === "function") say("Нажмите на текст ещё раз, чтобы вернуть панели"); }
+    immersive(!root.classList.contains("tb-immersive"));
   });
+  prog.addEventListener("click", function(){ immersive(false); });
+  /* Без панелей освободившееся место занимает текст (жалоба 28.10.2026: пустые полосы сверху и снизу): страница перестраивается
+     на новую высоту, первая строка страницы остаётся первой. Шапка и панель уезжают, текст перетекает — в одном переходе */
+  /* Размер текста (просьба 28.10.2026: для книги это главный инструмент) — кнопка «Аа» в панели листания и в плашке содержания;
+     окно по центру: «А−», значение, «А+» и шкала. Текст за окном перестраивается сразу, место чтения не теряется (якорь —
+     строка, запомненная при открытии окна). Окно уходит само через 1,8 с после последнего изменения или по нажатию мимо него */
+  var fsBox = null, fsT = 0, fsKeep = null;
+  function fsOpen(){
+    if(!fsBox){
+      fsBox = document.createElement("div");
+      fsBox.className = "tb-fs";
+      fsBox.innerHTML = '<div class="tb-fs-scrim"></div><div class="tb-fs-card" role="dialog" aria-label="Размер текста"><p class="tb-fs-h">Размер текста</p>'
+        + '<div class="tb-fs-row"><button type="button" class="tb-fs-b" data-fs="-1" aria-label="Уменьшить текст"><span style="font-size:15px">А</span>−</button>'
+        + '<output class="tb-fs-v"></output><button type="button" class="tb-fs-b" data-fs="1" aria-label="Увеличить текст"><span style="font-size:22px">А</span>+</button></div>'
+        + '<div class="tb-fs-scale" aria-hidden="true">' + new Array(13).join("<i></i>") + '<i></i></div></div>';
+      main.appendChild(fsBox);
+      fsBox.querySelector(".tb-fs-scrim").addEventListener("click", fsClose);
+      fsBox.addEventListener("click", function(e){
+        var b = e.target.closest("[data-fs]"); if(!b) return;
+        var d = 0.05 * (+b.dataset.fs);
+        /* новый размер — коротким перетеканием текста, окно стоит на месте: текст не перескакивает в один кадр */
+        var step = function(){ window.lorK.set(window.lorK.get() + d); fsShow(); fsRelayoutNow(); };
+        if(document.startViewTransition && animOn()){
+          root.classList.add("tb-vt-fs");
+          var v = document.startViewTransition(step);
+          v.finished.then(function(){ root.classList.remove("tb-vt-fs"); }, function(){ root.classList.remove("tb-vt-fs"); });
+        } else { step(); }
+        fsArm();
+      });
+    }
+    fsKeep = root.classList.contains("tb-paged") ? atPageStart() : atReadLine();
+    fsShow(); fsBox.classList.remove("out"); fsBox.classList.add("on"); fsArm();
+  }
+  function fsShow(){
+    var k = window.lorK ? window.lorK.get() : 1, n = Math.round((k - 0.7) / 0.05);
+    fsBox.querySelector(".tb-fs-v").textContent = Math.round(k * 100) + "\u00a0%";
+    fsBox.querySelector('[data-fs="-1"]').disabled = k <= 0.7 + 1e-6;
+    fsBox.querySelector('[data-fs="1"]').disabled = k >= 1.3 - 1e-6;
+    [].forEach.call(fsBox.querySelectorAll(".tb-fs-scale i"), function(x, i){ x.classList.toggle("on", i <= n); x.classList.toggle("cur", i === n); });
+  }
+  function fsArm(){ clearTimeout(fsT); fsT = setTimeout(fsClose, 1800); }
+  function fsClose(){
+    clearTimeout(fsT); if(!fsBox || !fsBox.classList.contains("on")) return;
+    fsBox.classList.add("out");
+    setTimeout(function(){ if(fsBox.classList.contains("out")) fsBox.classList.remove("on", "out"); }, animOn() ? 200 : 0);
+  }
+  function fsRelayoutNow(){  /* место чтения — строка, запомненная при открытии окна */
+    if(root.classList.contains("tb-paged")) pgLayout(fsKeep);
+    else if(fsKeep){ var r = rectOf(fsKeep); window.scrollTo(0, window.scrollY + r.top - readLine()); }
+  }
+  document.addEventListener("click", function tbFs(e){
+    if(!main.isConnected){ document.removeEventListener("click", tbFs); return; }
+    if(e.target.closest(".tb-fs-open")){ e.preventDefault(); if(tbar) tbar.classList.remove("open"); fsOpen(); }
+  });
+  document.addEventListener("keydown", function tbFsK(e){ if(!main.isConnected){ document.removeEventListener("keydown", tbFsK); return; } if(e.key === "Escape") fsClose(); });
+  var immBack = null;
+  function immersive(on){
+    if(on === root.classList.contains("tb-immersive")) return;
+    /* туда и обратно без листания — та же страница, что была: место не сползает назад с каждым нажатием */
+    var k = !on && immBack && immBack.pg === pg ? immBack.k : atPageStart(), was = on ? {k: k} : null;
+    var apply = function(){ root.classList.toggle("tb-immersive", on); pgLayout(k); immBack = was ? {k: was.k, pg: pg} : null; };
+    if(document.startViewTransition && animOn()){
+      root.classList.add("tb-vt-imm");
+      var vt = document.startViewTransition(apply);
+      vt.finished.then(function(){ root.classList.remove("tb-vt-imm"); }, function(){ root.classList.remove("tb-vt-imm"); });
+    } else apply();
+  }
   var rsT = 0;
   window.addEventListener("resize", function(){
     if(!root.classList.contains("tb-paged")) return;
