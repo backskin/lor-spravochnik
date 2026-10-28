@@ -2066,8 +2066,12 @@ details.tb-inline-toc>.tb-itoc-grid{padding:0 var(--s4) var(--s3)}
   .tb-aside .tb-itoc-n{min-width:1.6em}
   .tb-aside-top{position:sticky;top:calc(-1 * var(--s2));z-index:2;margin-top:calc(-1 * var(--s2));padding-top:var(--s2);padding-bottom:var(--s2);margin-bottom:var(--s2);background:var(--bg-page)}
   .tb-aside .tb-aside-top .tb-mode{margin-bottom:0}
-  .tb-aside-all{display:block;margin:0 0 var(--s2);padding:6px 8px;color:var(--ac);font-weight:600;text-decoration:none;border-radius:var(--r-ctl)}
-  .tb-aside-all:hover{background:var(--bg2)}
+  /* «Оглавление» и «Закладки» — две одинаковые кнопки с иконками, в том же виде, что и кнопки режима ниже (замечание 28.10.2026) */
+  .tb-aside-all{display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r-ctl);
+    background:var(--bg);color:var(--fg);font-weight:600;font-size:var(--t4);text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,.04);
+    transition:transform .09s ease,box-shadow .09s ease,border-color .15s ease,background-color .15s ease}
+  .tb-aside-all svg{flex:none;color:var(--ac)}
+  .tb-aside-all:active{transform:translateY(2px);box-shadow:inset 0 3px 7px rgba(0,0,0,.14)}
   /* боковая колонка заменяет встроенное содержание, «Быстрый переход» и «← Все главы» */
   .tb-chap .tb-inline-toc,.tb-chap .tb-ch-jump,.tb-chap .tb-back-btn,.tb-chap .tb-ch-bar .tb-mode{display:none!important}
   .tb-chap .tb-ch-bar{background:none;border:0;padding:0;margin:var(--s3) 0 0}
@@ -2140,7 +2144,13 @@ html.tb-paged .fig-scroll{break-inside:avoid}
 .tb-pg-toc[aria-expanded="true"]{border-color:var(--ac);color:var(--ac)}
 .tb-tcap{margin-top:var(--s4)!important;font-weight:600;color:var(--fg)}
 .tb-sec-content .tbl-wrap{margin:var(--s2) 0 var(--s3)}
-html.tb-paged .tbl-wrap{break-inside:avoid}
+/* постраничный режим: таблица выше страницы не должна обрезаться (жалоба 28.10.2026: «Таблица 4» в анатомии носа уходила за низ страницы).
+   Таблица переносится между строками на следующую страницу, строки не разрываются, подпись остаётся с таблицей; прокрутка обёртки
+   отключена — элемент с прокруткой браузер не может разрезать между колонками */
+html.tb-paged .tbl-wrap{break-inside:auto;overflow:visible}
+html.tb-paged .tbl-wrap tr{break-inside:avoid}
+html.tb-paged .tbl-wrap thead{display:table-header-group}
+html.tb-paged .tb-tcap{break-after:avoid}
 
 /* постоянное оглавление учебника в колонке: место под полосу прокрутки занято всегда — ширина и текст не прыгают */
 .tb-chap .tb-aside{scrollbar-gutter:stable;scrollbar-width:thin}
@@ -2196,7 +2206,8 @@ html.tb-paged .fab-box{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (hover:hover){.bm-del:hover{color:var(--warn);border-color:var(--warn)}}
 .bm-empty{margin-top:var(--s4);color:var(--fg2);max-width:60ch}
 .bm-foot{margin-top:var(--s5)}
-.tb-aside-links{display:flex;justify-content:space-between;gap:8px}
+.tb-aside-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:var(--s2)}
+@media (hover:hover){.tb-aside-all:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 8%,var(--bg))}}
 @media (prefers-reduced-motion:reduce){.fab,.bm-btn,.bm-del{transition:none}}
 /* 28.10.2026: на большом экране шапка главной — по центру, крупнее, подпись одной строкой без переносов (замечание пользователя:
    подпись в две строки при пустом месте справа выглядела бессмысленно); отступы сверху и снизу меньше — карточки поднимаются выше */
@@ -2209,3 +2220,4 @@ html.tb-paged .fab-box{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 /* быстрые карточки главной: четыре в ряд — только когда им хватает ширины; на 768–1099 px подписи рвались по буквам («Учебни-к») */
 @media (min-width:768px) and (max-width:1099px){.home-qnav{grid-template-columns:repeat(2, minmax(0, 1fr))}}
 @media (min-width:860px) and (max-width:1099px){.home-tag{font-size:var(--t4);line-height:var(--l4);text-wrap:balance}}
+.tb-aside-top + .tb-aside-h{margin-top:var(--s3)!important}

@@ -2027,7 +2027,9 @@ function lorTextbook(){
     aside.setAttribute("aria-label", "Оглавление учебника");
     /* наверху колонки, закреплённо, — переход в оглавление учебника и режим чтения (вопрос пользователя 28.10.2026: из главы было не понять,
        как вернуться в учебник — ссылка стояла в самом конце списка глав, а «← Все главы учебника» над текстом уходит при прокрутке) */
-    aside.innerHTML = '<div class="tb-aside-top"><div class="tb-aside-links"><a class="tb-aside-all" href="uchebnik.html">← Оглавление учебника</a><a class="tb-aside-all" href="zakladki-uchebnik.html">Закладки</a></div>' + modeHtml + '</div>' + groups.map(function(g){
+    aside.innerHTML = '<div class="tb-aside-top"><div class="tb-aside-links">'
+      + '<a class="tb-aside-all" href="uchebnik.html" title="Оглавление учебника: все разделы и главы"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H10c1.1 0 2 .9 2 2v14c0-1.1-.9-2-2-2H4z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H14c-1.1 0-2 .9-2 2v14c0-1.1.9-2 2-2h6z"/></svg><span>Оглавление</span></a>'
+      + '<a class="tb-aside-all" href="zakladki-uchebnik.html" title="Закладки учебника"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg><span>Закладки</span></a></div>' + modeHtml + '</div>' + groups.map(function(g){
         return '<p class="tb-aside-h">' + g.title + '</p><ul class="tb-aside-ch">' + TB_CHAPTERS.filter(function(ch){ return ch.cat === g.cat; }).map(function(ch){
           return '<li data-href="' + ch.href + '"><a href="' + ch.href + '"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></a></li>'; }).join("") + '</ul>';
       }).join("");
