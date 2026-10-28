@@ -108,6 +108,8 @@ function updateDrawerNav(){
     if(!isGlossary) items.push(row("slovar.html", "Словарь", "термины и сокращения из текста КР"));
   }
   items.push(row("pdf/vse-razbory.pdf" + SITEV, "Все разборы одним PDF", "сохранить или распечатать", "ext", ' target="_blank" rel="noopener"'));
+  if(fname !== "zakladki-uchebnik.html") items.push(row("zakladki-uchebnik.html", "Закладки учебника", "сохранённые места в главах учебника"));
+  if(fname !== "zakladki-kr.html") items.push(row("zakladki-kr.html", "Закладки разборов", "сохранённые места в разборах КР"));
   if(!isHelp) items.push(row("kak-polzovatsya.html", "Как пользоваться", "краткая справка по возможностям"));
   if(!isSources) items.push(row("istochniki.html", "Источники и проверка", "откуда данные и как они сверены"));
 
@@ -733,7 +735,7 @@ readPage();
 var hb = $("homeBtn"); if(hb){ if(HOME) hb.setAttribute("aria-current", "page"); else hb.removeAttribute("aria-current"); }
 $("q").placeholder = B.page === "drugs" ? (innerWidth < 480 ? "Препарат" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат");
 /* внизу каждой страницы, кроме главной (там свой блок) — откуда данные */
-if(!HOME && B.page !== "sources" && B.page !== "textbook"){  /* «Учебник» — не КР, подпись про источники к нему не относится */
+if(!HOME && B.page !== "sources" && B.page !== "textbook" && B.page !== "bookmarks"){  /* «Учебник» — не КР, подпись про источники к нему не относится */
   var mainBox = document.querySelector(".page");
   if(mainBox) mainBox.insertAdjacentHTML("beforeend", '<footer class="site-foot"><a href="istochniki.html">Источники и проверка данных ›</a>'
     + "<span>Только клинические рекомендации Минздрава, ГРЛС и справочник МКБ-10. Не заменяет полный текст рекомендации.</span></footer>");
@@ -1116,7 +1118,151 @@ if(location.hash && !tabbar && !root.classList.contains("tb-paged") && !window._
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ requestAnimationFrame(toHash); });
   }
 }
+if(typeof lorBookmarks === "function") lorBookmarks();
 if(typeof updateDrawerNav === "function") updateDrawerNav();
+}
+
+/* ---------- Закладки и «Наверх» (просьба пользователя 28.10.2026) ----------
+   Два отдельных набора: закладки учебника и закладки разборов КР (один на все разборы). Хранятся в браузере этого устройства.
+   Справа внизу на главах учебника и в разборах — две постоянные кнопки: «Добавить закладку» и «Наверх» (вторая видна, когда страница
+   прокручена). Новая закладка — окно с предложенным именем (каждый раз новое, можно изменить). Страницы управления —
+   zakladki-uchebnik.html и zakladki-kr.html: переход, сортировка по разделам, времени создания и имени, удаление одной и всех.
+   Каждое действие с закладками подтверждается в окне. */
+var BM = {
+  tb: {key: "lor-bm-tb", page: "zakladki-uchebnik.html", title: "Закладки учебника", where: "главу учебника"},
+  kr: {key: "lor-bm-kr", page: "zakladki-kr.html", title: "Закладки разборов", where: "разбор КР"}
+};
+function bmKind(){ return document.querySelector("main.tb-chap") ? "tb" : (tabbar && DOC ? "kr" : null); }
+function bmLoad(k){ try{ var x = JSON.parse(localStorage.getItem(BM[k].key) || "[]"); return Array.isArray(x) ? x : []; }catch(e){ return []; } }
+function bmStore(k, list){ try{ localStorage.setItem(BM[k].key, JSON.stringify(list)); return true; }catch(e){ return false; } }
+function bmDate(t){ var d = new Date(t), p = function(n){ return (n < 10 ? "0" : "") + n; }; return p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear() + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+function bmTxt(el){ return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
+/* что сейчас перед глазами: первый пункт (в разборе) или раздел (в главе), который виден под шапкой */
+function bmHere(k){
+  var hd = ((document.querySelector(".top") || {}).offsetHeight || 56) + (k === "kr" && tabbar ? tabbar.offsetHeight + 8 : 8);
+  var cands = k === "kr"
+    ? Array.prototype.filter.call(document.querySelectorAll("main [data-panel]:not([hidden]) [data-v]"), function(x){ return !x.closest(".more") && !x.closest(".mkb-row"); })
+    : Array.prototype.slice.call(document.querySelectorAll("main.tb-chap h2[id], main.tb-chap h3[id], main.tb-chap section[id]"));
+  var pick = null, last = null;
+  cands.forEach(function(x){
+    var r = x.getBoundingClientRect();
+    if(!r.width && !r.height) return;
+    if(r.top <= hd + 24 && r.left >= 0 && r.left < innerWidth) last = x;
+    if(!pick && r.bottom > hd && r.top < innerHeight && r.right > 0 && r.left < innerWidth) pick = x;
+  });
+  var el = k === "kr" ? (pick || last) : (last || pick);
+  var file = location.pathname.split("/").pop() || "index.html";
+  var page = k === "kr" ? (DOC && DOC.title || bmTxt(document.querySelector("main h1"))) : bmTxt(document.querySelector("main h1"));
+  var sec = "";
+  if(el && k === "kr"){
+    var blk = el.closest("[data-sec]"), h2 = blk && blk.querySelector("h2"), h3 = null;
+    if(blk) blk.querySelectorAll("h3").forEach(function(h){ if(h.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) h3 = h; });
+    sec = [bmTxt(h2), bmTxt(h3)].filter(Boolean).join(" · ");
+  } else if(el){
+    sec = bmTxt(el.matches("h2,h3") ? el : el.querySelector("h2,h3"));
+  }
+  var id = el ? (k === "kr" ? el.dataset.v : el.id) : "";
+  return {href: file + (id ? "#" + encodeURIComponent(id) : ""), page: page, sec: sec || page};
+}
+function bmName(k, here){
+  var n = 1; try{ n = (+localStorage.getItem(BM[k].key + "-n") || 0) + 1; localStorage.setItem(BM[k].key + "-n", String(n)); }catch(e){}
+  return "Закладка " + n + " — " + here.sec;
+}
+/* окно подтверждения: заголовок, пояснение, кнопка действия */
+function bmAsk(title, text, ok, fn, danger){
+  pop.innerHTML = '<div class="sheet-h"><h3>' + esc(title) + '</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>'
+    + (text ? '<p class="bm-text">' + text + '</p>' : "")
+    + '<div class="bm-act"><button type="button" class="bm-btn ghost" data-close>Отмена</button><button type="button" class="bm-btn' + (danger ? " danger" : "") + '" data-bm-ok>' + esc(ok) + '</button></div>';
+  pop.querySelector("[data-bm-ok]").onclick = function(){ closeSheets(); fn(); };
+  openSheet(pop);
+}
+function bmAdd(){
+  var k = bmKind(); if(!k) return;
+  var here = bmHere(k), name = bmName(k, here);
+  pop.innerHTML = '<div class="sheet-h"><h3>Новая закладка</h3><button class="x" data-close aria-label="Закрыть">✕</button></div>'
+    + '<p class="bm-text">' + esc(here.page) + (here.sec !== here.page ? " · " + esc(here.sec) : "") + '</p>'
+    + '<label class="bm-lab"><span>Название закладки</span><input class="bm-in" type="text" maxlength="120" value="' + esc(name) + '"></label>'
+    + '<div class="bm-act"><button type="button" class="bm-btn ghost" data-close>Отмена</button><button type="button" class="bm-btn" data-bm-ok>Сохранить закладку</button></div>';
+  var inp = pop.querySelector(".bm-in");
+  var save = function(){
+    var list = bmLoad(k), nm = inp.value.replace(/\s+/g, " ").trim() || name;
+    list.push({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: nm, href: here.href, page: here.page, sec: here.sec, t: Date.now()});
+    closeSheets();
+    say(bmStore(k, list) ? "Закладка сохранена" : "Не удалось сохранить: хранилище браузера недоступно");
+  };
+  pop.querySelector("[data-bm-ok]").onclick = save;
+  inp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); save(); } });
+  openSheet(pop);
+  setTimeout(function(){ try{ inp.focus(); inp.select(); }catch(e){} }, 60);
+}
+/* постоянные кнопки справа внизу: создаются один раз и не перерисовываются при переходах */
+var fab = $("fabBox");
+if(!fab){
+  document.body.insertAdjacentHTML("beforeend", '<div class="fab-box" id="fabBox" hidden>'
+    + '<button type="button" class="fab fab-top" id="fabTop" aria-label="Наверх" title="Наверх"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>'
+    + '<button type="button" class="fab" id="fabBm" aria-label="Добавить закладку" title="Добавить закладку"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/><path d="M12 7.5v6M9 10.5h6" stroke-linecap="round"/></svg></button></div>');
+  fab = $("fabBox");
+  $("fabBm").onclick = bmAdd;
+  $("fabTop").onclick = function(){ window.scrollTo({top: 0, behavior: root.dataset.anim === "off" ? "auto" : "smooth"}); };
+  var fabTick = function(){ fab.classList.toggle("up", window.scrollY > innerHeight * 0.8 && !root.classList.contains("tb-paged")); };
+  addEventListener("scroll", fabTick, {passive: true});
+  fab.tick = fabTick;
+}
+function lorBookmarks(){
+  fab.hidden = !bmKind();
+  fab.tick();
+  if(B.page !== "bookmarks") return;
+  var k = B.bm === "kr" ? "kr" : "tb", box = $("bmApp"); if(!box) return;
+  var sort = "sec"; try{ sort = localStorage.getItem(BM[k].key + "-sort") || "sec"; }catch(e){}
+  var draw = function(){
+    var list = bmLoad(k), html;
+    var bar = '<div class="tb-filters bm-sort" role="tablist" aria-label="Сортировка закладок">'
+      + [["sec", "По разделам"], ["time", "По времени создания"], ["name", "По имени"]].map(function(s){
+          return '<button type="button" role="tab" data-bm-sort="' + s[0] + '" aria-selected="' + (s[0] === sort) + '">' + s[1] + '</button>'; }).join("") + '</div>';
+    if(!list.length){
+      box.innerHTML = '<p class="bm-empty">Закладок пока нет. Чтобы добавить, откройте ' + BM[k].where + ' и нажмите кнопку с флажком справа внизу.</p>';
+      return;
+    }
+    var item = function(b){
+      return '<li class="bm-item" data-id="' + esc(b.id) + '"><a class="row" href="' + esc(b.href) + '"><span class="rt">' + esc(b.name)
+        + '<span class="rs">' + esc(b.page) + (b.sec && b.sec !== b.page ? " · " + esc(b.sec) : "") + " · " + bmDate(b.t) + '</span></span></a>'
+        + '<button type="button" class="bm-del" data-bm-del="' + esc(b.id) + '" aria-label="Удалить закладку «' + esc(b.name) + '»" title="Удалить закладку">✕</button></li>';
+    };
+    if(sort === "sec"){
+      var groups = [], by = {};
+      list.slice().sort(function(a, b){ return a.t - b.t; }).forEach(function(b){ if(!by[b.page]){ by[b.page] = []; groups.push(b.page); } by[b.page].push(b); });
+      groups.sort(function(a, b){ return a.localeCompare(b, "ru"); });
+      html = groups.map(function(g){ return '<h2 class="gh bm-gh">' + esc(g) + '</h2><ul class="list bm-list">' + by[g].map(item).join("") + '</ul>'; }).join("");
+    } else {
+      var s = list.slice().sort(sort === "time" ? function(a, b){ return b.t - a.t; } : function(a, b){ return a.name.localeCompare(b.name, "ru", {numeric: true}); });
+      html = '<ul class="list bm-list">' + s.map(item).join("") + '</ul>';
+    }
+    box.innerHTML = bar + html + '<div class="bm-foot"><button type="button" class="bm-btn ghost danger" data-bm-all>Удалить все закладки (' + list.length + ')</button></div>';
+  };
+  box.onclick = function(e){
+    var sb = e.target.closest("[data-bm-sort]");
+    if(sb){ sort = sb.dataset.bmSort; try{ localStorage.setItem(BM[k].key + "-sort", sort); }catch(err){} draw(); return; }
+    var db = e.target.closest("[data-bm-del]");
+    if(db){
+      var b = bmLoad(k).filter(function(x){ return x.id === db.dataset.bmDel; })[0]; if(!b) return;
+      bmAsk("Удалить закладку?", "«" + esc(b.name) + "» будет удалена без возможности восстановления.", "Удалить", function(){
+        bmStore(k, bmLoad(k).filter(function(x){ return x.id !== b.id; })); draw(); say("Закладка удалена"); }, true);
+      return;
+    }
+    if(e.target.closest("[data-bm-all]")){
+      var n = bmLoad(k).length;
+      bmAsk("Удалить все закладки?", (n === 1 ? "Будет удалена 1 закладка" : "Будут удалены все " + n + " " + plural(n, "закладка", "закладки", "закладок")) + " раздела «" + BM[k].title + "» без возможности восстановления.", "Удалить все", function(){
+        bmStore(k, []); draw(); say("Все закладки удалены"); }, true);
+      return;
+    }
+    var a = e.target.closest(".bm-item a");
+    if(a){
+      e.preventDefault(); e.stopPropagation();
+      var bb = bmLoad(k).filter(function(x){ return x.id === a.parentNode.dataset.id; })[0];
+      bmAsk("Перейти по закладке?", "Откроется " + esc(bb ? bb.page : "страница") + (bb && bb.sec !== bb.page ? ", раздел «" + esc(bb.sec) + "»" : "") + ".", "Перейти", function(){ go(new URL(a.getAttribute("href"), location.href).href, true); });
+    }
+  };
+  draw();
 }
 
 /* ---------- Единая шапка-пространство (.tb-hero) для 4 главных экранов (Учебник, Препараты, МКБ-10, Словарь) ---------- */
@@ -1146,6 +1292,8 @@ function lorHubHero(){
     cfg = {ico:"mkb", kicker:"Классификатор Минздрава РФ · ЛОР-рубрики"};
   } else if(fname === "istochniki.html"){
     cfg = {ico:"sources", kicker:"Официальные документы и журнал сверки"};
+  } else if(B.page === "bookmarks"){
+    cfg = {ico: B.bm === "kr" ? "related" : "textbook", kicker: "Хранятся только на этом устройстве"};
   } else if(fname === "kak-polzovatsya.html"){
     cfg = {ico:"help", kicker:"Справка по возможностям справочника"};
   } else if(B.page === "glossary" || /^slovar/.test(fname)){
@@ -1180,7 +1328,7 @@ function lorHubHero(){
 /* Ссылка на страницу справочника: страница берётся из кэша (service worker), из неё в документ переносится только
    содержимое <body> (без шапки, меню и окон, которые уже есть), атрибуты <body>, заголовок и стили страницы;
    скрипты страницы выполняются, общие (shell, data, grls, app) — нет. Если что-то пошло не так — обычный переход. */
-var KEEP = {"top":1, "results":1, "scrim":1, "pop":1, "moreSheet":1, "ask":1, "toast":1, "menu":1};
+var KEEP = {"top":1, "results":1, "scrim":1, "pop":1, "moreSheet":1, "ask":1, "toast":1, "menu":1, "fabBox":1};
 var SHARED = /assets\/(shell|data|grls|app)\.js/;
 var pageAbort = null;
 window.lorPageSignal = function(){ return pageAbort ? pageAbort.signal : undefined; };
@@ -1879,7 +2027,7 @@ function lorTextbook(){
     aside.setAttribute("aria-label", "Оглавление учебника");
     /* наверху колонки, закреплённо, — переход в оглавление учебника и режим чтения (вопрос пользователя 28.10.2026: из главы было не понять,
        как вернуться в учебник — ссылка стояла в самом конце списка глав, а «← Все главы учебника» над текстом уходит при прокрутке) */
-    aside.innerHTML = '<div class="tb-aside-top"><a class="tb-aside-all" href="uchebnik.html">← Оглавление учебника</a>' + modeHtml + '</div>' + groups.map(function(g){
+    aside.innerHTML = '<div class="tb-aside-top"><div class="tb-aside-links"><a class="tb-aside-all" href="uchebnik.html">← Оглавление учебника</a><a class="tb-aside-all" href="zakladki-uchebnik.html">Закладки</a></div>' + modeHtml + '</div>' + groups.map(function(g){
         return '<p class="tb-aside-h">' + g.title + '</p><ul class="tb-aside-ch">' + TB_CHAPTERS.filter(function(ch){ return ch.cat === g.cat; }).map(function(ch){
           return '<li data-href="' + ch.href + '"><a href="' + ch.href + '"><span class="tb-itoc-n">' + ch.num + '</span><span>' + ch.title + '</span></a></li>'; }).join("") + '</ul>';
       }).join("");
