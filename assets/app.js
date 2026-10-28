@@ -1207,7 +1207,17 @@ if(!fab){
   fab = $("fabBox");
   $("fabBm").onclick = bmAdd;
   $("fabTop").onclick = function(){ window.scrollTo({top: 0, behavior: root.dataset.anim === "off" ? "auto" : "smooth"}); };
-  var fabTick = function(){ fab.classList.toggle("up", window.scrollY > innerHeight * 0.8 && !root.classList.contains("tb-paged")); };
+  /* при чтении вниз кнопки справа уезжают за край экрана, при прокрутке вверх — возвращаются на место (просьба 28.10.2026);
+     шапка остаётся. Порог 6 px — чтобы дрожание пальца не гоняло их туда-обратно; у самого верха страницы видны всегда */
+  var fabY = window.scrollY;
+  var fabTick = function(){
+    var y = window.scrollY, dy = y - fabY, paged = root.classList.contains("tb-paged");
+    fab.classList.toggle("up", y > innerHeight * 0.8 && !paged);
+    if(paged || y < 120) fab.classList.remove("away");
+    else if(dy > 6) fab.classList.add("away");
+    else if(dy < -6) fab.classList.remove("away");
+    if(Math.abs(dy) > 6 || paged) fabY = y;
+  };
   addEventListener("scroll", fabTick, {passive: true});
   fab.tick = fabTick;
 }
@@ -1870,7 +1880,7 @@ function lorAlgorithms(){
 
 /* ---------- Учебник: витрина глав (uchebnik.html) и современная верстка всех глав (uchebnik-*.html) ---------- */
 function lorTextbook(){
-  document.documentElement.classList.remove("tb-paged");  /* постраничный режим — только внутри главы */
+  document.documentElement.classList.remove("tb-paged", "tb-immersive");  /* постраничный режим — только внутри главы */
   if(window.__tbAbort){ window.__tbAbort.abort(); window.__tbAbort = null; }  /* слушатели прошлой главы — сняты на любой странице */
   var ICONS = window.LOR_ICONS || {};
   document.querySelectorAll("[data-ico]").forEach(function(el){
@@ -2282,6 +2292,7 @@ function lorTextbook(){
       return;
     }
     slideStop();
+    root.classList.remove("tb-immersive");
     if(paged){
       if(!keep) keep = atReadLine();
       root.classList.add("tb-paged");
@@ -2356,6 +2367,22 @@ function lorTextbook(){
     pgGo(tFrom + dir, true, Math.max(0.6, Math.abs(v)));
   }, {passive: true});
   flow.addEventListener("touchcancel", function(){ if(tx === null) return; tx = null; pgGo(tFrom, true); }, {passive: true});
+  /* Чтение без панелей (просьба 28.10.2026): в постраничном режиме нажатие на текст убирает шапку, нижнюю панель и кнопки справа,
+     следующее нажатие возвращает. Текст при этом не перестраивается и не сдвигается — панели уезжают поверх. Ссылки, сноски,
+     рисунки, таблицы и выделение текста работают как обычно; свайп листает, не переключая панели */
+  var dragT = 0;
+  flow.addEventListener("touchend", function(){ if(tDrag) dragT = performance.now(); }, {passive: true});
+  flow.addEventListener("click", function(e){
+    if(!root.classList.contains("tb-paged") || performance.now() - dragT < 400) return;
+    if(e.target.closest("a,button,input,label,summary,figure,img,svg,table,.tbl-wrap,.fig-scroll")) return;
+    var sel = window.getSelection && String(window.getSelection());
+    if(sel) return;
+    if(aside.classList.contains("open")){ asideOpen(false); return; }
+    var on = !root.classList.contains("tb-immersive");
+    root.classList.toggle("tb-immersive", on);
+    if(on){ var hint = 0; try{ hint = +localStorage.getItem("lor-tb-tap") || 0; localStorage.setItem("lor-tb-tap", String(hint + 1)); }catch(x){}
+      if(hint < 2 && typeof say === "function") say("Нажмите на текст ещё раз, чтобы вернуть панели"); }
+  });
   var rsT = 0;
   window.addEventListener("resize", function(){
     if(!root.classList.contains("tb-paged")) return;

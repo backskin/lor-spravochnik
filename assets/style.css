@@ -2365,3 +2365,14 @@ html.tb-vt-paged .fab-box,html.tb-vt-scroll .fab-box{view-transition-name:tb-fab
 html.tb-vt-paged::view-transition-group(tb-pager),html.tb-vt-scroll::view-transition-group(tb-pager),
 html.tb-vt-paged::view-transition-group(tb-tocbar),html.tb-vt-scroll::view-transition-group(tb-tocbar),
 html.tb-vt-paged::view-transition-group(tb-fab),html.tb-vt-scroll::view-transition-group(tb-fab){animation-duration:.22s}
+
+/* кнопки справа при чтении вниз уезжают за край, при прокрутке вверх вылетают обратно (app.js, fabTick) */
+.fab-box{transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
+.fab-box.away{transform:translateX(calc(100% + 24px + env(safe-area-inset-right,0px)));opacity:0;pointer-events:none}
+/* постранично, чтение без панелей: шапка уходит вверх, панель листания — вниз, кнопки — вправо; текст стоит на месте */
+html.tb-paged header.top,html.tb-paged .tb-pager{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease}
+html.tb-immersive header.top{transform:translateY(calc(-100% - 2px))}
+html.tb-immersive .tb-pager{transform:translateY(calc(100% + 2px))}
+html.tb-immersive .fab-box{transform:translateX(calc(100% + 24px + env(safe-area-inset-right,0px)));opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.fab-box,html.tb-paged header.top,html.tb-paged .tb-pager{transition:none}}
+html[data-anim="off"] .fab-box,html[data-anim="off"].tb-paged header.top,html[data-anim="off"] .tb-pager{transition:none}
