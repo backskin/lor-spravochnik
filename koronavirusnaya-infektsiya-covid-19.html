@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Коронавирусная инфекция COVID-19 · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=0642c84e1385">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body class="brief" data-title="Коронавирусная инфекция COVID-19" data-year="2026" data-crid="1024_1" data-rev="2029" data-group="infect">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+
+
+<div class="page">
+<main id="main">
+    <p class="demo-strip">Сверка с PDF рубрикатора выполняется…</p>
+
+    <nav class="crumbs"><a href="index.html">Главная</a> › <span>Инфекции</span></nav>
+    <h1>Коронавирусная инфекция COVID-19</h1>
+    <div class="dochead"><p class="docline">Клинические рекомендации от 28.01.2026 · взрослые</p></div>
+
+    <nav class="tabbar" id="tabbar" role="tablist" aria-label="Разделы"><button role="tab" data-tab="over" aria-selected="true">Обзор</button><button role="tab" data-tab="clin" aria-selected="false">Клиника</button><button role="tab" data-tab="diag" aria-selected="false">Диагностика</button><button role="tab" data-tab="treat" aria-selected="false">Лечение</button></nav>
+
+    <!-- ================= ОБЗОР ================= -->
+
+    <section class="summary" id="sum" data-sec="Главное" data-panel="over">
+      <h2>Основные положения</h2>
+      <ul>
+        <li data-v="s1">Коронавирусная инфекция <span class="term" data-t="a:COVID-19">COVID-19</span> — инфекция, вызванная коронавирусом <span class="term" data-t="a:SARS-CoV-2">SARS-CoV-2</span>. Отдельная клиническая форма — поражение органов обоняния: аносмия, паросмия, какосмия.</li>
+        <li data-v="s-dx">Для этиологической диагностики выполняется молекулярно-биологическое исследование мазков со слизистой оболочки носоглотки и ротоглотки на SARS-CoV-2; всем пациентам — <span class="term" data-t="d:Пульсоксиметрия">пульсоксиметрия</span> на всех этапах помощи.</li>
+        <li data-v="s-tx">При лёгком и среднетяжёлом течении — противовирусные препараты прямого действия <em class="key">в первые 7 дней болезни</em>, жаропонижающие при температуре <em class="key">выше 38 °С</em>, при выраженном затруднении носового дыхания — сосудосуживающие капли <em class="key">не более 5 дней</em>.</li>
+        <li data-v="s-hosp">Госпитализации подлежат пациенты с тяжёлым и среднетяжёлым течением, из групп риска и по эпидемиологическим показаниям. Выписка — при SpO₂ <em class="key">95%</em> на воздухе, температуре <em class="key">ниже 37,5 °С</em>, <span class="term" data-t="a:СРБ">СРБ</span> <em class="key">ниже 10 мг/л</em>.</li>
+      </ul>
+    </section>
+
+    <!-- ================= КЛИНИКА ================= -->
+    <section class="block b-clin" id="clin" data-panel="clin" data-sec="Клиника">
+      <header><h2>Клиническая картина и классификация</h2></header>
+      <div class="body">
+        <h3>Определение</h3>
+        <div class="rec" data-v="c-def"><p>Коронавирусная инфекция COVID-19 — инфекция, вызванная коронавирусом SARS-CoV-2.</p>
+          <button class="ev" data-loc="1.1 Определение" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Классификация</h3>
+        <div class="rec" data-v="c-forms"><span class="enum-h">Клинические варианты и проявления</span><ol class="enum"><li><b class="lt">респираторная форма</b> — острая респираторная инфекция дыхательных путей (поражение только верхних отделов), пневмония без <span class="term" data-t="a:ОДН">ОДН</span> и с ОДН</li><li><b class="lt">гастроинтестинальная форма</b> — энтерит, <span class="term" data-t="d:Гепатит">гепатит</span></li><li><b class="lt">церебральная форма</b> — менингит, менингоэнцефалит</li><li><b class="lt">поражение органов обоняния и осязания</b> — аносмия, паросмия, какосмия</li><li><b class="lt">особые формы</b> — сочетанная, малосимптомная или бессимптомная, нейтропеническая</li><li><b class="lt">осложнения</b> — сепсис, септический (инфекционно-токсический) шок, <span class="term" data-t="d:ДВС-синдром">ДВС-синдром</span>, тромбозы и тромбоэмболии</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button></div>
+        <h4>Степени тяжести COVID-19</h4>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Степень тяжести</th><th>Критерии</th></tr></thead><tbody>
+          <tr data-v="c-sev1"><td>лёгкое течение</td><td><ol class="enum"><li>температура <em class="key">ниже 38 °C</em>, кашель, слабость, боли в горле</li><li>нет критериев среднетяжёлого и тяжёлого течения</li></ol></td></tr>
+          <tr data-v="c-sev2"><td>среднетяжёлое течение</td><td><ol class="enum"><li>температура <em class="key">выше 38 °C</em></li><li><span class="term" data-t="a:ЧДД">ЧДД</span> <em class="key">более 22 в минуту</em>, одышка при нагрузке</li><li>изменения на КТ (рентгенографии), типичные для вирусного поражения</li><li>SpO₂ <em class="key">ниже 95%</em></li><li>СРБ <em class="key">более 10 мг/л</em></li></ol></td></tr>
+          <tr data-v="c-sev3"><td>тяжёлое течение</td><td><ol class="enum"><li>ЧДД <em class="key">более 30 в минуту</em></li><li>SpO₂ <em class="key">93% и ниже</em>, PaO₂/FiO₂ 300 мм рт. ст. и ниже</li><li>снижение уровня сознания, ажитация</li><li>нестабильная гемодинамика</li><li>лактат артериальной крови <em class="key">более 2 ммоль/л</em>, qSOFA более 2 баллов</li></ol></td></tr>
+          <tr data-v="c-sev4"><td>крайне тяжёлое течение</td><td><ol class="enum"><li>стойкая фебрильная лихорадка</li><li><span class="term" data-t="a:ОРДС">ОРДС</span>, ОДН с необходимостью инвазивной вентиляции</li><li><span class="term" data-t="d:Септический шок">септический шок</span>, <span class="term" data-t="d:Полиорганная недостаточность">полиорганная недостаточность</span></li></ol></td></tr>
+          </tbody></table></div>
+        <h3>Клиническая картина</h3>
+        <div class="rec" data-v="cl-inc"><p>Инкубационный период при варианте Омикрон короче — 2–7 суток, в среднем 3–4 суток (до его распространения — 2–14 суток, в среднем 5–7).</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="cl-sym"><p>Характерны клинические симптомы ОРВИ: повышение температуры тела, сухой кашель или кашель с небольшим количеством мокроты, одышка, утомляемость, ощущение заложенности в грудной клетке.</p><p>Также могут отмечаться боль в горле, насморк, снижение обоняния и вкуса, признаки конъюнктивита.</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="cl-post"><p>В постковидном периоде нарушения обоняния и вкуса могут сохраняться неопределённый срок, иногда <em class="key">до 1 года</em>; в некоторых случаях полного восстановления не происходит.</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ДИАГНОСТИКА ================= -->
+    <section class="block b-diag" id="diag" data-panel="diag" data-sec="Диагностика">
+      <header><h2>Диагностика</h2></header>
+      <div class="body">
+        <h3>Жалобы и анамнез</h3>
+        <div class="rec" data-v="d-anam"><span class="enum-h">Обращают внимание на наличие и сроки появления</span><ol class="enum"><li><b class="lt">лихорадки и интоксикации</b>: головная боль, слабость, утомляемость, мышечные боли, снижение аппетита;</li><li>ощущения «заложенности» в грудной клетке, одышки;</li><li><b class="lt">катаральных явлений</b>: насморк, боли или першение в ротоглотке, сухой кашель, скудная мокрота, конъюнктивит;</li><li>нарушения или потери обоняния (<span class="term" data-t="d:Гипосмия">гипосмия</span>, аносмия), потери вкуса (дисгевзия);</li><li>рвоты, диареи, кожных высыпаний.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.1 Жалобы и анамнез">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Лабораторные исследования</h3>
+        <div class="rec" data-v="d-pcr"><p>Для этиологической диагностики у пациентов с подозрением на COVID-19 выполняется молекулярно-биологическое исследование мазков со слизистой оболочки носоглотки и ротоглотки на коронавирус SARS-CoV-2.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.3 Лабораторные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-ag"><p>Выявление антигенов SARS-CoV-2 иммунохроматографическими методами также применяется для этиологической диагностики.</p></div></div>
+        <h3>Инструментальные исследования</h3>
+        <div class="rec" data-v="d-spo2"><p>Всем пациентам с подозрением на COVID-19 на всех этапах помощи выполняется пульсоксиметрия с измерением SpO₂ для выявления дыхательной недостаточности.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.4 Инструментальные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-ct"><p>КТ органов грудной полости выполняется при среднетяжёлом, тяжёлом и крайне тяжёлом течении.</p></div></div>
+        <div class="rec" data-v="d-cons"><ol class="enum"><li><b class="lt">кардиолог</b> — симптомы <span class="term" data-t="d:Миокардит">миокардита</span>, острой сердечно-сосудистой недостаточности</li><li><b class="lt">акушер-гинеколог</b> — COVID-19 при беременности</li><li><b class="lt">психиатр</b> — психоз и <span class="term" data-t="d:Делирий">делирий</span> у пожилых</li><li><b class="lt">эндокринолог</b> — сахарный диабет</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.5 Иные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ЛЕЧЕНИЕ ================= -->
+    <section class="block b-treat" id="treat" data-panel="treat" data-sec="Лечение">
+      <header><h2>Лечение</h2></header>
+      <div class="body">
+        <div class="rec" data-v="t-gen"><p>Основной подход к терапии — упреждающее назначение лечения, чтобы предотвратить пневмонию, ОРДС и сепсис; лечение проводится в подтверждённых и вероятных случаях.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.1 Консервативное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Лёгкое и среднетяжёлое течение (амбулаторно)</h3>
+        <div class="rec" data-v="t-av"><p>Противовирусные препараты прямого действия назначаются всем пациентам с лёгким и среднетяжёлым течением, в том числе с высоким риском прогрессирования, <em class="key">в течение первых 7 дней болезни</em> или при положительном тесте на РНК или антигены SARS-CoV-2.</p><ol class="enum dose"><li><b class="lt"><span class="drug" data-name="молнупиравир">молнупиравир</span></b>: 800 мг внутрь 2 раза в сутки 5 суток</li><li><b class="lt"><span class="drug" data-name="фавипиравир">фавипиравир</span>, масса менее 75 кг</b>: 1600 мг 2 раза в 1-й день, далее 600 мг 2 раза в сутки со 2 по 10 день</li><li><b class="lt">фавипиравир, масса 75 кг и более</b>: 1800 мг 2 раза в 1-й день, далее 800 мг 2 раза в сутки со 2 по 10 день</li></ol>
+          <button class="ev B" data-uur="B" data-udd="2" data-loc="3.1.1 Амбулаторное лечение">УУР <b>B</b> · УДД 2<span class="st"></span></button></div>
+        <div class="rec" data-v="t-fever"><p>При гипертермии <em class="key">выше 38 °С</em>, мышечных и суставных болях:</p><ol class="enum dose"><li><b class="lt"><span class="drug" data-name="ибупрофен">ибупрофен</span></b>: 200–400 мг 3–4 раза в сутки 3–10 дней, максимум 1200 мг в сутки</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.1.1 Амбулаторное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-par"><ol class="enum dose"><li><b class="lt"><span class="drug" data-name="парацетамол">парацетамол</span></b>: 500–1000 мг до 4 раз в сутки, максимум 4000 мг в сутки</li></ol></div></div>
+        <div class="rec" data-v="t-cough"><p>При сухом непродуктивном кашле — <span class="drug" data-name="бутамират">бутамират</span> или <span class="drug" data-name="леводропропизин">леводропропизин</span>; муколитики — <span class="drug" data-name="ацетилцистеин">ацетилцистеин</span>, <span class="drug" data-name="бромгексин">бромгексин</span>, <span class="drug" data-name="амброксол">амброксол</span>.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.1.1 Амбулаторное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-muc"><ol class="enum dose"><li><b class="lt"><span class="drug" data-name="ацетилцистеин">ацетилцистеин</span></b>: 200 мг внутрь 2–3 раза в сутки 5 дней</li><li><b class="lt"><span class="drug" data-name="амброксол">амброксол</span></b>: 30 мг 3 раза в сутки внутрь 5 дней</li></ol></div>
+          <div class="sub" data-v="t-nocomb"><p>Одновременное применение отхаркивающих и противокашлевых средств не рекомендуется: подавление кашлевого рефлекса способствует застою мокроты.</p></div></div>
+        <div class="rec" data-v="t-nose"><p>При выраженном затруднении носового дыхания в комплексной терапии ринита и риносинусита применяются сосудосуживающие средства — для облегчения заложенности носа и восстановления проходимости слуховой трубы, <em class="key">не более 5 дней</em>.</p><ol class="enum dose"><li><b class="lt"><span class="drug" data-name="нафазолин">нафазолин</span> 0,1%</b>: по 1–3 капли в каждый носовой ход 3–4 раза в сутки</li><li><b class="lt"><span class="drug" data-name="ксилометазолин">ксилометазолин</span> 0,1%</b>: по 2–3 капли или одно впрыскивание в каждую ноздрю 4 раза в день</li><li><b class="lt"><span class="drug" data-name="оксиметазолин">оксиметазолин</span> 0,025–0,05%</b>: по 1–2 капли 2–3 раза в сутки или по 2–3 впрыскивания 0,05% спрея</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.1.1 Амбулаторное лечение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3 class="more">Среднетяжёлое и тяжёлое течение</h3>
+        <div class="rec more" data-v="t-mod"><p>При среднетяжёлом течении с изменениями в лёгких и/или факторами риска прогрессии в сочетании с двумя и более признаками (SpO₂ 94–96%, одышка при нагрузке, повышение СРБ, температура 38 °C 3–5 дней, лейкопения, лимфопения) назначают глюкокортикоиды и ингибиторы интерлейкинов в комбинации с противовирусными препаратами.</p>
+          <button class="ev" data-loc="3.1.4 Среднетяжёлое течение" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec more" data-v="t-resp"><p>Респираторная поддержка — от низкопоточной оксигенотерапии через лицевую маску при лёгкой или средней гипоксемии до интубации трахеи и ИВЛ при острой дыхательной недостаточности.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.2 Респираторная поддержка">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-ivl"><p>Интубация трахеи и ИВЛ проводятся при острой дыхательной недостаточности для обеспечения газообмена.</p></div></div>
+        <p class="more-hint"></p>
+      </div>
+    </section>
+
+    <section class="block b-risk" id="risk" data-panel="over" data-sec="Профилактика и госпитализация">
+      <header><h2>Профилактика и диспансерное наблюдение. Показания к госпитализации</h2></header>
+      <div class="body">
+        <h3>Профилактика</h3>
+        <div class="rec" data-v="p-vac"><p>Рекомендована вакцинация всем лицам без противопоказаний вакциной, зарегистрированной в РФ, в предэпидемический период.</p>
+          <button class="ev" data-loc="5 Профилактика" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="p-nose"><p>Всем лицам для предотвращения заражения рекомендовано орошение слизистой оболочки полости носа изотоническим раствором натрия хлорида.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="5 Профилактика">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="p-chemo"><p>Лицам, имевшим контакт с больными COVID-19 и ОРВИ, проводится <span class="term" data-t="d:Химиопрофилактика">химиопрофилактика</span>.</p></div></div>
+        <h3>Организация помощи и госпитализация</h3>
+        <div class="rec" data-v="o-home"><p>На дому помощь оказывается при отсутствии клинических проявлений или лёгком течении, при соблюдении условий — и при среднетяжёлом.</p><span class="enum-h">Пациента информируют о вызове врача при ухудшении</span><ol class="enum"><li>температура <em class="key">выше 38,5 °C в течение 3 дней и более</em>;</li><li>затруднённое дыхание, одышка;</li><li>SpO₂ <em class="key">ниже 93%</em>.</li></ol>
+          <button class="ev" data-loc="6.1 Амбулаторная помощь" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="h-hosp"><span class="enum-h">Госпитализации подлежат больные</span><ol class="enum"><li>с тяжёлым и среднетяжёлым течением;</li><li>относящиеся к группе риска;</li><li>по эпидемиологическим показаниям.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="6.2 Стационарная помощь">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="h-trans"><span class="enum-h">Перевод на койки долечивания</span><ol class="enum"><li>стойкое улучшение клинической картины;</li><li>SpO₂ на воздухе <em class="key">93%</em>;</li><li>температура <em class="key">ниже 37,5 °С</em>;</li><li>СРБ <em class="key">ниже 30 мг/л</em>;</li><li>лимфоциты крови более 1×10⁹/л.</li></ol></div>
+          <div class="sub" data-v="h-out"><span class="enum-h">Критерии выписки на амбулаторное лечение</span><ol class="enum"><li>стойкое улучшение клинической картины;</li><li>SpO₂ на воздухе <em class="key">95%</em>;</li><li>температура <em class="key">ниже 37,5 °С</em>;</li><li>СРБ <em class="key">ниже 10 мг/л</em>;</li><li>лимфоциты крови более 1,2×10⁹/л.</li></ol></div></div>
+      </div>
+    </section>
+
+    <!-- ================= ИСТОЧНИК ================= -->
+    <section class="block b-mkb" data-panel="over" data-sec="Коды МКБ-10" id="over">
+      <header><h2>Коды МКБ-10</h2></header>
+      <div class="mkb-list">
+        <button class="mkb-row" data-code="U07.1" data-v="mu071"><code>U07.1</code><span>COVID-19, вирус идентифицирован</span></button>
+        <button class="mkb-row" data-code="U07.2" data-v="mu072"><code>U07.2</code><span>COVID-19, вирус не идентифицирован</span></button>
+      </div>
+    </section>
+    <section class="block b-src" id="src" data-panel="over" data-sec="Источник и актуальность">
+      <header><h2>Источник и актуальность</h2></header>
+      <div class="body"><ul class="list doc-links"><li><a class="row ext" href="pdf/koronavirusnaya-infektsiya-covid-19.pdf?v=9fc6d6f562" target="_blank" rel="noopener"><span class="rt">PDF этого разбора<span class="rs">сохранить или распечатать</span></span></a></li><li><a class="row ext" href="https://cr.minzdrav.gov.ru/view-cr/1024_1" target="_blank" rel="noopener"><span class="rt">Полный текст рекомендации<span class="rs">рубрикатор Минздрава</span></span></a></li></ul><label class="switch"><span>Показывать под каждым пунктом раздел КР, УУР и УДД</span><input type="checkbox" id="srcToggle"></label>
+        <dl class="meta">
+          <dt>Документ</dt><dd>Клинические рекомендации «Коронавирусная инфекция COVID-19»</dd>
+          <dt>Версия</dt><dd>1-я, опубликована в рубрикаторе 28.01.2026</dd>
+          <dt>Статус</dt><dd><b style="color:var(--ok)">Применяется</b> (каталог рубрикатора на 22.10.2026)</dd>
+          <dt>Актуализация</dt><dd>По общему правилу КР пересматривают не реже раза в три года, следующая версия ожидается не позднее 2029 года</dd>
+          <dt>Код в рубрикаторе</dt><dd><code>1024_1</code> · <a href="https://cr.minzdrav.gov.ru/view-cr/1024_1" target="_blank" rel="noopener">открыть текст КР ↗</a></dd>
+          <dt>Разработчик</dt><dd>Национальная ассоциация специалистов по инфекционным болезням имени академика В. И. Покровского (НАСИБ)</dd>
+          <dt>Пациенты</dt><dd>Взрослые</dd>
+        </dl>
+
+        <h3>Журнал сверки</h3>
+        <div id="vlog" class="vlog"></div>
+
+        <h3>Неточности и противоречия в тексте рекомендации</h3>
+        <ul class="fixlist">
+          <li>Клинически значимых противоречий в тексте рекомендации при сверке не выявлено.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+
+
+<script src="assets/data.js?v=0642c84e1385"></script>
+<script src="assets/verify-1024_1.js?v=0642c84e1385"></script>
+<script src="assets/grls.js?v=0642c84e1385"></script>
+<script src="assets/app.js?v=0642c84e1385"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>
