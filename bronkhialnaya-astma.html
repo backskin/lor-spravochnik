@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Бронхиальная астма · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=df71407fa5da">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body class="brief" data-title="Бронхиальная астма" data-year="2024" data-crid="359_3" data-rev="2027" data-group="allergy">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+
+
+<div class="page">
+<main id="main">
+    <p class="demo-strip">Сверка с PDF рубрикатора выполняется…</p>
+
+    <nav class="crumbs"><a href="index.html">Главная</a> › <span>Иммунология</span></nav>
+    <h1>Бронхиальная астма</h1>
+    <div class="dochead"><p class="docline">Клинические рекомендации от 15.11.2024 · взрослые и дети</p></div>
+
+    <nav class="tabbar" id="tabbar" role="tablist" aria-label="Разделы"><button role="tab" data-tab="over" aria-selected="true">Обзор</button><button role="tab" data-tab="clin" aria-selected="false">Клиника</button><button role="tab" data-tab="diag" aria-selected="false">Диагностика</button><button role="tab" data-tab="treat" aria-selected="false">Лечение</button></nav>
+
+    <!-- ================= ОБЗОР ================= -->
+
+    <section class="summary" id="sum" data-sec="Главное" data-panel="over">
+      <h2>Основные положения</h2>
+      <ul>
+        <li data-v="s1">Бронхиальная астма — гетерогенное заболевание с хроническим воспалением дыхательных путей, респираторными симптомами, вариабельными по времени и интенсивности, и вариабельной обструкцией дыхательных путей.</li>
+        <li data-v="s-ent">Обострение риносинусита относится к факторам, способным привести к обострению <span class="term" data-t="a:БА">БА</span>; риносинусит — к сопутствующим заболеваниям, повышающим риск обострений. При аллергическом рините или полипозном риносинусите пациент с БА направляется к оториноларингологу.</li>
+        <li data-v="s-dx">Обструкцию и её обратимость подтверждают спирометрией с бронходилатационным тестом пациентам <em class="key">старше 5 лет</em>: тест положителен при приросте <span class="term" data-t="a:ОФВ1">ОФВ1</span> <em class="key">не менее 12% и не менее 200 мл</em>.</li>
+        <li data-v="s-tx">Лечение ступенчатое, по уровню контроля и факторам риска обострений. При лёгкой БА у пациентов <em class="key">старше 12 лет</em> предпочтителен <span class="drug" data-name="будесонид+формотерол">будесонид + формотерол</span> по потребности; монотерапия <span class="term" data-t="a:КДБА">КДБА</span> по потребности больше не рекомендуется.</li>
+        <li data-v="s-hosp">Госпитализация показана при недостаточной эффективности амбулаторной терапии, в том числе при обострении, и при тяжёлом и/или угрожающем жизни обострении с признаками дыхательной недостаточности.</li>
+      </ul>
+    </section>
+
+    <!-- ================= КЛИНИКА ================= -->
+    <section class="block b-clin" id="clin" data-panel="clin" data-sec="Клиника">
+      <header><h2>Клиническая картина и классификация</h2></header>
+      <div class="body">
+        <h3>Определение</h3>
+        <div class="rec" data-v="c-def"><p>Бронхиальная астма (БА) — гетерогенное заболевание, характеризующееся хроническим воспалением дыхательных путей, наличием респираторных симптомов (приступы затруднения дыхания, удушья, свистящие хрипы, одышка, заложенность в груди и кашель), которые варьируют по времени и интенсивности и проявляются вместе с вариабельной обструкцией дыхательных путей.</p>
+          <button class="ev" data-loc="1.1 Определение" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Классификация</h3>
+        <div class="rec" data-v="c-phen"><span class="enum-h">Фенотипы бронхиальной астмы</span><ol class="enum"><li><b class="lt">аллергическая (атопическая)</b> — начинается, как правило, в детстве, связана с другими аллергическими болезнями (<span class="term" data-t="d:Атопический дерматит">атопический дерматит</span>, аллергический ринит, <span class="term" data-t="d:Пищевая аллергия">пищевая аллергия</span>) у пациента или родственников; эозинофильное воспаление и хороший ответ на <span class="term" data-t="a:ИГКС">ИГКС</span>; является показанием для АСИТ</li><li><b class="lt">неаллергическая</b> — в том числе «аспирин-чувствительная» и профессиональная; встречается преимущественно у взрослых, не связана с аллергией; ответ на ИГКС может быть недостаточным</li><li><b class="lt">с поздним дебютом</b> — чаще у женщин, дебют во взрослом возрасте, чаще без аллергии</li><li><b class="lt">с фиксированной обструкцией дыхательных путей</b> — при длительном анамнезе, вследствие ремоделирования бронхиальной стенки</li><li><b class="lt">у пациентов с ожирением</b> — выраженные респираторные симптомы, не связанные с эозинофильным воспалением</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="c-sev"><span class="enum-h">Степень тяжести — по объёму терапии, необходимому для контроля</span><ol class="enum"><li><b class="lt">лёгкая</b> — хорошо контролируется терапией 1 или 2 ступени</li><li><b class="lt">среднетяжёлая</b> — хорошо контролируется терапией 3 или 4 ступени</li><li><b class="lt">тяжёлая</b> — для контроля требуется терапия 5 ступени; попытки снизить объём неизменно приводят к потере контроля, или астма остаётся неконтролируемой несмотря на лечение</li></ol>
+          <button class="ev" data-loc="1.5 Классификация" data-kind="def">источник<span class="st"></span></button></div>
+        <h3>Клиническая картина</h3>
+        <div class="rec" data-v="cl-sym"><p>Одышка при БА преимущественно экспираторная. Симптомы вариабельны по времени и интенсивности, часто ухудшаются ночью или рано утром.</p><p>Аускультативно — удлинение выдоха и сухие высокотональные хрипы над всей поверхностью грудной клетки, обычно дистанционные.</p>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+        <div class="rec" data-v="cl-trig"><span class="enum-h">Основные триггеры обострения</span><ol class="enum"><li>инфекции респираторного тракта (в основном вирусы, чаще всего риновирусы);</li><li>аллергены, аэрополлютанты;</li><li>физическая нагрузка, метеорологические факторы;</li><li><b class="lt">некоторые лекарственные препараты</b>: бета-адреноблокаторы, а при индуцированном <span class="drug" data-name="ацетилсалициловая кислота">ацетилсалициловой кислотой</span> и <span class="term" data-t="a:НПВП">НПВП</span> респираторном заболевании («аспириновая БА») — НПВП;</li><li>эмоциональные реакции.</li></ol>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="cl-trig2"><p>К обострению БА способны также привести обострение риносинусита, <span class="term" data-t="d:Гастроэзофагеальный рефлюкс">гастроэзофагеальный рефлюкс</span>, беременность и недостаточная терапия.</p></div></div>
+        <div class="rec" data-v="cl-risk"><span class="enum-h">Факторы риска обострений</span><ol class="enum"><li>симптомы неконтролируемой БА;</li><li>ИГКС не назначены, плохая приверженность терапии;</li><li>чрезмерное использование КДБА;</li><li>низкий ОФВ1, особенно <em class="key">менее 60% от должного</em>;</li><li>курение, воздействие аллергена;</li><li><b class="lt">сопутствующие заболевания</b>: риносинусит, ГЭРБ, подтверждённая пищевая аллергия, ожирение;</li><li>эозинофилия мокроты или крови;</li><li>беременность;</li><li>одно и более тяжёлых обострений <em class="key">за последние 12 месяцев</em>.</li></ol>
+          <button class="ev" data-loc="1.6 Клиническая картина" data-kind="def">источник<span class="st"></span></button></div>
+      </div>
+    </section>
+
+    <!-- ================= ДИАГНОСТИКА ================= -->
+    <section class="block b-diag" id="diag" data-panel="diag" data-sec="Диагностика">
+      <header><h2>Диагностика</h2></header>
+      <div class="body">
+        <h3>Жалобы и анамнез</h3>
+        <div class="rec" data-v="d-anam"><p>Анамнез и жалобы собирают при болезнях верхних дыхательных путей и при заболеваниях лёгких и бронхов — для подтверждения диагноза, оценки тяжести и выявления факторов, влияющих на выбор лечения.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.1 Жалобы и анамнез">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-anam2"><p>Уточняют причины возникновения, продолжительность и разрешение симптомов, наличие аллергических заболеваний (атопический дерматит, аллергический ринит, пищевая аллергия) у пациента и кровных родственников. Важный клинический маркер БА — исчезновение симптомов спонтанно или после лекарственной терапии.</p></div></div>
+        <h3>Физикальное обследование</h3>
+        <div class="rec" data-v="d-phys"><p>Оценивают общее состояние, выполняется визуальное исследование верхних дыхательных путей, осмотр и аускультация.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.2 Физикальное обследование">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-phys2"><p>При осмотре можно выявить признаки аллергического ринита или полипоза носа: затруднение носового дыхания, приоткрытый рот.</p><span class="enum-h">Одышка, выявленная при осмотре, может быть обусловлена</span><ol class="enum"><li>обструкцией на уровне верхних дыхательных путей;</li><li>ХОБЛ, преимущественно у взрослых;</li><li>у детей — респираторной инфекцией, трахеомаляцией, аспирацией инородного тела.</li></ol></div></div>
+        <h3>Лабораторные исследования</h3>
+        <div class="rec" data-v="d-ig"><p>Уровень иммуноглобулинов A, M, G в крови исследуется для выявления нарушений гуморального звена иммунитета у пациентов с БА, часто страдающих повторными бактериальными инфекциями верхних и нижних дыхательных путей:</p><ol class="enum"><li>гнойные риносинуситы;</li><li>отиты;</li><li>бронхиты, пневмонии.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.3 Лабораторные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Спирометрия и бронходилатационный тест</h3>
+        <div class="rec" data-v="d-spiro"><span class="enum-h">Показания</span><ol class="enum"><li>установление диагноза БА у пациентов <em class="key">старше 5 лет</em>;</li><li>контроль через <em class="key">2–4 недели</em> после назначения терапии;</li><li>диспансерное наблюдение — <em class="key">каждые 6–12 месяцев</em>;</li><li>перед назначением ГИБП и перед АСИТ.</li></ol>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.4 Инструментальные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-spiro2"><span class="enum-h">Диагностические признаки</span><ol class="enum"><li><b class="lt">обструкция</b>: ОФВ1/ФЖЕЛ <em class="key">менее 70%</em>;</li><li>степень тяжести обструкции оценивают по отклонению ОФВ1 от должных величин.</li></ol></div></div>
+        <div class="rec" data-v="d-bdt"><p>Бронходилатационный тест выполняется всем пациентам <em class="key">старше 5 лет</em> при установлении диагноза, включая пациентов с нормальной исходной спирометрией, — для выявления обратимости обструкции.</p>
+          <button class="ev C" data-uur="C" data-udd="4" data-loc="2.4 Инструментальные исследования">УУР <b>C</b> · УДД 4<span class="st"></span></button>
+          <div class="sub" data-v="d-bdt2"><p>Тест положителен при приросте ОФВ1 <em class="key">не менее 12% и не менее 200 мл</em> от исходного значения; повторная спирометрия — через <em class="key">15 минут</em> после КДБА.</p></div></div>
+        <h3>Пикфлоуметрия</h3>
+        <div class="rec" data-v="d-pf"><p>Выполняется пациентам <em class="key">старше 5 лет</em>, если спирометрия невозможна, — для подтверждения <span class="term" data-t="d:Вариабельность">вариабельности</span> воздушного потока; при диспансерном наблюдении — для оценки контроля и рисков обострения.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.4 Инструментальные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="d-pf2"><p>Диагноз подтверждает средняя суточная вариабельность ПСВ <em class="key">более 13% у детей</em> и <em class="key">более 20% у взрослых</em>, а также прирост ПСВ <em class="key">не менее 15%</em> после бронхолитика или пробного назначения ИГКС.</p></div></div>
+        <h3>Оксид азота в выдыхаемом воздухе (FeNO)</h3>
+        <div class="rec" data-v="d-feno"><p>Определяется пациентам <em class="key">старше 5 лет</em> при установлении диагноза и фенотипа — для выявления эозинофильного воспаления. <span class="term" data-t="a:FeNO">FeNO</span> <em class="key">более 20–25 ppb</em> наряду с эозинофилией мокроты и крови — биомаркер активного эозинофильного воспаления; повышенный уровень связан с хорошим ответом на ИГКС.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.4 Инструментальные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Аллергологическое обследование</h3>
+        <div class="rec" data-v="d-skin"><p>Кожные тесты с аллергенами выполняются пациентам <em class="key">старше 5 лет</em> без противопоказаний — для подтверждения аллергического фенотипа, выявления причинно-значимых аллергенов и решения о целесообразности АСИТ.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="2.5 Иные исследования">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3 class="more">Дифференциальная диагностика</h3>
+        <div class="rec more" data-v="d-dd"><span class="enum-h">У детей младше 5 лет — в том числе</span><ol class="enum"><li>рецидивирующие респираторные инфекции, коклюш;</li><li>аспирация инородного тела;</li><li>врождённые структурные аномалии (трахеомаляция и др.);</li><li>первичная цилиарная дискинезия, первичный иммунодефицит;</li><li>ларингеальная дисфункция.</li></ol>
+          <button class="ev" data-loc="2.5.3 Дифференциальная диагностика" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="d-dd2"><p>У детей старше 6 лет также — индуцированная ларингеальная обструкция, дисфункциональное дыхание, ЭГПА; у взрослых — ХОБЛ, АБЛА, центральная обструкция дыхательных путей, кашель на фоне ингибиторов АПФ.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ================= ЛЕЧЕНИЕ ================= -->
+    <section class="block b-treat" id="treat" data-panel="treat" data-sec="Лечение">
+      <header><h2>Лечение</h2></header>
+      <div class="body">
+        <div class="rec" data-v="t-step"><p>Лечение ступенчатое: объём терапии корректируют по уровню контроля и наличию факторов риска обострений. Объём увеличивают, если БА остаётся неконтролируемой при хорошей приверженности и правильной технике ингаляции.</p>
+          <button class="ev" data-loc="3.1.1 Лечение стабильной астмы" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="t-down"><p>Объём снижают при стабильном контроле <em class="key">более 3 месяцев</em> и отсутствии факторов риска; дозу ИГКС снижают медленно, <em class="key">каждые 3 месяца на 25–50%</em>.</p></div></div>
+        <h3>Лёгкая бронхиальная астма</h3>
+        <div class="rec" data-v="t-bf"><p>Пациентам с лёгкой БА <em class="key">старше 12 лет</em> предпочтителен <span class="drug" data-name="будесонид+формотерол">будесонид + формотерол</span> по потребности — для снятия симптомов и приступов удушья, с быстрым бронхолитическим и противовоспалительным действием.</p><ol class="enum dose"><li><b class="lt"><span class="drug" data-name="будесонид">будесонид</span> + <span class="drug" data-name="формотерол">формотерол</span>, <span class="term" data-t="a:ДПИ">ДПИ</span> 160/4,5 мкг, взрослые и подростки от 12 лет</b>: по 1–2 ингаляции по потребности, желательно не более 6 в сутки, максимум 12 ингаляций в сутки</li></ol>
+          <button class="ev A" data-uur="A" data-udd="2" data-loc="3.1.1 Лечение стабильной астмы">УУР <b>A</b> · УДД 2<span class="st"></span></button>
+          <div class="sub" data-v="t-nosaba"><p>На 1–2 ступенях монотерапия КДБА по потребности при лёгкой БА больше не рекомендуется.</p></div></div>
+        <h3>Тяжёлая бронхиальная астма</h3>
+        <div class="rec" data-v="t-bio"><p>Пациентам <em class="key">с 6 лет</em> с тяжёлой БА рассматривают <span class="term" data-t="d:Генно-инженерные биологические препараты">генно-инженерные биологические препараты</span> с учётом фенотипа — в дополнение к <span class="term" data-t="d:Базисная терапия">базисной терапии</span>. Решение о назначении и выборе ГИБП принимает врачебный консилиум.</p>
+          <button class="ev A" data-uur="A" data-udd="1" data-loc="3.1.1 Лечение стабильной астмы">УУР <b>A</b> · УДД 1<span class="st"></span></button>
+          <div class="sub" data-v="t-bio2"><p>Среди критериев отбора для биологической терапии Т2-астмы — сопутствующие заболевания, например рецидивирующий полипозный риносинусит и атопический дерматит.</p></div>
+          <div class="sub" data-v="t-dupi"><p><span class="drug" data-name="дупилумаб">Дупилумаб</span>, помимо тяжёлой БА с Т2-воспалением, одобрен для терапии хронического полипозного риносинусита, тяжёлого атопического дерматита и <span class="term" data-t="d:Эозинофильный эзофагит">эозинофильного эзофагита</span>, что позволяет достигать контроля сопутствующих заболеваний с Т2-воспалением.</p></div></div>
+        <h3>Обострение</h3>
+        <div class="rec" data-v="t-ex"><p>Препараты первой линии при обострении — КДБА и антихолинергические средства ингаляционно, ИГКС (предпочтительно через небулайзер), системные глюкокортикостероиды и оксигенотерапия.</p>
+          <button class="ev" data-loc="3.1.2 Лечение обострений" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="t-scs"><p>При среднетяжёлом и тяжёлом обострении рассматривают системные глюкокортикостероиды.</p></div></div>
+        <div class="rec" data-v="t-abx"><p>При обострении на фоне бактериальной инфекции (бронхит, пневмония, бактериальный риносинусит) рассматривают системные антибактериальные препараты.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="3.1.2 Лечение обострений">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="t-abx2"><p>Рутинное применение антибиотиков при обострении БА не рекомендуется — только при чётких указаниях на бактериальную инфекцию.</p></div></div>
+        <h3>Аллерген-специфическая иммунотерапия</h3>
+        <div class="rec" data-v="t-asit"><p>АСИТ (сублингвальная или подкожная) проводится пациентам с контролируемой атопической БА при доказанной <span class="term" data-t="d:Клинически значимая сенсибилизация">клинически значимой сенсибилизации</span> и отсутствии противопоказаний.</p>
+          <button class="ev A" data-uur="A" data-udd="1" data-loc="3.3 Элиминационные мероприятия и АСИТ">УУР <b>A</b> · УДД 1<span class="st"></span></button></div>
+        <p class="more-hint"></p>
+      </div>
+    </section>
+
+    <section class="block b-risk" id="risk" data-panel="over" data-sec="Профилактика и госпитализация">
+      <header><h2>Профилактика и диспансерное наблюдение. Показания к госпитализации</h2></header>
+      <div class="body">
+        <h3>Профилактика</h3>
+        <div class="rec" data-v="p-ar"><p>Всем пациентам с аллергическим ринитом рассматривают целесообразность <span class="term" data-t="a:АСИТ">АСИТ</span> — для профилактики развития БА.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="5 Профилактика и диспансерное наблюдение">УУР <b>C</b> · УДД 5<span class="st"></span></button></div>
+        <h3>Диспансерное наблюдение</h3>
+        <div class="rec" data-v="p-disp"><p>Диспансерное наблюдение аллерголога-иммунолога или пульмонолога, а также терапевта, педиатра или врача общей практики — <em class="key">не реже 1 раза в год</em> для взрослых и <em class="key">не реже 2 раз в год</em> для детей.</p>
+          <button class="ev C" data-uur="C" data-udd="5" data-loc="5 Профилактика и диспансерное наблюдение">УУР <b>C</b> · УДД 5<span class="st"></span></button>
+          <div class="sub" data-v="p-ent"><p>При необходимости пациент направляется на диспансерный приём оториноларинголога — при сопутствующих заболеваниях, например аллергическом рините или полипозном риносинусите.</p></div></div>
+        <h3>Показания к госпитализации</h3>
+        <div class="rec" data-v="h-hosp"><span class="enum-h">Показания к госпитализации</span><ol class="enum"><li>диагностика БА и дифференциальная диагностика, бронхоконстрикторные тесты, подбор терапии;</li><li>недостаточная эффективность амбулаторной терапии, в том числе при обострении: нет ответа на лечение или прогрессивное ухудшение симптомов <em class="key">в течение часа</em> от начальной терапии;</li><li>тяжёлое и/или угрожающее жизни обострение с признаками дыхательной недостаточности;</li><li>плановая терапия ГИБП;</li><li>ускоренный курс АСИТ в условиях элиминации аллергена.</li></ol>
+          <button class="ev" data-loc="6 Организация медицинской помощи" data-kind="def">источник<span class="st"></span></button>
+          <div class="sub" data-v="h-out"><span class="enum-h">Критерии выписки</span><ol class="enum"><li>достигнут контроль или частичный контроль над симптомами;</li><li><span class="term" data-t="a:ПСВ">ПСВ</span> и ОФВ1 <em class="key">более 80%</em> от индивидуального лучшего или расчётного показателя;</li><li>нет признаков острой дыхательной недостаточности;</li><li>завершены наблюдение после введения ГИБП или курс АСИТ.</li></ol></div></div>
+      </div>
+    </section>
+
+    <!-- ================= ИСТОЧНИК ================= -->
+    <section class="block b-mkb" data-panel="over" data-sec="Коды МКБ-10" id="over">
+      <header><h2>Коды МКБ-10</h2></header>
+      <div class="mkb-list">
+        <button class="mkb-row" data-code="J45.0" data-v="mj450"><code>J45.0</code><span>Бронхиальная астма с преобладанием аллергического компонента</span></button>
+        <button class="mkb-row" data-code="J45.1" data-v="mj451"><code>J45.1</code><span>Неаллергическая бронхиальная астма</span></button>
+        <button class="mkb-row" data-code="J45.8" data-v="mj458"><code>J45.8</code><span>Смешанная бронхиальная астма</span></button>
+        <button class="mkb-row" data-code="J45.9" data-v="mj459"><code>J45.9</code><span>Бронхиальная астма неуточнённая</span></button>
+        <button class="mkb-row" data-code="J46" data-v="mj46"><code>J46</code><span>Астматический статус</span></button>
+      </div>
+    </section>
+    <section class="block b-src" id="src" data-panel="over" data-sec="Источник и актуальность">
+      <header><h2>Источник и актуальность</h2></header>
+      <div class="body"><ul class="list doc-links"><li><a class="row ext" href="pdf/bronkhialnaya-astma.pdf?v=728b16f73a" target="_blank" rel="noopener"><span class="rt">PDF этого разбора<span class="rs">сохранить или распечатать</span></span></a></li><li><a class="row ext" href="https://cr.minzdrav.gov.ru/view-cr/359_3" target="_blank" rel="noopener"><span class="rt">Полный текст рекомендации<span class="rs">рубрикатор Минздрава</span></span></a></li></ul><label class="switch"><span>Показывать под каждым пунктом раздел КР, УУР и УДД</span><input type="checkbox" id="srcToggle"></label>
+        <dl class="meta">
+          <dt>Документ</dt><dd>Клинические рекомендации «Бронхиальная астма»</dd>
+          <dt>Версия</dt><dd>3-я, опубликована в рубрикаторе 15.11.2024</dd>
+          <dt>Статус</dt><dd><b style="color:var(--ok)">Применяется</b> (каталог рубрикатора на 22.10.2026)</dd>
+          <dt>Актуализация</dt><dd>По общему правилу КР пересматривают не реже раза в три года, следующая версия ожидается не позднее 2027 года</dd>
+          <dt>Код в рубрикаторе</dt><dd><code>359_3</code> · <a href="https://cr.minzdrav.gov.ru/view-cr/359_3" target="_blank" rel="noopener">открыть текст КР ↗</a></dd>
+          <dt>Разработчик</dt><dd>Российская ассоциация аллергологов и клинических иммунологов; Союз педиатров России; Ассоциация врачей и специалистов медицины труда; Российское респираторное общество</dd>
+          <dt>Пациенты</dt><dd>Взрослые и дети</dd>
+        </dl>
+
+        <h3>Журнал сверки</h3>
+        <div id="vlog" class="vlog"></div>
+
+        <h3>Неточности и противоречия в тексте рекомендации</h3>
+        <ul class="fixlist">
+          <li>Клинически значимых противоречий в тексте рекомендации при сверке не выявлено.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+
+
+<script src="assets/data.js?v=df71407fa5da"></script>
+<script src="assets/verify-359_3.js?v=df71407fa5da"></script>
+<script src="assets/grls.js?v=df71407fa5da"></script>
+<script src="assets/app.js?v=df71407fa5da"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>
