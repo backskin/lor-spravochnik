@@ -2004,7 +2004,7 @@ function lorTextbook(){
     var inlineToc = document.createElement("details");
     inlineToc.className = "tb-inline-toc";
     inlineToc.open = matchMedia("(min-width:900px)").matches;
-    inlineToc.innerHTML = '<summary class="tb-itoc-head">Содержание главы (' + secList.length + ' ' + (secList.length < 5 ? 'раздела' : 'разделов') + ')</summary>'
+    inlineToc.innerHTML = '<summary class="tb-itoc-head">Содержание главы (' + secList.length + ' ' + (function(n){ var a = n % 10, b = n % 100; return a === 1 && b !== 11 ? 'раздел' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'раздела' : 'разделов'; })(secList.length) + ')</summary>'
       + '<div class="tb-itoc-grid">'
       + secList.map(function(s){
         return '<a class="tb-itoc-link" href="#' + s.id + '"><span class="tb-itoc-n">' + s.num + '</span><span>' + s.title + '</span></a>';
@@ -2128,10 +2128,48 @@ function lorTextbook(){
       es.forEach(function(en){
         if(!en.isIntersecting || root.classList.contains("tb-paged")) return;
         Object.keys(tocLinks).forEach(function(k){ tocLinks[k].classList.toggle("on", k === en.target.id); });
+        if(window.__tbBarSet) window.__tbBarSet(en.target.id);
       });
     }, {rootMargin: "-20% 0px -70% 0px"});
     bodyEl.querySelectorAll(".tb-sec").forEach(function(s){ spy.observe(s); });
   }
+  /* Плашка «Содержание главы» на телефоне и планшете (просьба 28.10.2026, как в java-backend-bible): тонкая строка под шапкой появляется,
+     когда встроенное содержание ушло вверх; в ней — текущий раздел, по нажатию раскрывается список разделов поверх текста.
+     Места в потоке не занимает — текст не прыгает. В постраничном режиме и на компьютере не нужна: там своя колонка. */
+  var itoc = main.querySelector(".tb-inline-toc");
+  if(itoc && secList.length > 1){
+    var tbar = document.createElement("div");
+    tbar.className = "tb-tocbar";
+    tbar.innerHTML = '<div class="tb-tocbar-scrim" hidden></div><div class="tb-tocbar-in"><button type="button" class="tb-tocbar-btn" aria-expanded="false">'
+      + '<span class="tb-tocbar-l">Содержание главы</span><span class="tb-tocbar-cur"></span><i aria-hidden="true"></i></button>'
+      + '<nav class="tb-tocbar-list" aria-label="Разделы главы" hidden><ol>' + secList.map(function(sx){
+        return '<li><a href="#' + sx.id + '" data-bsec="' + sx.id + '"><span class="tb-itoc-n">' + sx.num + '</span><span>' + sx.title + '</span></a></li>'; }).join("")
+      + '</ol><a class="tb-tocbar-all" href="uchebnik.html">Оглавление учебника</a></nav></div>';
+    main.appendChild(tbar);
+    var tbBtn = tbar.querySelector(".tb-tocbar-btn"), tbNav = tbar.querySelector("nav"), tbScrim = tbar.querySelector(".tb-tocbar-scrim"), tbCur = tbar.querySelector(".tb-tocbar-cur");
+    function tbOpenBar(o){
+      tbNav.hidden = !o; tbScrim.hidden = !o; tbBtn.setAttribute("aria-expanded", String(o)); tbar.classList.toggle("open", o);
+      if(o){ var on = tbNav.querySelector("a.on"); if(on) on.scrollIntoView({block: "center"}); }
+    }
+    tbBtn.addEventListener("click", function(){ tbOpenBar(tbNav.hidden); });
+    tbScrim.addEventListener("click", function(){ tbOpenBar(false); });
+    tbNav.addEventListener("click", function(e){ if(e.target.closest("a")) tbOpenBar(false); });
+    document.addEventListener("keydown", function tbEsc(e){
+      if(!tbar.isConnected){ document.removeEventListener("keydown", tbEsc); return; }  /* глава сменилась без перезагрузки */
+      if(e.key === "Escape" && !tbNav.hidden) tbOpenBar(false);
+    });
+    window.__tbBarSet = function(id){
+      var hit = null;
+      tbNav.querySelectorAll("a[data-bsec]").forEach(function(a){ var m = a.dataset.bsec === id; a.classList.toggle("on", m); if(m) hit = a; });
+      tbCur.textContent = hit ? hit.lastChild.textContent : "";
+    };
+    if(window.IntersectionObserver){
+      var tbIO = new IntersectionObserver(function(es){ es.forEach(function(x){
+        var gone = !x.isIntersecting && x.boundingClientRect.top < 0; tbar.classList.toggle("on", gone); if(!gone) tbOpenBar(false);
+      }); });
+      tbIO.observe(itoc);
+    } else tbar.classList.add("on");
+  } else window.__tbBarSet = null;
 
   /* Постраничное чтение (просьба 27.10.2026): глава режется на страницы, как книга; на широком экране — два столбца на весь экран,
      на телефоне — один. Листают свайпом, стрелками клавиатуры, колесом мыши и кнопками «‹ ›»; сноски и содержание открывают нужную
