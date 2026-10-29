@@ -181,7 +181,9 @@ td[colspan] b{font-weight:400}
   td[colspan]{padding-top:var(--s3)}
   table:not(.cmp) td:first-child:not([colspan]){font-weight:600}
   td .enum{margin-top:var(--s1)}
+  td.nw{white-space:normal}  /* в карточке подпись колонки переносится; неразрывно только значение */
 }
+.nwv{white-space:nowrap}
 
 /* широкие таблицы с длинным текстом (4+ колонки) — карточками на любой ширине: колонки по 8 символов не читаются */
 table.stack,table.stack thead,table.stack tbody,table.stack tr,table.stack td{display:block}
@@ -2565,3 +2567,32 @@ html.tb-paged .tb-flow td.nw{white-space:normal}
 .sr-all-link{margin-top:var(--s4)}
 .sr-all-link .row .rt{color:var(--ac);font-weight:600}
 @media (min-width:1024px){main.page:has(#krAll),main.page:has(#srAll){max-width:min(960px,100%)}}
+
+/* ===== 29.10.2026: текст не выходит за край (tools/text_overflow_sweep.py — 181 страница, 360/412 px, шрифт 100/130 %) ===== */
+/* длинное слово («видеофиброринофаринголарингоскопия», «бензилдиметил-миристоиламинопропиламмоний») переносится по слогам,
+   а если не делится — разрывается у края, а не уходит за экран */
+html{overflow-wrap:break-word}
+p,li,dd,dt,td,th,figcaption,.rt,.rs,small,.tb-c-sub,.tb-c-src,.dz-why{hyphens:auto}
+/* подпись в строке-карточке со значком или кнопкой может сжиматься уже своего длинного слова */
+.mkb-row > span,.tb-c-body,.tb-c-body > span,.dz-card-li > *,.dz-card-head > *,.aw-btn > span:first-child,.row .rt{min-width:0}
+.mkb-row > span,.tb-c-sub,.tb-c-src,.dz-why,.dz-name{overflow-wrap:anywhere}
+.dz-card-head,.dz-card-foot{flex-wrap:wrap}
+/* вкладки разбора при крупном шрифте: «Лечение» обрезалась на 8 px — подпись вкладки не крупнее 17 px, поля уже */
+.tabbar button,.tabs button{font-size:min(var(--t4),17px);padding:0 6px;min-width:0}
+/* длинное слово может разорваться и при расчёте ширины (anywhere), иначе оно растягивало весь список «Основные положения»
+   за экран; в названиях препаратов и порогах переноса по слогам нет (строка 43), но у края они тоже разрываются */
+p,li,dd,dt,figcaption,b.lt,em.key,.drug{overflow-wrap:anywhere}
+/* карточки глав учебника: колонка сетки и карточка сжимаются по ширине экрана */
+.tb-cards{grid-template-columns:minmax(0,1fr)}
+@media (min-width:640px){.tb-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tb-cards > li,.tb-card{min-width:0}
+.tb-c-top{flex-wrap:wrap}
+/* сетки в одну колонку: колонка не шире своего места (у «1fr» и неявной колонки минимум — самое широкое содержимое,
+   из-за этого весь список «Основные положения» в «Остром ларингите» уходил за экран при крупном шрифте) */
+.summary ul,.summary ol,.body ul,.body ol,.tn-list,.tn-regs,.mkb-list,.alg-steps{grid-template-columns:minmax(0,1fr)}
+.tb-itoc-grid,.tb-prevnext,.dz-meta-grid{grid-template-columns:minmax(0,1fr)}
+@media (min-width:640px){.tb-itoc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:640px){.tb-prevnext{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:680px){.dz-meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tb-grp-h > *,.tb-grp-head > *,.aw-btn > *{min-width:0}
+.aw-btn,.tb-grp-h h2,.tb-grp-head h2{overflow-wrap:anywhere}

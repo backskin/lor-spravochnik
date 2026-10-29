@@ -1751,7 +1751,10 @@ function lorTables(){
     var rows = t.querySelectorAll("tbody tr");
     names.forEach(function(_, ci){
       var cells = [].map.call(rows, function(tr){ return tr.children[ci]; }).filter(function(td){ return td && !td.hasAttribute("colspan"); });
-      if(cells.length && cells.every(function(td){ return td.textContent.trim().length <= 12; })) cells.forEach(function(td){ td.classList.add("nw"); });
+      /* запрет переноса — только на само значение (span.nwv), а не на всю ячейку: на телефоне перед значением встаёт длинная
+         подпись колонки, и она уходила за край экрана (жалоба 29.10.2026, «Площадь поверхности одной половины преддверия…») */
+      if(cells.length && cells.every(function(td){ return td.textContent.trim().length <= 12; })) cells.forEach(function(td){
+        td.classList.add("nw"); if(!td.querySelector(".nwv")) td.innerHTML = '<span class="nwv">' + td.innerHTML + "</span>"; });
     });
     t.querySelectorAll("tbody tr").forEach(function(tr){
       var i = 0;
@@ -2322,13 +2325,20 @@ function lorTextbook(){
       tbNav.querySelectorAll("a[data-bsec]").forEach(function(a){ var m = a.dataset.bsec === id; a.classList.toggle("on", m); if(m) hit = a; });
       tbCur.textContent = hit ? hit.lastChild.textContent : "";
     };
-    if(window.IntersectionObserver){
-      var tbIO = new IntersectionObserver(function(es){ es.forEach(function(x){
-        var gone = !x.isIntersecting && x.boundingClientRect.top < 0; tbar.classList.toggle("on", gone); if(!gone) tbOpenBar(false);
-      }); });
-      tbIO.observe(itoc);
-    } else tbar.classList.add("on");
-  } else window.__tbBarSet = null;
+    /* Видна ли плашка — по положению встроенного содержания, проверяется на каждой прокрутке (не чаще кадра), при открытии главы
+       и после смены режима (жалоба 29.10.2026: при переходе по ссылке в середину главы или из постраничного режима плашка не
+       появлялась, пока не долистаешь до начала — наблюдатель пересечений сообщает только о пересечении края, а его не было) */
+    var tbSyncRaf = 0;
+    function tbSync(){
+      tbSyncRaf = 0; if(!tbar.isConnected) return;
+      var r = itoc.getBoundingClientRect(), gone = r.height > 0 && r.bottom < ((document.querySelector(".top") || {}).offsetHeight || 56);
+      if(gone !== tbar.classList.contains("on")){ tbar.classList.toggle("on", gone); if(!gone){ tbOpenBar(false); modePop(false); } }
+    }
+    window.__tbBarSync = function(){ if(!tbSyncRaf) tbSyncRaf = requestAnimationFrame(tbSync); };
+    window.addEventListener("scroll", function tbSc(){ if(!tbar.isConnected){ window.removeEventListener("scroll", tbSc); return; } window.__tbBarSync(); }, {passive: true});
+    window.addEventListener("resize", function tbRs(){ if(!tbar.isConnected){ window.removeEventListener("resize", tbRs); return; } window.__tbBarSync(); });
+    window.__tbBarSync(); setTimeout(window.__tbBarSync, 300);  /* после перехода к якорю и докрутки под шапку */
+  } else { window.__tbBarSet = null; window.__tbBarSync = null; }
 
   /* Постраничное чтение (просьба 27.10.2026): глава режется на страницы, как книга; на широком экране — два столбца на весь экран,
      на телефоне — один. Листают свайпом, стрелками клавиатуры, колесом мыши и кнопками «‹ ›»; сноски и содержание открывают нужную
@@ -2519,7 +2529,7 @@ function lorTextbook(){
       root.classList.remove("tb-paged");
       flow.style.height = ""; flow.scrollLeft = 0;
       var mem = modeMem = {left: "paged", pos: leavePg, landed: -1e9}; userMoved = false;
-      var land = function(){ if(modeMem === mem) mem.landed = window.scrollY; };
+      var land = function(){ if(modeMem === mem) mem.landed = window.scrollY; if(window.__tbBarSync) window.__tbBarSync(); };
       if(backY != null){ window.scrollTo(0, backY); requestAnimationFrame(function(){ window.scrollTo(0, backY); land(); }); }
       else if(keep){  /* та же строка — у верха текста под шапкой; второй шаг — когда плашка содержания успела появиться */
         window.scrollTo(0, window.scrollY + rectOf(keep).top - readLine() - 44);
