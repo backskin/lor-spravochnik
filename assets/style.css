@@ -2523,3 +2523,19 @@ h1,h2,h3,.pt{overflow-wrap:break-word;hyphens:auto}
 @keyframes tbPopOut{to{opacity:0;transform:translateY(-4px) scale(.97)}}
 @media (prefers-reduced-motion:reduce){.tb-modepop{animation:none!important}}
 html[data-anim="off"] .tb-modepop{animation:none!important}
+/* ===== 29.10.2026, широкий экран ===== */
+@media (min-width:1024px){
+  /* «Содержание» и «Прокруткой» в нижней панели на широком экране не нужны — это левая колонка
+     (правило 28.10 для значка снова показывало кнопку, и она обрезалась у левого края) */
+  .tb-pg-toc,.tb-pg-exit{display:none!important}
+  /* глава занимает весь экран, а не 1320 px посередине (просьба 29.10.2026: пустые поля слева и справа) */
+  main.tb-chap{max-width:none;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));gap:var(--s6)}
+  .tb-chap .tb-article{max-width:60rem}
+}
+/* постранично на очень широком экране — три столбца */
+@media (min-width:1680px){html.tb-paged .tb-flow{column-count:3;column-gap:56px}}
+/* таблица в столбце постраничного режима — по ширине столбца: колонки поровну, длинные подписи переносятся (жалоба 29.10.2026:
+   таблица выходила за край — прокручивать её вбок в постраничном режиме нельзя, иначе она не переносится между страницами) */
+html.tb-paged .tb-flow table{width:100%;min-width:0!important;table-layout:fixed}
+html.tb-paged .tb-flow th,html.tb-paged .tb-flow td{overflow-wrap:break-word;hyphens:auto;padding-left:6px;padding-right:6px}
+html.tb-paged .tb-flow td.nw{white-space:normal}

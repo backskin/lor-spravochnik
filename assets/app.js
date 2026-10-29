@@ -645,7 +645,10 @@ function render(){
   var dz = L.diseases.filter(function(d){ return has(low(d.name + " " + (d.age || "") + " " + (d.codes || []).map(function(c){ return c[0] + " " + c[1]; }).join(" ")), ws); })
     .sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); }).slice(0, 8);
   if(dz.length){ total += dz.length; h += '<h2 class="gh">Заболевания</h2><ul class="list">' + dz.map(function(d){
-    return d.href ? row(d.href, mark(d.name, ws), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(shortName(d.name), ws), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
+    /* группа пациентов из КР — перед кодами (жалоба 29.10.2026: «ОРВИ» вела на КР для детей, а по строке этого не было видно —
+       официальное название КР 25_3 без «у детей») */
+    var ag = d.age ? (d.age === "Взрослые, дети" ? "Взрослые и дети" : d.age) + " · " : "";
+    return d.href ? row(d.href, mark(d.name, ws), esc(ag + codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(shortName(d.name), ws), esc(ag + codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
   }).join("") + "</ul>"; }
   /* словарь: термин, в названии которого есть все слова запроса, — короткое определение сразу под заболеваниями */
   if(IDX && IDX.gl){
@@ -2364,7 +2367,7 @@ function lorTextbook(){
   }
   /* Разбивка на страницы с пониманием рисунков (просьба 28.10.2026: «умнее, понимая, как текст бьётся между страницами»).
      Снимок не режется между страницами; если целиком не влез, он уходил на следующую, а внизу предыдущей оставалась пустота.
-     Теперь такой снимок уменьшается до размера этой пустоты (не меньше 140 px) и встаёт на прежнюю страницу; текст после него
+     Теперь такой снимок уменьшается до размера этой пустоты (не меньше 80 % своего размера) и встаёт на прежнюю страницу; текст после него
      подтягивается. Несколько проходов — уменьшение одного рисунка двигает следующие. */
   function fitFigures(gap){
     var imgs = [].slice.call(flow.querySelectorAll("figure img, figure svg"));
@@ -2386,7 +2389,9 @@ function lorTextbook(){
         var imH = im.getBoundingClientRect().height, cap = fig.querySelector("figcaption"), capH = cap ? cap.getBoundingClientRect().height : 0;
         var free = fr.bottom - bottom[c - 1] - 16, chrome = r.height - imH - capH;
         var want = Math.floor(free - chrome - Math.min(capH, 24) - 4);
-        if(want >= 140 && want < im.getBoundingClientRect().height - 4){ im.style.maxHeight = want + "px"; im.dataset.fit = "1"; changed = true; }
+        /* уменьшать — не больше чем на пятую часть (жалоба 29.10.2026: подогнанные до 40–60 % рисунки рядом с обычными выглядели
+           разными по размеру, хотя одного рода); если места нужно больше — рисунок целиком переходит на следующую страницу */
+        if(want >= Math.max(140, imH * 0.8) && want < imH - 4){ im.style.maxHeight = want + "px"; im.dataset.fit = "1"; changed = true; }
       });
       if(!changed) break;
     }
