@@ -2539,3 +2539,15 @@ html[data-anim="off"] .tb-modepop{animation:none!important}
 html.tb-paged .tb-flow table{width:100%;min-width:0!important;table-layout:fixed}
 html.tb-paged .tb-flow th,html.tb-paged .tb-flow td{overflow-wrap:break-word;hyphens:auto;padding-left:6px;padding-right:6px}
 html.tb-paged .tb-flow td.nw{white-space:normal}
+
+/* метка «дети / взрослые» у названия КР в поиске и списках (app.js, ageTag): тёплая — дети, спокойная — взрослые */
+.age-tag{display:inline-block;vertical-align:.12em;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:.78em;line-height:1.35;font-weight:700;
+  letter-spacing:.01em;white-space:nowrap;border:1px solid transparent}
+.age-tag.kids{color:#9a4a00;background:#fff1dc;border-color:#f3c98d}
+.age-tag.adults{color:#28588a;background:#e8f1fb;border-color:#b8d2ee}
+:root[data-theme="dark"] .age-tag.kids{color:#ffc27a;background:#3a2a14;border-color:#6b4a1d}
+:root[data-theme="dark"] .age-tag.adults{color:#9cc8f2;background:#16283a;border-color:#2c4a6b}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .age-tag.kids{color:#ffc27a;background:#3a2a14;border-color:#6b4a1d}
+  :root:not([data-theme="light"]) .age-tag.adults{color:#9cc8f2;background:#16283a;border-color:#2c4a6b}
+}

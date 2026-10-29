@@ -26,6 +26,13 @@ function row(href, title, sub, cls, attrs){
   return '<li><a class="row' + (cls ? " " + cls : "") + '" href="' + href + '"' + (attrs || "") + '><span class="rt">' + title
     + (sub ? '<span class="rs">' + sub + "</span>" : "") + "</span></a></li>";
 }
+/* метка группы пациентов рядом с названием КР (жалоба 29.10.2026: врач должен сразу видеть, что рекомендация для детей,
+   и не открывать её зря); у КР «для взрослых и детей» метки нет — она подходит всем */
+function ageTag(d){
+  if(!d || !d.age || d.age === "Взрослые, дети") return "";
+  var kids = d.age === "Дети";
+  return ' <span class="age-tag ' + (kids ? "kids" : "adults") + '">' + (kids ? "дети" : "взрослые") + "</span>";
+}
 /* «J30.1, J30.2, J30.3, J30.4» → «J30.1–J30.4» */
 function codesShort(codes){
   var c = (codes || []).map(function(x){ return x[0]; });
@@ -647,8 +654,7 @@ function render(){
   if(dz.length){ total += dz.length; h += '<h2 class="gh">Заболевания</h2><ul class="list">' + dz.map(function(d){
     /* группа пациентов из КР — перед кодами (жалоба 29.10.2026: «ОРВИ» вела на КР для детей, а по строке этого не было видно —
        официальное название КР 25_3 без «у детей») */
-    var ag = d.age ? (d.age === "Взрослые, дети" ? "Взрослые и дети" : d.age) + " · " : "";
-    return d.href ? row(d.href, mark(d.name, ws), esc(ag + codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(shortName(d.name), ws), esc(ag + codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
+    return d.href ? row(d.href, mark(d.name, ws) + ageTag(d), esc(codesShort(d.codes))) : row(CRURL + esc(d.cv), mark(shortName(d.name), ws) + ageTag(d), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
   }).join("") + "</ul>"; }
   /* словарь: термин, в названии которого есть все слова запроса, — короткое определение сразу под заболеваниями */
   if(IDX && IDX.gl){
@@ -826,7 +832,7 @@ home = $("home");
 if(home){
   var core = L.groups.filter(function(g){ return !g.related; }), rel = L.groups.filter(function(g){ return g.related; });
   function fullRows(list){
-    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(shortName(d.name)), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
+    return list.map(function(d){ return row(CRURL + esc(d.cv), esc(shortName(d.name)) + ageTag(d), esc(codesShort(d.codes)) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"'); }).join("");
   }
   var TOP = {nose:["313_3","261_2","955_1","977_1","890_1","1082_1","913_1","956_1","756_1"],
              ear:["314_3","663_2","698_2","518_3","18_2","21_3","22_3","315_4","311_2","304_2","609_2"],
@@ -842,8 +848,8 @@ if(home){
   };
   function rank(g, d){ var i = (TOP[g] || []).indexOf(d.cv); return i < 0 ? 99 : i; }
   function oneRow(d){
-    var sub = [codesShort(d.codes), d.age, d.y ? d.y + " г." : ""].filter(Boolean).join(" · ");
-    return d.href ? row(d.href, esc(d.name), esc(sub)) : fullRows([d]);
+    var sub = [codesShort(d.codes), d.y ? d.y + " г." : ""].filter(Boolean).join(" · ");
+    return d.href ? row(d.href, esc(d.name) + ageTag(d), esc(sub)) : fullRows([d]);
   }
 
   /* Быстрая панель ключевых разделов справочника */
