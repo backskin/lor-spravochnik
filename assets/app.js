@@ -794,6 +794,12 @@ var deb;
     var a = e.target.closest("a.row"); if(!a) return;
     var m = /^([\w-]+)\.html#(.+)$/.exec(a.getAttribute("href"));
     if(m && DOC && location.pathname.split("/").pop() === m[1] + ".html"){ e.preventDefault(); closeResults(); qIn.blur(); try{ history.replaceState(null, "", "#" + m[2]); }catch(err){} reveal(findEl(m[2])); }
+    else if(m && window.__tbGoTo && location.pathname.split("/").pop() === m[1] + ".html"){
+      /* та же глава учебника: раздел — на своей странице (постранично) или прокруткой */
+      e.preventDefault(); closeResults(); qIn.blur(); var id = decodeURIComponent(m[2]);
+      try{ history.replaceState(null, "", "#" + m[2]); }catch(err){}
+      window.__tbGoTo(id);
+    }
     else closeResults();
   });
 }
@@ -2667,8 +2673,32 @@ function lorTextbook(){
   });
   document.addEventListener("keydown", function tbFsK(e){ if(!main.isConnected){ document.removeEventListener("keydown", tbFsK); return; } if(e.key === "Escape") fsClose(); });
   var immBack = null;
+  /* На телефоне чтение без панелей включает и полноэкранный режим браузера: уходят строка адреса и системные панели
+     (просьба 29.10.2026). Пока экран меняет размер, перестройка по resize не запускается — страница перестраивается один раз,
+     когда полноэкранный режим включился. Выход жестом «назад» или клавишей — панели возвращаются */
+  var rsHold = 0;
+  var fsCan = function(){ return !!(document.fullscreenEnabled && root.requestFullscreen) && matchMedia("(pointer:coarse)").matches; };
+  document.addEventListener("fullscreenchange", function tbFsc(){
+    if(!flow.isConnected){ document.removeEventListener("fullscreenchange", tbFsc); return; }
+    if(!document.fullscreenElement && root.classList.contains("tb-immersive")) immersive(false);
+  });
   function immersive(on){
     if(on === root.classList.contains("tb-immersive")) return;
+    if(on && fsCan() && !document.fullscreenElement){
+      rsHold = performance.now() + 900;
+      root.requestFullscreen({navigationUI: "hide"}).then(function(){ setTimeout(function(){ immersiveRun(true); }, 80); }, function(){ immersiveRun(true); });
+      return;
+    }
+    if(!on && document.fullscreenElement){
+      rsHold = performance.now() + 900;
+      document.exitFullscreen().then(function(){ setTimeout(function(){ immersiveRun(false); }, 80); }, function(){ immersiveRun(false); });
+      return;
+    }
+    immersiveRun(on);
+  }
+  function immersiveRun(on){
+    if(on === root.classList.contains("tb-immersive")) return;
+    rsHold = 0;
     moved();
     /* туда и обратно без листания — та же страница, что была: место не сползает назад с каждым нажатием */
     /* возврат без листания — на ту же страницу по номеру: разбивка той же высоты та же, а строка-якорь у края страницы
@@ -2687,13 +2717,27 @@ function lorTextbook(){
   }
   var rsT = 0;
   window.addEventListener("resize", function(){
-    if(!root.classList.contains("tb-paged")) return;
+    if(!root.classList.contains("tb-paged") || performance.now() < rsHold) return;  /* смена полноэкранного режима — перестройка своя */
     clearTimeout(rsT); var keep = atPageStart(); moved();
     rsT = setTimeout(function(){ pgLayout(keep); }, 120);
   }, sig);
+  /* Ссылка на раздел главы (поиск, содержание, закладка) в постраничном режиме открывает страницу, где этот раздел
+     (жалоба 29.10.2026: из поиска «Рожа» глава открывалась с первой страницы); в режиме прокрутки — прокрутка к разделу */
+  function goToId(id){
+    var el = id && document.getElementById(id);
+    if(!el || !flow.contains(el)) return false;
+    if(root.classList.contains("tb-paged")){ pgGo(pageOf(el), false); moved(); }
+    else el.scrollIntoView({block: "start"});
+    if(window.__tbBarSync) window.__tbBarSync();
+    return true;
+  }
+  window.__tbGoTo = goToId;
+  window.addEventListener("hashchange", function(){ try{ goToId(decodeURIComponent(location.hash.slice(1))); }catch(e){} }, sig);
   var saved = "scroll"; try{ saved = localStorage.getItem("lor-tb-mode") || "scroll"; }catch(e){}
   aside.classList.remove("open");  /* панель «Содержание» на телефоне не переезжает открытой в новую главу */
   setMode(saved === "paged" ? "paged" : "scroll");
+  var hashId = ""; try{ hashId = decodeURIComponent(location.hash.slice(1)); }catch(e){}
+  if(saved === "paged" && hashId && !window.__tbPop) goToId(hashId);
   if(saved === "paged" && document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(!root.classList.contains("tb-paged")) return;
     if(!restored) pgLayout(atPageStart()); else if(pos && pos.p != null){ pgLayout(null); pgGo(pos.p, false); } });
   /* «назад/вперёд» возвращает туда, где человек был в этой главе: та же страница или то же место прокрутки */

@@ -2119,7 +2119,7 @@ header.top{view-transition-name:top}
 ::view-transition-new(top){animation:none}
 html.tb-paged .crumbs,html.tb-paged .tb-ch-bar,html.tb-paged .tb-ch-hero,html.tb-paged .tb-inline-toc,
 html.tb-paged .site-foot,html.tb-paged .foot,html.tb-paged footer{display:none!important}
-html.tb-paged .tb-flow{column-count:1;column-gap:40px;column-fill:auto;overflow:hidden;touch-action:pan-y pinch-zoom}
+html.tb-paged .tb-flow{column-count:1;column-gap:40px;column-fill:auto;overflow:hidden;touch-action:pinch-zoom}
 @media (min-width:900px){html.tb-paged .tb-flow{column-count:2;column-gap:64px;column-rule:1px solid var(--line)}}
 html.tb-paged .tb-flow-title{display:block;margin:0 0 var(--s4);font-size:var(--t1);line-height:1.25;font-weight:700;color:var(--fg);break-after:avoid}
 html.tb-paged .tb-body{display:block}
@@ -2616,3 +2616,8 @@ html.tb-paged .tb-flow > *{padding-left:3px;padding-right:3px;box-sizing:border-
 @supports not selector(::-webkit-scrollbar){
   .drawer,.tb-aside,.tb-tocbar-list,.sheet,.tb-chap .tb-aside{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--fg2) 35%,transparent) transparent}
 }
+
+/* постранично: вертикальные жесты не отдаются браузеру — иначе случайное движение пальцем показывало и прятало строку адреса,
+   высота экрана менялась и страница перестраивалась (жалоба 29.10.2026). Свайп влево-вправо листает сам справочник */
+html.tb-paged header.top,html.tb-paged .tb-article,html.tb-paged .tb-pager,html.tb-paged .tb-pg-prog{touch-action:pinch-zoom}
+html.tb-paged .tb-aside{touch-action:pan-y}
