@@ -2505,3 +2505,21 @@ h1,h2,h3,.pt{overflow-wrap:break-word;hyphens:auto}
   html:not(.tb-paged) .tb-chap .tb-sec+.tb-sec{padding-top:var(--s4);border-top:1px solid var(--line)}
   html:not(.tb-paged) .tb-chap .tb-body{gap:var(--s5)}
 }
+
+/* выбор режима чтения под кнопкой с книжкой (app.js, modePop; просьба 29.10.2026) — тот же переключатель .tb-mode, что везде */
+.tb-tocbar-in{position:relative}
+.tb-modepop{position:absolute;z-index:3;top:calc(100% + 6px);right:max(12px,calc((100% - var(--col) - 32px) / 2 + 12px));width:min(300px,calc(100vw - 32px));
+  padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);box-shadow:0 10px 28px rgba(0,0,0,.18);transform-origin:top right;
+  animation:tbPopIn .18s cubic-bezier(.2,.8,.2,1) both}
+.tb-modepop.out{animation:tbPopOut .14s ease-in both}
+.tb-modepop-h{margin:0 0 8px;font-size:var(--t4);font-weight:700;color:var(--fg)}
+.tb-modepop .tb-mode{display:flex;width:100%}
+.tb-modepop .tb-mode button{flex:1;min-height:42px}
+.tb-modepop .tb-mode button[aria-pressed="true"]{background:var(--ac);color:#fff}
+:root[data-theme="dark"] .tb-modepop .tb-mode button[aria-pressed="true"]{color:var(--bg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tb-modepop .tb-mode button[aria-pressed="true"]{color:var(--bg)}}
+.tb-tocbar-mode[aria-expanded="true"]{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,var(--bg))}
+@keyframes tbPopIn{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes tbPopOut{to{opacity:0;transform:translateY(-4px) scale(.97)}}
+@media (prefers-reduced-motion:reduce){.tb-modepop{animation:none!important}}
+html[data-anim="off"] .tb-modepop{animation:none!important}

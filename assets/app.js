@@ -1594,7 +1594,7 @@ requestAnimationFrame(function(){ root.classList.remove("lor-boot"); });  /* э�
     {id:"tbmodew", sel:".tb-aside .tb-mode", when:function(){ return B.page === "textbook" && wide; },
       text:"Главу можно читать прокруткой или постранично, как книгу. Режим переключается в любой момент, место чтения сохраняется."},
     {id:"tbitoc", sel:".tb-inline-toc", when:function(){ return B.page === "textbook" && !wide && !document.documentElement.classList.contains("tb-paged"); },
-      text:"Содержание главы. Когда оно уйдёт вверх, под шапкой появится строка с текущим разделом: нажатие открывает список разделов, кнопка «Постранично» справа переключает режим с этого же места."},
+      text:"Содержание главы. Когда оно уйдёт вверх, под шапкой появится строка с текущим разделом: нажатие открывает список разделов, кнопка с книжкой справа открывает выбор режима чтения — «Прокруткой» или «Постранично», с этого же места."},
     {id:"tbswipe", sel:".tb-pager", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
       text:"Страницы листаются свайпом влево и вправо или кнопками ‹ ›. «Содержание» открывает разделы главы и переключатель режима, флажок справа — закладка на этом месте."},
     {id:"tbfs", sel:".tb-pager .tb-fs-open", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
@@ -2189,7 +2189,9 @@ function lorTextbook(){
     tbar.innerHTML = '<div class="tb-tocbar-scrim" hidden></div><div class="tb-tocbar-in"><button type="button" class="tb-tocbar-btn" aria-expanded="false">'
       + '<span class="tb-tocbar-l">Содержание главы</span><span class="tb-tocbar-cur"></span><i aria-hidden="true"></i></button>'
       + '<button type="button" class="tb-tocbar-fs tb-fs-open" aria-label="Размер текста" title="Размер текста"><span class="tb-aa" aria-hidden="true"><small>А</small>А</span></button>'
-      + '<button type="button" class="tb-tocbar-mode" data-tb-mode="paged" aria-label="Постранично" title="Читать постранично с этого места"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5h7a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H3z"/><path d="M21 5.5h-7a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h7z"/></svg><span>Постранично</span></button>'
+      + '<button type="button" class="tb-tocbar-mode" aria-haspopup="true" aria-expanded="false" aria-label="Режим чтения" title="Режим чтения"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5h7a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H3z"/><path d="M21 5.5h-7a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h7z"/></svg><span>Режим</span></button>'
+      + '<div class="tb-modepop" role="dialog" aria-label="Режим чтения" hidden><p class="tb-modepop-h">Режим чтения</p>'
+      + '<div class="tb-mode" role="group"><button type="button" data-tb-pick="scroll">Прокруткой</button><button type="button" data-tb-pick="paged">Постранично</button></div></div>'
       + '<nav class="tb-tocbar-list" aria-label="Разделы главы" hidden><ol>' + secList.map(function(sx){
         return '<li><a href="#' + sx.id + '" data-bsec="' + sx.id + '"><span class="tb-itoc-n">' + sx.num + '</span><span>' + sx.title + '</span></a></li>'; }).join("")
       + '</ol><a class="tb-tocbar-all" href="uchebnik.html">Оглавление учебника</a></nav></div>';
@@ -2199,12 +2201,44 @@ function lorTextbook(){
       tbNav.hidden = !o; tbScrim.hidden = !o; tbBtn.setAttribute("aria-expanded", String(o)); tbar.classList.toggle("open", o);
       if(o){ var on = tbNav.querySelector("a.on"); if(on) on.scrollIntoView({block: "center"}); }
     }
-    tbBtn.addEventListener("click", function(){ tbOpenBar(tbNav.hidden); });
+    tbBtn.addEventListener("click", function(){ modePop(false); tbOpenBar(tbNav.hidden); });
+    /* Выбор режима (просьба 29.10.2026): кнопка с книжкой не переключает сразу — под ней выезжает тот же переключатель
+       «Прокруткой / Постранично», что и в начале главы и в содержании; текущий режим выделен. Нажатие на другой режим — выделение
+       переезжает на него, окошко уходит, глава перестраивается; на текущий или мимо — просто закрывается: случайное нажатие
+       ничего не переключает */
+    var mBtn = tbar.querySelector(".tb-tocbar-mode"), mPop = tbar.querySelector(".tb-modepop"), mT = 0;
+    function modePop(o){
+      clearTimeout(mT);
+      if(o){
+        var curM = root.classList.contains("tb-paged") ? "paged" : "scroll";
+        mPop.querySelectorAll("[data-tb-pick]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.tbPick === curM)); });
+        mPop.classList.remove("out"); mPop.hidden = false;
+      } else if(!mPop.hidden){
+        mPop.classList.add("out");
+        mT = setTimeout(function(){ mPop.hidden = true; mPop.classList.remove("out"); }, animOn() ? 150 : 0);
+      }
+      mBtn.setAttribute("aria-expanded", String(!!o));
+    }
+    mBtn.addEventListener("click", function(e){ e.stopPropagation(); tbOpenBar(false); modePop(mPop.hidden || mPop.classList.contains("out")); });
+    mPop.addEventListener("click", function(e){
+      e.stopPropagation();
+      var b = e.target.closest("[data-tb-pick]"); if(!b) return;
+      var want = b.dataset.tbPick, curM = root.classList.contains("tb-paged") ? "paged" : "scroll";
+      if(want === curM){ modePop(false); return; }
+      mPop.querySelectorAll("[data-tb-pick]").forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); });  /* выделение переехало — видно, что выбрано */
+      setTimeout(function(){ modePop(false); setTimeout(function(){ setMode(want, null, true); }, animOn() ? 120 : 0); }, animOn() ? 180 : 0);
+    });
+    document.addEventListener("click", function tbPopOut(e){
+      if(!tbar.isConnected){ document.removeEventListener("click", tbPopOut); return; }
+      if(!mPop.hidden && !mPop.contains(e.target) && e.target !== mBtn) modePop(false);
+    });
+    window.addEventListener("scroll", function tbPopScroll(){ if(!tbar.isConnected){ window.removeEventListener("scroll", tbPopScroll); return; } if(!mPop.hidden && !mPop.classList.contains("out")) modePop(false); }, {passive: true});
     tbScrim.addEventListener("click", function(){ tbOpenBar(false); });
     tbNav.addEventListener("click", function(e){ if(e.target.closest("a")) tbOpenBar(false); });
     document.addEventListener("keydown", function tbEsc(e){
       if(!tbar.isConnected){ document.removeEventListener("keydown", tbEsc); return; }  /* глава сменилась без перезагрузки */
       if(e.key === "Escape" && !tbNav.hidden) tbOpenBar(false);
+      if(e.key === "Escape") modePop(false);
     });
     window.__tbBarSet = function(id){
       var hit = null;
