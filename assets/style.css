@@ -2621,3 +2621,18 @@ html.tb-paged .tb-flow > *{padding-left:3px;padding-right:3px;box-sizing:border-
    высота экрана менялась и страница перестраивалась (жалоба 29.10.2026). Свайп влево-вправо листает сам справочник */
 html.tb-paged header.top,html.tb-paged .tb-article,html.tb-paged .tb-pager,html.tb-paged .tb-pg-prog{touch-action:pinch-zoom}
 html.tb-paged .tb-aside{touch-action:pan-y}
+
+/* шапка уходит при чтении вниз (app.js, fabTick, класс hdr-away): вместе с ней поднимаются плашка «Содержание главы»
+   и вкладки разбора, чтобы над ними не оставалась пустая полоса; возвращаются тем же движением */
+@media (max-width:1023px){
+  html:not(.tb-paged) header.top{transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+  html.hdr-away:not(.tb-paged) header.top{transform:translateY(calc(-100% - 2px))}
+  html:not(.tb-paged) .tb-tocbar{transition:top .26s cubic-bezier(.2,.8,.2,1),opacity .16s ease,visibility 0s linear .16s}
+  html:not(.tb-paged) .tb-tocbar.on{transition:top .26s cubic-bezier(.2,.8,.2,1),opacity .16s ease}
+  html.hdr-away:not(.tb-paged) .tb-tocbar{top:0}
+  html.hdr-away:not(.tb-paged) .tb-tocbar-scrim{top:0}
+  .tabbar{transition:top .26s cubic-bezier(.2,.8,.2,1)}
+  html.hdr-away .tabbar{top:calc(env(safe-area-inset-top,0px) + 8px)}
+}
+@media (prefers-reduced-motion:reduce){header.top,.tb-tocbar,.tabbar{transition:none!important}}
+html[data-anim="off"] header.top,html[data-anim="off"] .tb-tocbar,html[data-anim="off"] .tabbar{transition:none!important}

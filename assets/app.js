@@ -1308,13 +1308,22 @@ if(!fab){
   $("fabTop").onclick = function(){ window.scrollTo({top: 0, behavior: root.dataset.anim === "off" ? "auto" : "smooth"}); };
   /* при чтении вниз кнопки справа уезжают за край экрана, при прокрутке вверх — возвращаются на место (просьба 28.10.2026);
      шапка остаётся. Порог 6 px — чтобы дрожание пальца не гоняло их туда-обратно; у самого верха страницы видны всегда */
-  var fabY = window.scrollY;
+  var fabY = window.scrollY, userScrollT = 0;
+  ["touchmove", "wheel"].forEach(function(t){ addEventListener(t, function(){ userScrollT = performance.now(); }, {passive: true}); });
+  addEventListener("keydown", function(e){ if(/^(ArrowDown|ArrowUp|PageDown|PageUp|End|Home| )$/.test(e.key)) userScrollT = performance.now(); });
   var fabTick = function(){
     var y = window.scrollY, dy = y - fabY, paged = root.classList.contains("tb-paged");
     fab.classList.toggle("up", y > innerHeight * 0.8 && !paged);
     if(paged || y < 120) fab.classList.remove("away");
     else if(dy > 6) fab.classList.add("away");
     else if(dy < -6) fab.classList.remove("away");
+    /* шапка с поиском и меню: при чтении вниз уезжает вверх, при прокрутке вверх возвращается (просьба 29.10.2026; телефон и
+       планшет, режим прокрутки). Не уходит у верха страницы, при открытом поиске и меню; постранично шапкой управляет тап */
+    var hdrOk = !paged && innerWidth < 1024 && y >= 120 && !document.body.classList.contains("searching") && !root.classList.contains("menu-lock")
+      && document.activeElement !== qIn;
+    if(!hdrOk) root.classList.remove("hdr-away");
+    else if(dy > 6 && performance.now() - userScrollT < 500) root.classList.add("hdr-away");  /* только от листания человеком: переход по ссылке к разделу шапку не прячет */
+    else if(dy < -6) root.classList.remove("hdr-away");
     if(Math.abs(dy) > 6 || paged) fabY = y;
   };
   addEventListener("scroll", fabTick, {passive: true});
@@ -2426,7 +2435,7 @@ function lorTextbook(){
     return el && flow.contains(el) && el !== flow && !/^(DIV|SECTION)$/.test(el.tagName) ? el : null;
   }
   function readLine(){  /* верх читаемого текста в режиме прокрутки: под шапкой и плашкой «Содержание главы» */
-    var hd = (document.querySelector(".top") || {}).offsetHeight || 56, bi = document.querySelector(".tb-tocbar.on .tb-tocbar-in");
+    var hd = root.classList.contains("hdr-away") ? 0 : (document.querySelector(".top") || {}).offsetHeight || 56, bi = document.querySelector(".tb-tocbar.on .tb-tocbar-in");
     return hd + 1 + (bi ? bi.offsetHeight : 0) + 8;
   }
   function atPageStart(){  /* первая строка видимой страницы — чтобы при смене размера окна или режима не потерять место */
