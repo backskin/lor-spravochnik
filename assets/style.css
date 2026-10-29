@@ -2551,3 +2551,17 @@ html.tb-paged .tb-flow td.nw{white-space:normal}
   :root:not([data-theme="light"]) .age-tag.kids{color:#ffc27a;background:#3a2a14;border-color:#6b4a1d}
   :root:not([data-theme="light"]) .age-tag.adults{color:#9cc8f2;background:#16283a;border-color:#2c4a6b}
 }
+/* ===== «Все клинические рекомендации» (vse-kr.html) и страница результатов поиска (poisk.html), 29.10.2026 ===== */
+.kr-total{margin:0 0 var(--s4);color:var(--fg2);font-size:var(--t4)}
+.kr-sec{margin:0 0 var(--s4);padding:var(--s3) var(--s4) var(--s2);border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.kr-sec-h{display:flex;align-items:center;gap:12px;margin:0 0 var(--s2);padding-bottom:var(--s3);border-bottom:1px solid var(--line);font-size:var(--t2);line-height:1.25}
+.kr-sec-h > span:last-child{display:flex;flex-direction:column;min-width:0}
+.kr-sec-t{font-weight:700;color:var(--fg)}
+.kr-sec-n{font-size:var(--t4);font-weight:400;color:var(--fg2);margin-top:2px}
+.kr-sec .list > li:last-child > .row{border-bottom:0}
+.kr-rel-h{margin:var(--s6) 0 var(--s3);font-size:var(--t2)}
+.sr-page h2.gh{margin-top:var(--s5)}
+.sr-page h2.gh:first-child{margin-top:var(--s3)}
+.sr-all-link{margin-top:var(--s4)}
+.sr-all-link .row .rt{color:var(--ac);font-weight:600}
+@media (min-width:1024px){main.page:has(#krAll),main.page:has(#srAll){max-width:min(960px,100%)}}

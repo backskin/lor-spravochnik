@@ -33,6 +33,33 @@ function ageTag(d){
   var kids = d.age === "Дети";
   return ' <span class="age-tag ' + (kids ? "kids" : "adults") + '">' + (kids ? "дети" : "взрослые") + "</span>";
 }
+/* Все клинические рекомендации одной страницей (vse-kr.html, просьба 29.10.2026): без раскрытий — сразу все КР по разделам,
+   как на главной, но целиком; в разделе — по алфавиту. Вход — пунктом меню, с любого экрана, кроме главной */
+function lorKrList(){
+  var box = document.getElementById("krAll"); if(!box || box.dataset.ready) return; box.dataset.ready = "1";
+  var L = window.LOR, I = window.LOR_ICONS || {};
+  var ico = function(id){ return I[id] ? '<span class="gh-ico-wrap" data-ico-type="' + id + '"><svg class="gh-ico" viewBox="0 0 48 48" aria-hidden="true">' + I[id] + "</svg></span>" : ""; };
+  var item = function(d){
+    var sub = [codesShort(d.codes), d.y ? d.y + " г." : ""].filter(Boolean).join(" · ");
+    return d.href ? row(d.href, esc(d.name) + ageTag(d), esc(sub))
+      : row("https://cr.minzdrav.gov.ru/view-cr/" + esc(d.cv), esc(shortName(d.name)) + ageTag(d), esc(sub) + " · только текст на сайте Минздрава", "ext", ' target="_blank" rel="noopener"');
+  };
+  var sec = function(g, title, icon){
+    var ds = L.diseases.filter(function(d){ return d.g === g.id; }).sort(function(a, b){ return a.name.localeCompare(b.name, "ru"); });
+    if(!ds.length) return "";
+    var ready = ds.filter(function(d){ return d.href; }).length;
+    return '<section class="kr-sec" id="kr-' + g.id + '"><h2 class="kr-sec-h">' + ico(icon) + '<span><span class="kr-sec-t">' + esc(title) + '</span>'
+      + '<span class="kr-sec-n">' + ds.length + " " + plural(ds.length, "рекомендация", "рекомендации", "рекомендаций") + (ready < ds.length ? " · разобрано на сайте: " + ready : "") + "</span></span></h2>"
+      + '<ul class="list">' + ds.map(item).join("") + "</ul></section>";
+  };
+  var core = L.groups.filter(function(g){ return !g.related; }), rel = L.groups.filter(function(g){ return g.related; });
+  var all = L.diseases.length, ready = L.diseases.filter(function(d){ return d.href; }).length;
+  var cap = function(t){ return t.replace(/^Смежные: /, "").replace(/^./, function(c){ return c.toUpperCase(); }); };
+  box.innerHTML = '<p class="kr-total">' + all + " " + plural(all, "рекомендация", "рекомендации", "рекомендаций") + " · разобрано на сайте: " + ready
+    + "</p>"
+    + core.map(function(g){ return sec(g, g.id === "nose" ? "Нос и ОНП" : g.title, g.id); }).join("")
+    + (rel.length ? '<h2 class="kr-rel-h">Смежные специальности</h2>' + rel.map(function(g){ return sec(g, cap(g.title), "related"); }).join("") : "");
+}
 /* «J30.1, J30.2, J30.3, J30.4» → «J30.1–J30.4» */
 function codesShort(codes){
   var c = (codes || []).map(function(x){ return x[0]; });
@@ -114,6 +141,7 @@ function updateDrawerNav(){
   };
   if(!isHome){
     /* «← На главную» не нужна: в шапке каждой страницы есть кнопка с домиком (замечание пользователя 27.10.2026) */
+    if(fname !== "vse-kr.html") items.push(irow("krlist", "vse-kr.html", "Все клинические рекомендации", "полный список по разделам, без раскрытий"));
     if(!isTb) items.push(irow("textbook", "uchebnik.html", "Учебник", "анатомия и болезни ЛОР-органов по руководствам"));
     if(!isDrugs) items.push(irow("drugs", "preparaty.html", "Препараты", "вещества из КР, торговые названия и инструкции ГРЛС"));
     if(!isMkb) items.push(irow("mkb", "mkb.html", "Коды МКБ-10", "ЛОР-рубрики по разделам, нажатие копирует код"));
@@ -627,7 +655,7 @@ function snippet(text, ws, n){
   var from = Math.max(0, i - 40);
   return (from ? "…" : "") + text.slice(from, from + n) + (text.length > from + n ? "…" : "");
 }
-function textHits(ws){
+function textHits(ws, n){
   var out = [];
   if(!IDX) return out;
   var cnt = {};
@@ -642,15 +670,24 @@ function textHits(ws){
     /* страница, где слово встречается много раз, — о нём (12 упоминаний «репозиции» в «Травме носа» против одного в «Расщелине нёба») */
     return (own ? 0 : 10) - Math.min(cnt[x.p.s], 8) + (rank[x.it[1]] === undefined ? 2 : rank[x.it[1]]) / 10; }
   return out.map(function(x, i){ return [x, i]; }).sort(function(a, b){ return score(a[0]) - score(b[0]) || a[1] - b[1]; })
-    .map(function(x){ return x[0]; }).slice(0, 24);
+    .map(function(x){ return x[0]; }).slice(0, n || 24);
 }
+/* лимиты: в выпадающем окне — первые совпадения, на странице результатов (Enter, просьба 29.10.2026) — все */
+var LIM = {dz: 8, gl: 4, drug: 5, text: 24, tb: 6, mkb: 8}, LIM_ALL = {dz: 1e9, gl: 40, drug: 20, text: 200, tb: 60, mkb: 60};
 function render(){
   var q = qIn.value.trim();
   if(q.length < 2){ closeResults(); return; }
+  var r = buildResults(q, LIM), h = r.h;
+  if(r.total) h += '<ul class="list sr-all-link"><li><a class="row" href="poisk.html?q=' + encodeURIComponent(q) + '"><span class="rt">Все результаты по запросу «' + esc(q) + '»<span class="rs">полный список на отдельной странице · Enter</span></span></a></li></ul>';
+  h += '<ul class="list" style="margin-top:24px"><li><button class="row" id="askQ"><span class="rt">Спросить ИИ: «' + esc(q) + "»</span></button></li></ul>";
+  resIn.innerHTML = h; res.hidden = false; cancel.hidden = false; $("askBtn").hidden = true; document.body.classList.add("searching");
+  $("askQ").onclick = function(){ openAsk(q, "", ""); };
+}
+function buildResults(q, lim){
   var ws = words(q), h = "", total = 0;
   /* болезни */
   var dz = L.diseases.filter(function(d){ return has(low(d.name + " " + (d.age || "") + " " + (d.codes || []).map(function(c){ return c[0] + " " + c[1]; }).join(" ")), ws); })
-    .sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); }).slice(0, 8);
+    .sort(function(a, b){ return (b.href ? 1 : 0) - (a.href ? 1 : 0); }).slice(0, lim.dz);
   if(dz.length){ total += dz.length; h += '<h2 class="gh">Заболевания</h2><ul class="list">' + dz.map(function(d){
     /* группа пациентов из КР — перед кодами (жалоба 29.10.2026: «ОРВИ» вела на КР для детей, а по строке этого не было видно —
        официальное название КР 25_3 без «у детей») */
@@ -658,7 +695,7 @@ function render(){
   }).join("") + "</ul>"; }
   /* словарь: термин, в названии которого есть все слова запроса, — короткое определение сразу под заболеваниями */
   if(IDX && IDX.gl){
-    var gl = IDX.gl.filter(function(g){ return has(g.h, ws); }).sort(function(a, b){ return a[0].length - b[0].length; }).slice(0, 4);
+    var gl = IDX.gl.filter(function(g){ return has(g.h, ws); }).sort(function(a, b){ return a[0].length - b[0].length; }).slice(0, lim.gl);
     if(gl.length){ total += gl.length; h += '<h2 class="gh">Словарь</h2><ul class="list">' + gl.map(function(g){
       var i = g[1].indexOf("#");
       return row(g[1].slice(0, i) + "#" + encodeURIComponent(g[1].slice(i + 1)), mark(g[0], ws), esc(snippet(g[2], ws, 120)));
@@ -668,17 +705,17 @@ function render(){
   var drugWords = [];
   if(window.GRLS && GRLS.data && q.length >= 3){
     var r = GRLS.search(q), d = GRLS.data, seen = {}, rows = [];
-    r.inn.slice(0, 3).forEach(function(k){ seen[k] = 1; rows.push(row("preparaty.html#" + encodeURIComponent(k), mark(d.inn[k].n, ws), d.inn[k].tn.length + " " + plural(d.inn[k].tn.length, "торговое название", "торговых названия", "торговых названий") + " в ГРЛС", "", ' data-drug="' + esc(k) + '"')); });
+    r.inn.slice(0, Math.max(3, lim.drug - 2)).forEach(function(k){ seen[k] = 1; rows.push(row("preparaty.html#" + encodeURIComponent(k), mark(d.inn[k].n, ws), d.inn[k].tn.length + " " + plural(d.inn[k].tn.length, "торговое название", "торговых названия", "торговых названий") + " в ГРЛС", "", ' data-drug="' + esc(k) + '"')); });
     r.tn.forEach(function(x){
-      if(rows.length >= 5 || seen[x.inn]) return; seen[x.inn] = 1;
+      if(rows.length >= lim.drug || seen[x.inn]) return; seen[x.inn] = 1;
       rows.push(row("preparaty.html#" + encodeURIComponent(x.inn), mark(x.tn, ws), "действующее вещество — " + esc(d.inn[x.inn].n), "", ' data-drug="' + esc(x.inn) + '"'));
       drugWords.push(d.inn[x.inn].n);
     });
     if(rows.length){ total += rows.length; h += '<h2 class="gh">Лекарственные препараты (ГРЛС)</h2><ul class="list">' + rows.join("") + "</ul>"; }
   }
   /* текст разборов; если искали торговое название — ищем его действующее вещество */
-  var hits = textHits(ws), via = "";
-  if(!hits.length && drugWords.length){ var w2 = words(drugWords[0].split(/\s+/)[0]); hits = textHits(w2); if(hits.length){ via = drugWords[0]; ws = ws.concat(w2); } }
+  var hits = textHits(ws, lim.text), via = "";
+  if(!hits.length && drugWords.length){ var w2 = words(drugWords[0].split(/\s+/)[0]); hits = textHits(w2, lim.text); if(hits.length){ via = drugWords[0]; ws = ws.concat(w2); } }
   /* одна строка на раздел страницы: «Отит средний острый — Лечение», лучший фрагмент и «ещё N совпадений» (ревизия дизайна 26.10.2026, п. 13) */
   var groups = [], gi = {};
   hits.forEach(function(x){ var k = x.p.s + "|" + x.it[1]; if(gi[k] === undefined){ gi[k] = groups.length; groups.push({p: x.p, sec: x.it[1], items: []}); } groups[gi[k]].items.push(x.it); });
@@ -693,23 +730,41 @@ function render(){
   /* учебник: подразделы глав — сначала те, в заголовке которых есть искомое слово */
   if(IDX && IDX.tb){
     var tb = IDX.tb.filter(function(t){ return has(t.l, ws); }).map(function(t, i){ return [t, i]; })
-      .sort(function(a, b){ return (has(b[0].h, ws) ? 1 : 0) - (has(a[0].h, ws) ? 1 : 0) || a[1] - b[1]; }).map(function(x){ return x[0]; }).slice(0, 6);
+      .sort(function(a, b){ return (has(b[0].h, ws) ? 1 : 0) - (has(a[0].h, ws) ? 1 : 0) || a[1] - b[1]; }).map(function(x){ return x[0]; }).slice(0, lim.tb);
     if(tb.length){ total += tb.length; h += '<h2 class="gh">Учебник</h2><ul class="list">' + tb.map(function(t){
       return row(t[0] + "#" + t[3], esc(t[1]) + " — " + mark(t[2], ws), mark(snippet(t[4], ws), ws));
     }).join("") + "</ul>"; }
   }
   /* коды МКБ */
   if(IDX){
-    var ql = low(q), mk = IDX.mkb.filter(function(m){ return low(m[0]).indexOf(ql) === 0 || has(m.l, ws); }).slice(0, 8);
+    var ql = low(q), mk = IDX.mkb.filter(function(m){ return low(m[0]).indexOf(ql) === 0 || has(m.l, ws); }).slice(0, lim.mkb);
     if(mk.length){ total += mk.length; h += '<h2 class="gh">Коды МКБ-10</h2><div class="mkb-list">' + mk.map(function(m){
       return '<button class="mkb-row" data-code="' + esc(m[0].replace(/[*†]/g, "")) + '"><code>' + esc(m[0]) + "</code><span>" + mark(m[1], ws) + "</span></button>";
     }).join("") + "</div>"; }
   }
   if(!IDX) h += '<p class="empty">Загружаю текст разборов…</p>';
   else if(!total) h += '<p class="empty">По запросу «' + esc(q) + "» ничего не нашлось. Проверьте написание или напишите начало слова.</p>";
-  h += '<ul class="list" style="margin-top:24px"><li><button class="row" id="askQ"><span class="rt">Спросить ИИ: «' + esc(q) + "»</span></button></li></ul>";
-  resIn.innerHTML = h; res.hidden = false; cancel.hidden = false; $("askBtn").hidden = true; document.body.classList.add("searching");
-  $("askQ").onclick = function(){ openAsk(q, "", ""); };
+  return {h: h, total: total};
+}
+/* страница результатов поиска (poisk.html?q=…): все совпадения по разделам, без ограничений выпадающего окна */
+function lorSearchPage(){
+  var box = $("srAll"); if(!box) return;
+  var q = (new URLSearchParams(location.search).get("q") || "").trim();
+  qIn.value = q; closeResults();
+  var meta = $("srMeta"), title = $("srTitle");
+  if(title) title.textContent = q ? "Результаты поиска: «" + q + "»" : "Результаты поиска";
+  document.title = (q ? "«" + q + "» — поиск" : "Поиск") + " · ЛОР-справочник";
+  if(q.length < 2){ box.innerHTML = '<p class="empty">Напишите в строке поиска вверху болезнь, код МКБ-10, препарат или термин и нажмите Enter.</p>'; if(meta) meta.textContent = ""; return; }
+  box.innerHTML = '<p class="empty">Ищу по разборам, учебнику, словарю и реестру препаратов…</p>';
+  var draw = function(){
+    if(!box.isConnected) return;
+    var r = buildResults(q, LIM_ALL);
+    box.innerHTML = r.h + '<ul class="list" style="margin-top:24px"><li><button class="row" data-ask-q><span class="rt">Спросить ИИ: «' + esc(q) + "»</span></button></li></ul>";
+    var b = box.querySelector("[data-ask-q]"); if(b) b.onclick = function(){ openAsk(q, "", ""); };
+    if(meta) meta.textContent = r.total ? "Найдено: " + r.total + " " + plural(r.total, "результат", "результата", "результатов") + " — болезни, словарь, препараты, текст разборов, учебник и коды МКБ-10." : "";
+  };
+  var ld = [loadIndex()]; if(window.GRLS && q.length >= 3) ld.push(GRLS.load());
+  Promise.all(ld.map(function(p){ return p.catch(function(){}); })).then(draw);
 }
 function closeResults(){ res.hidden = true; cancel.hidden = true; $("askBtn").hidden = false; document.body.classList.remove("searching"); }
 var deb;
@@ -725,7 +780,13 @@ var deb;
   qIn.addEventListener("focus", function(){ if(B.page !== "drugs" && qIn.value.trim().length >= 2) render(); });
   qIn.addEventListener("keydown", function(e){
     if(e.key === "Escape"){ qIn.value = ""; closeResults(); qIn.blur(); }
-    if(e.key === "Enter" && B.page !== "drugs"){ e.preventDefault(); var a = resIn.querySelector("a.row"); if(a) a.click(); }
+    /* Enter — полная страница результатов (просьба 29.10.2026); раньше открывал первый результат */
+    if(e.key === "Enter" && B.page !== "drugs"){
+      e.preventDefault(); var qq = qIn.value.trim(); if(qq.length < 2) return;
+      closeResults(); qIn.blur();
+      var u = "poisk.html?q=" + encodeURIComponent(qq);
+      if(typeof go === "function") go(new URL(u, location.href).href, true); else location.href = u;
+    }
   });
   cancel.onclick = function(){ qIn.value = ""; closeResults(); };
   /* переход к пункту на этой же странице — закрыть результаты и показать пункт */
@@ -814,6 +875,9 @@ var LOR_ICONS = {
     + '<path class="ico-str" d="M24 6L39 11.5V23C39 32 32.5 38.8 24 42C15.5 38.8 9 32 9 23V11.5ZM17 24L22 29L31 19"/>',
   /* меню (просьба 28.10.2026: значки у пунктов — чтобы различались с одного взгляда): PDF — лист со стрелкой загрузки,
      закладки учебника — книга с лентой, закладки разборов — документ с лентой */
+  krlist: '<path class="ico-fill-2" d="M15 6H37A3 3 0 0 1 40 9V36"/><rect class="ico-fill-1" x="8" y="10" width="28" height="32" rx="3"/>'
+    + '<path class="ico-fill-hi" d="M13 16H17V20H13ZM13 24H17V28H13ZM13 32H17V36H13Z"/><path class="ico-det" d="M20.5 18H31M20.5 26H31M20.5 34H27"/>'
+    + '<path class="ico-str" d="M11 10H33A3 3 0 0 1 36 13V39A3 3 0 0 1 33 42H11A3 3 0 0 1 8 39V13A3 3 0 0 1 11 10ZM14 6H37A3 3 0 0 1 40 9V35M13 16H17V20H13ZM13 24H17V28H13ZM13 32H17V36H13Z"/>',
   pdf: '<path class="ico-fill-1" d="M12 6H29L37 14V42H12Z"/><path class="ico-fill-hi" d="M29 6V14H37Z"/>'
     + '<path class="ico-det" d="M17 17H24M17 22H31"/><path class="ico-str" d="M12 6H29L37 14V42H12ZM29 6V14H37M24.5 27V37M20 32.5L24.5 37L29 32.5"/>',
   bmtb: '<path class="ico-fill-1" d="M7 11.5C11.5 9.5 18.5 10 24 13C29.5 10 36.5 9.5 41 11.5V36.5C36.5 34.5 29.5 35 24 38C18.5 35 11.5 34.5 7 36.5Z"/>'
@@ -1127,6 +1191,8 @@ if(VER && vlog){
 }
 
 window.LOR_ICONS = LOR_ICONS;  /* до вызова lorTextbook: значки разделов учебника берутся отсюда */
+if($("krAll")) lorKrList();
+if($("srAll")) lorSearchPage();
 if(typeof lorTables === "function") lorTables();
 if(typeof lorAlgorithms === "function") lorAlgorithms();
 if(typeof lorTextbook === "function") lorTextbook();
@@ -1356,6 +1422,8 @@ function lorHubHero(){
     cfg = {ico:"drugs", kicker:(nd ? nd + " " + (nd % 10 === 1 && nd % 100 !== 11 ? "вещество" : nd % 10 >= 2 && nd % 10 <= 4 && (nd % 100 < 12 || nd % 100 > 14) ? "вещества" : "веществ") + " из клинических рекомендаций · " : "") + "реестр ГРЛС"};
   } else if(fname === "mkb.html"){
     cfg = {ico:"mkb", kicker:"Классификатор Минздрава РФ · ЛОР-рубрики"};
+  } else if(fname === "vse-kr.html"){
+    cfg = {ico:"krlist", kicker:"Рубрикатор клинических рекомендаций Минздрава РФ"};
   } else if(fname === "istochniki.html"){
     cfg = {ico:"sources", kicker:"Официальные документы и журнал сверки"};
   } else if(B.page === "bookmarks"){
