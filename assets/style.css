@@ -2493,3 +2493,15 @@ html.tb-vt-fs::view-transition-group(tb-fscard),html.tb-vt-fs::view-transition-o
 html.tb-vt-fs::view-transition-old(tb-fscard){display:none}
 html.tb-vt-fs::view-transition-old(root){animation:tbImmOut .18s ease both}
 html.tb-vt-fs::view-transition-new(root){animation:tbImmIn .18s ease both}
+
+/* ===== 29.10.2026 ===== */
+/* заголовки при крупном шрифте не выходят за карточку и экран: длинное слово («оториноларингологии») переносится по слогам,
+   а заголовок в строке со значком может сжиматься (min-width:0) */
+h1,h2,h3,.pt{overflow-wrap:break-word;hyphens:auto}
+.tb-hero-title-row h1.pt,.tb-ch-hero-in,.tb-ch-hero h1{min-width:0}
+/* чтение с телефона: без рамки-подложки вокруг разделов — она съедала ширину текста; разделы разделены тонкой линией */
+@media (max-width:640px){
+  html:not(.tb-paged) .tb-chap .tb-sec{padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+  html:not(.tb-paged) .tb-chap .tb-sec+.tb-sec{padding-top:var(--s4);border-top:1px solid var(--line)}
+  html:not(.tb-paged) .tb-chap .tb-body{gap:var(--s5)}
+}

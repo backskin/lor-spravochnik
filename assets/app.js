@@ -2264,6 +2264,7 @@ function lorTextbook(){
     })(t0);
   }
   function pgGo(n, smooth, v){
+    if(smooth) userMoved = true;  /* листал человек (кнопки, свайп, клавиши, сноска) */
     pg = Math.max(0, Math.min(pgN - 1, n));
     var x = pg * pgStep, dist = Math.abs(x - flow.scrollLeft);
     /* соседняя страница — доводка 240 мс (после жеста — по его скорости, 120–260 мс); дальняя — без пролёта через десятки страниц */
@@ -2288,7 +2289,12 @@ function lorTextbook(){
     var rg = null;
     if(document.caretRangeFromPoint) rg = document.caretRangeFromPoint(x, y);
     else if(document.caretPositionFromPoint){ var cp = document.caretPositionFromPoint(x, y); if(cp){ rg = document.createRange(); rg.setStart(cp.offsetNode, cp.offset); } }
-    if(rg && rg.startContainer.nodeType === 3 && flow.contains(rg.startContainer) && rectOf(rg).height) return rg;
+    if(rg && rg.startContainer.nodeType === 3 && flow.contains(rg.startContainer)){
+      var tn = rg.startContainer, tx = tn.textContent, i = Math.min(rg.startOffset, tx.length - 1);
+      while(i < tx.length && /[\s\u00ad]/.test(tx[i])) i++;
+      if(i >= tx.length){ i = Math.min(rg.startOffset, tx.length) - 1; while(i >= 0 && /[\s\u00ad]/.test(tx[i])) i--; }
+      if(i >= 0){ var ch = document.createRange(); ch.setStart(tn, i); ch.setEnd(tn, i + 1); if(rectOf(ch).height) return ch; }
+    }
     var el = document.elementFromPoint(x, y);
     return el && flow.contains(el) && el !== flow && !/^(DIV|SECTION)$/.test(el.tagName) ? el : null;
   }
@@ -2299,12 +2305,17 @@ function lorTextbook(){
   function atPageStart(){  /* первая строка видимой страницы — чтобы при смене размера окна или режима не потерять место */
     var r = flow.getBoundingClientRect(), y;
     for(y = r.top + 6; y < r.top + 160; y += 12){ var a = textAt(r.left + 20, y); if(a) return a; }
+    return blockNear(function(el){ return pageOf(el) >= pg; });
+  }
+  function blockNear(test){  /* первый блок главы, удовлетворяющий условию: абзац, пункт списка, заголовок, рисунок, таблица */
+    var bl = flow.querySelectorAll("p, li, h2, h3, figure, .tbl-wrap");
+    for(var i = 0; i < bl.length; i++){ if(bl[i].getClientRects().length && test(bl[i])) return bl[i]; }
     return null;
   }
   function atReadLine(){  /* первая строка под шапкой в режиме прокрутки */
     var r = flow.getBoundingClientRect(), y0 = readLine(), y;
     for(y = y0; y < y0 + 200; y += 12){ var a = textAt(r.left + 40, y); if(a) return a; }
-    return null;
+    return blockNear(function(el){ return el.getBoundingClientRect().bottom > y0; });
   }
   function pgLayout(keep){
     window.scrollTo(0, 0);
@@ -2346,6 +2357,13 @@ function lorTextbook(){
       if(!changed) break;
     }
   }
+  /* Смена режима туда и обратно возвращает ровно на исходное место (жалоба 29.10.2026: двойное переключение уводило выше —
+     строка из прокрутки попадает в середину страницы, а обратный путь отсчитывался от верха страницы). Запоминается, откуда ушли;
+     если с тех пор человек не листал, не прокручивал, не менял размер текста и окна — возвращаемся туда же (страница или
+     прокрутка до пикселя), иначе — по строке текста */
+  var modeMem = null, userMoved = false;
+  function moved(){ userMoved = true; }
+  ["wheel", "touchmove", "keydown"].forEach(function(t){ window.addEventListener(t, function(){ if(!root.classList.contains("tb-paged")) userMoved = true; }, sig ? {signal: sig.signal, passive: true} : {passive: true}); });
   function setMode(mode, keep, fade){
     var paged = mode === "paged";
     document.querySelectorAll("[data-tb-mode]").forEach(function(b){ if(b.closest(".tb-mode")) b.setAttribute("aria-pressed", String(b.dataset.tbMode === mode)); });
@@ -2368,9 +2386,11 @@ function lorTextbook(){
     slideStop();
     if(root.classList.contains("tb-immersive")){ root.classList.remove("tb-immersive"); if(!paged){ flow.style.height = ""; } }
     if(paged){
+      var backPg = modeMem && modeMem.left === "paged" && !userMoved && Math.abs(window.scrollY - modeMem.landed) < 4 ? modeMem.pos : null, leaveY = window.scrollY;
       if(!keep) keep = atReadLine();
       root.classList.add("tb-paged");
-      pgLayout(keep);
+      if(backPg != null){ pgLayout(null); pgGo(backPg, false); } else pgLayout(keep);
+      modeMem = {left: "scroll", pos: leaveY, landed: pg}; userMoved = false;
       /* ленивые картинки внутри обрезанных столбцов сами не загружаются: грузим сразу, после загрузки — пересчёт страниц */
       var lazy = [].slice.call(flow.querySelectorAll('img[loading="lazy"]'));
       lazy.forEach(function(im){ im.loading = "eager"; });
@@ -2378,15 +2398,20 @@ function lorTextbook(){
         .then(function(){ if(!root.classList.contains("tb-paged")) return;
           /* при «назад» страница сохранена в разбивке с загруженными картинками — после их загрузки возвращаемся именно на неё */
           if(!lazy.length) return;
-          if(restored && pos && pos.p != null){ pgLayout(null); pgGo(pos.p, false); } else pgLayout(atPageStart()); });
+          if(restored && pos && pos.p != null){ pgLayout(null); pgGo(pos.p, false); } else pgLayout(atPageStart());
+          if(!userMoved && modeMem && modeMem.left === "scroll") modeMem.landed = pg; });
     } else {
+      var backY = modeMem && modeMem.left === "scroll" && !userMoved && pg === modeMem.landed ? modeMem.pos : null, leavePg = pg;
       keep = keep || atPageStart();
       root.classList.remove("tb-paged");
       flow.style.height = ""; flow.scrollLeft = 0;
-      if(keep){  /* та же строка — у верха текста под шапкой; второй шаг — когда плашка содержания успела появиться */
+      var mem = modeMem = {left: "paged", pos: leavePg, landed: -1e9}; userMoved = false;
+      var land = function(){ if(modeMem === mem) mem.landed = window.scrollY; };
+      if(backY != null){ window.scrollTo(0, backY); requestAnimationFrame(function(){ window.scrollTo(0, backY); land(); }); }
+      else if(keep){  /* та же строка — у верха текста под шапкой; второй шаг — когда плашка содержания успела появиться */
         window.scrollTo(0, window.scrollY + rectOf(keep).top - readLine() - 44);
-        requestAnimationFrame(function(){ window.scrollTo(0, window.scrollY + rectOf(keep).top - readLine()); });
-      }
+        requestAnimationFrame(function(){ window.scrollTo(0, window.scrollY + rectOf(keep).top - readLine()); land(); });
+      } else requestAnimationFrame(land);
     }
   }
   main.addEventListener("click", function(e){
@@ -2509,6 +2534,7 @@ function lorTextbook(){
     setTimeout(function(){ if(fsBox.classList.contains("out")) fsBox.classList.remove("on", "out"); }, animOn() ? 200 : 0);
   }
   function fsRelayoutNow(){  /* место чтения — строка, запомненная при открытии окна */
+    moved();
     if(root.classList.contains("tb-paged")) pgLayout(fsKeep);
     else if(fsKeep){ var r = rectOf(fsKeep); window.scrollTo(0, window.scrollY + r.top - readLine()); }
   }
@@ -2520,9 +2546,16 @@ function lorTextbook(){
   var immBack = null;
   function immersive(on){
     if(on === root.classList.contains("tb-immersive")) return;
+    moved();
     /* туда и обратно без листания — та же страница, что была: место не сползает назад с каждым нажатием */
-    var k = !on && immBack && immBack.pg === pg ? immBack.k : atPageStart(), was = on ? {k: k} : null;
-    var apply = function(){ root.classList.toggle("tb-immersive", on); pgLayout(k); immBack = was ? {k: was.k, pg: pg} : null; };
+    /* возврат без листания — на ту же страницу по номеру: разбивка той же высоты та же, а строка-якорь у края страницы
+       после подгонки рисунков могла оказаться на соседней */
+    var back = !on && immBack && immBack.pg === pg ? immBack.from : null, k = atPageStart(), was = on ? pg : null;
+    var apply = function(){
+      root.classList.toggle("tb-immersive", on);
+      if(back != null){ pgLayout(null); pgGo(back, false); } else pgLayout(k);
+      immBack = was != null ? {from: was, pg: pg} : null;
+    };
     if(document.startViewTransition && animOn()){
       root.classList.add("tb-vt-imm");
       var vt = document.startViewTransition(apply);
@@ -2532,7 +2565,7 @@ function lorTextbook(){
   var rsT = 0;
   window.addEventListener("resize", function(){
     if(!root.classList.contains("tb-paged")) return;
-    clearTimeout(rsT); var keep = atPageStart();
+    clearTimeout(rsT); var keep = atPageStart(); moved();
     rsT = setTimeout(function(){ pgLayout(keep); }, 120);
   }, sig);
   var saved = "scroll"; try{ saved = localStorage.getItem("lor-tb-mode") || "scroll"; }catch(e){}
