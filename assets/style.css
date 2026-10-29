@@ -2600,3 +2600,19 @@ p,li,dd,dt,figcaption,b.lt,em.key,.drug{overflow-wrap:anywhere}
    125–150 % граница обрезки столбца округляется внутрь и съедает линию в 1 px, лежащую ровно на краю. Отступ 3 px
    в каждом фрагменте столбца (боковые поля блока повторяются в каждом столбце) — рамки не касаются линии обрезки */
 html.tb-paged .tb-flow > *{padding-left:3px;padding-right:3px;box-sizing:border-box}
+
+/* ===== ультратонкий ползунок без стрелок: боковое меню, колонка учебника, выдвижные списки (просьба 29.10.2026) =====
+   стандартная «тонкая» полоса в Chrome на Windows рисуется со стрелками, поэтому — собственные стили полосы (::-webkit-scrollbar;
+   они работают, только если scrollbar-width не задан), в Firefox — его тонкая полоса */
+.drawer,.tb-aside,.tb-tocbar-list,.sheet{scrollbar-width:auto}
+.tb-chap .tb-aside{scrollbar-width:auto}
+.drawer::-webkit-scrollbar,.tb-aside::-webkit-scrollbar,.tb-tocbar-list::-webkit-scrollbar,.sheet::-webkit-scrollbar{width:4px;height:4px}
+.drawer::-webkit-scrollbar-track,.tb-aside::-webkit-scrollbar-track,.tb-tocbar-list::-webkit-scrollbar-track,.sheet::-webkit-scrollbar-track{background:transparent}
+.drawer::-webkit-scrollbar-thumb,.tb-aside::-webkit-scrollbar-thumb,.tb-tocbar-list::-webkit-scrollbar-thumb,.sheet::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb,var(--fg2) 35%,transparent);border-radius:4px}
+.drawer::-webkit-scrollbar-thumb:hover,.tb-aside::-webkit-scrollbar-thumb:hover,.tb-tocbar-list::-webkit-scrollbar-thumb:hover,.sheet::-webkit-scrollbar-thumb:hover{
+  background:color-mix(in srgb,var(--fg2) 60%,transparent)}
+.drawer::-webkit-scrollbar-button,.tb-aside::-webkit-scrollbar-button,.tb-tocbar-list::-webkit-scrollbar-button,.sheet::-webkit-scrollbar-button{display:none;width:0;height:0}
+@supports not selector(::-webkit-scrollbar){
+  .drawer,.tb-aside,.tb-tocbar-list,.sheet,.tb-chap .tb-aside{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--fg2) 35%,transparent) transparent}
+}
