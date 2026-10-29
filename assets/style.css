@@ -2596,3 +2596,7 @@ p,li,dd,dt,figcaption,b.lt,em.key,.drug{overflow-wrap:anywhere}
 @media (min-width:680px){.dz-meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tb-grp-h > *,.tb-grp-head > *,.aw-btn > *{min-width:0}
 .aw-btn,.tb-grp-h h2,.tb-grp-head h2{overflow-wrap:anywhere}
+/* постранично: рамки рисунков и номеров разделов у левого края столбца срезались (жалоба 29.10.2026) — при масштабе экрана
+   125–150 % граница обрезки столбца округляется внутрь и съедает линию в 1 px, лежащую ровно на краю. Отступ 3 px
+   в каждом фрагменте столбца (боковые поля блока повторяются в каждом столбце) — рамки не касаются линии обрезки */
+html.tb-paged .tb-flow > *{padding-left:3px;padding-right:3px;box-sizing:border-box}
