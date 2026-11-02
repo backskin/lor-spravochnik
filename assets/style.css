@@ -2606,7 +2606,9 @@ p,li,dd,dt,figcaption,b.lt,em.key,.drug{overflow-wrap:anywhere}
 .tb-cards{grid-template-columns:minmax(0,1fr)}
 @media (min-width:640px){.tb-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tb-cards > li,.tb-card{min-width:0}
-.tb-c-top{flex-wrap:wrap}
+/* метка («Клиника», «Анатомия») всегда справа сверху, как у соседних карточек; переносится заголовок, а не метка */
+.tb-c-top{flex-wrap:nowrap}
+.tb-c-title{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;hyphens:auto}
 /* сетки в одну колонку: колонка не шире своего места (у «1fr» и неявной колонки минимум — самое широкое содержимое,
    из-за этого весь список «Основные положения» в «Остром ларингите» уходил за экран при крупном шрифте) */
 .summary ul,.summary ol,.body ul,.body ol,.tn-list,.tn-regs,.mkb-list,.alg-steps{grid-template-columns:minmax(0,1fr)}
