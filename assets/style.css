@@ -2391,6 +2391,10 @@ html.tb-vt-paged::view-transition-group(tb-fab),html.tb-vt-scroll::view-transiti
 /* кнопки справа при чтении вниз уезжают за край, при прокрутке вверх вылетают обратно (app.js, fabTick) */
 .fab-box{transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
 .fab-box.away{transform:translateX(calc(100% + 24px + env(safe-area-inset-right,0px)));opacity:0;pointer-events:none}
+/* большой экран: закладка остаётся на месте, уезжает только «Наверх» (просьба 02.11.2026) */
+.fab-box.wide.away{transform:none;opacity:1;pointer-events:auto}
+.fab-box.wide.away .fab-top{transform:translateX(calc(100% + 24px + env(safe-area-inset-right,0px)));opacity:0;pointer-events:none}
+.fab-top{transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
 /* постранично, чтение без панелей: шапка уходит вверх, панель листания — вниз, кнопки — вправо; текст стоит на месте */
 html.tb-paged header.top,html.tb-paged .tb-pager{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease}
 html.tb-immersive header.top{transform:translateY(calc(-100% - 2px))}

@@ -1314,6 +1314,8 @@ if(!fab){
   var fabTick = function(){
     var y = window.scrollY, dy = y - fabY, paged = root.classList.contains("tb-paged");
     fab.classList.toggle("up", y > innerHeight * 0.8 && !paged);
+    /* на большом экране закладка не уезжает — она в стороне от текста; уходит только «Наверх» (просьба 02.11.2026) */
+    fab.classList.toggle("wide", innerWidth >= 1024);
     if(paged || y < 120) fab.classList.remove("away");
     else if(dy > 6) fab.classList.add("away");
     else if(dy < -6) fab.classList.remove("away");
