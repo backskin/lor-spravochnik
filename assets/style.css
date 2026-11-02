@@ -2406,6 +2406,16 @@ html[data-anim="off"] .fab-box,html[data-anim="off"].tb-paged header.top,html[da
 /* ===== постраничный режим: закладка в панели, чтение без панелей на всю высоту (28.10.2026, поздно вечером) ===== */
 html.tb-paged .fab-box{display:none}  /* плавающие кнопки не закрывают текст: закладка — в нижней панели */
 .tb-pg-bm svg{color:var(--ac)}
+/* всплывающая подпись кнопки закладки при наведении мышью: сразу, без задержки системной подсказки; уходит вместе с курсором (просьба 02.11.2026) */
+@media (hover:hover) and (pointer:fine){
+  #fabBm,.tb-pg-bm{position:relative}
+  #fabBm::after,.tb-pg-bm::after{content:attr(data-tip);position:absolute;z-index:60;white-space:nowrap;pointer-events:none;
+    padding:6px 10px;border-radius:8px;background:var(--fg);color:var(--bg);font-family:"PT Sans",sans-serif;font-size:14px;font-weight:700;line-height:1.2;
+    box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;visibility:hidden}
+  #fabBm::after{right:calc(100% + 10px);top:50%;transform:translateY(-50%)}
+  .tb-pg-bm::after{bottom:calc(100% + 10px);right:0}
+  #fabBm:hover::after,.tb-pg-bm:hover::after{opacity:1;visibility:visible}
+}
 @media (max-width:600px){html.tb-paged .tb-pg-btn{width:40px}}
 html.tb-paged main.tb-chap{padding-top:var(--s3)}
 /* без панелей: шапка уходит вверх и выходит из потока — страница начинается от верха экрана; снизу — номер и полоса прогресса */

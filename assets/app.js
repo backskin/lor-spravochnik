@@ -1302,7 +1302,7 @@ var fab = $("fabBox");
 if(!fab){
   document.body.insertAdjacentHTML("beforeend", '<div class="fab-box" id="fabBox" hidden>'
     + '<button type="button" class="fab fab-top" id="fabTop" aria-label="Наверх" title="Наверх"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>'
-    + '<button type="button" class="fab" id="fabBm" aria-label="Добавить закладку" title="Добавить закладку"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/><path d="M12 7.5v6M9 10.5h6" stroke-linecap="round"/></svg></button></div>');
+    + '<button type="button" class="fab" id="fabBm" aria-label="Добавить закладку" data-tip="Добавить закладку"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/><path d="M12 7.5v6M9 10.5h6" stroke-linecap="round"/></svg></button></div>');
   fab = $("fabBox");
   $("fabBm").onclick = bmAdd;
   $("fabTop").onclick = function(){ window.scrollTo({top: 0, behavior: root.dataset.anim === "off" ? "auto" : "smooth"}); };
@@ -1695,6 +1695,11 @@ requestAnimationFrame(function(){ root.classList.remove("lor-boot"); });  /* э�
       text:"Кнопка «Аа» — размер текста. Окно уходит само после выбора или по нажатию мимо него; место чтения сохраняется."},
     {id:"tbtap", sel:".tb-flow", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
       text:"Нажмите на текст, чтобы убрать панели и читать на весь экран: внизу останутся номер страницы и полоса прогресса. Ещё одно нажатие возвращает панели."},
+    /* закладки (02.11.2026: в обучении их не было ни в прокрутке, ни постранично) */
+    {id:"bmadd", sel:"#fabBm", fixed:true, when:function(){ return !document.documentElement.classList.contains("tb-paged"); },
+      text:"Кнопка с флажком справа внизу добавляет закладку на месте, где вы читаете. Список закладок открывается из меню: «Закладки учебника» и «Закладки разборов». Закладки хранятся в браузере этого устройства."},
+    {id:"bmaddp", sel:".tb-pager .tb-pg-bm", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
+      text:"Флажок в нижней панели добавляет закладку на этой странице главы. Список закладок открывается из меню: «Закладки учебника». Закладки хранятся в браузере этого устройства."},
     {id:"drugsearch", sel:".searchbox", when:function(){ return B.page === "drugs"; }, text:"На этой странице поиск ищет по реестру: торговое название покажет действующее вещество, а вещество — все торговые названия."}
   ];
   var queue = [], i = 0, box, ring;
@@ -2373,7 +2378,7 @@ function lorTextbook(){
     + '<button type="button" class="tb-pg-btn" data-pg="1" aria-label="Следующая страница">›</button>'
     /* закладка постранично — здесь, а не плавающей кнопкой поверх текста (жалоба 28.10.2026: мешала читать) */
     + '<button type="button" class="tb-pg-btn tb-fs-open" aria-label="Размер текста" title="Размер текста"><span class="tb-aa" aria-hidden="true"><small>А</small>А</span></button>'
-    + '<button type="button" class="tb-pg-btn tb-pg-bm" aria-label="Добавить закладку" title="Добавить закладку"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/><path d="M12 8v6M9 11h6"/></svg></button>';
+    + '<button type="button" class="tb-pg-btn tb-pg-bm" aria-label="Добавить закладку" data-tip="Добавить закладку"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/><path d="M12 8v6M9 11h6"/></svg></button>';
   pager.querySelector(".tb-pg-info b").textContent = flowTitle.textContent;
   main.appendChild(pager);
   pager.querySelector(".tb-pg-bm").addEventListener("click", function(){ if(typeof window.lorBmAdd === "function") window.lorBmAdd(); });
