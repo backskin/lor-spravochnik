@@ -2468,6 +2468,7 @@ function lorTextbook(){
     var gap = parseFloat(getComputedStyle(flow).columnGap) || 48;
     pgStep = flow.clientWidth + gap;
     fitFigures(gap);
+    keepCaptions();
     pgN = Math.max(1, Math.ceil((flow.scrollWidth + gap - 4) / pgStep));
     pgGo(keep ? pageOf(keep) : pg, false);
   }
@@ -2501,6 +2502,17 @@ function lorTextbook(){
       });
       if(!changed) break;
     }
+  }
+  /* Заголовок таблицы не остаётся внизу страницы, когда сама таблица начинается на следующей (жалоба 04.11.2026):
+     такой заголовок переносится на страницу таблицы. Правило break-after браузер в столбцах соблюдает не всегда */
+  function keepCaptions(){
+    flow.querySelectorAll(".tb-tcap").forEach(function(c){ c.style.breakBefore = ""; });
+    flow.querySelectorAll(".tb-tcap").forEach(function(c){
+      var w = c.nextElementSibling; if(!w || !w.classList.contains("tbl-wrap")) return;
+      var r = w.querySelector("tbody tr") || w; if(!r.getClientRects().length) return;
+      var rs = c.getClientRects(); if(!rs.length) return;
+      if(pageOf(c) !== pageOf(r) || pageOf({getClientRects: function(){ return [rs[rs.length - 1]]; }}) !== pageOf(r)) c.style.breakBefore = "column";
+    });
   }
   /* Смена режима туда и обратно возвращает ровно на исходное место (жалоба 29.10.2026: двойное переключение уводило выше —
      строка из прокрутки попадает в середину страницы, а обратный путь отсчитывался от верха страницы). Запоминается, откуда ушли;
@@ -2617,12 +2629,20 @@ function lorTextbook(){
   var dragT = 0;
   flow.addEventListener("touchend", function(){ if(tDrag) dragT = performance.now(); }, {passive: true});
   flow.addEventListener("click", function(e){
-    if(!root.classList.contains("tb-paged") || performance.now() - dragT < 400) return;
+    var paged = root.classList.contains("tb-paged");
+    if(paged && performance.now() - dragT < 400) return;
     if(e.target.closest("a,button,input,label,summary,figure,img,svg,table,.tbl-wrap,.fig-scroll")) return;
     var sel = window.getSelection && String(window.getSelection());
     if(sel) return;
     if(aside.classList.contains("open")){ asideOpen(false); return; }
-    immersive(!root.classList.contains("tb-immersive"));
+    if(paged){ immersive(!root.classList.contains("tb-immersive")); return; }
+    /* режим прокрутки, телефон и планшет (просьба 04.11.2026): тап по тексту так же убирает и возвращает шапку и кнопки справа;
+       плашка «Содержание главы» и полоса прогресса справа остаются. Дальнейшая прокрутка управляет шапкой как обычно */
+    if(innerWidth >= 1024 || !matchMedia("(pointer:coarse)").matches) return;
+    var away = !root.classList.contains("hdr-away"), fb = document.getElementById("fabBox");
+    if(away && window.scrollY < 120) return;  /* у верха страницы шапка не уходит — как при прокрутке */
+    root.classList.toggle("hdr-away", away);
+    if(fb) fb.classList.toggle("away", away);
   });
   prog.addEventListener("click", function(){ immersive(false); });
   /* Без панелей освободившееся место занимает текст (жалоба 28.10.2026: пустые полосы сверху и снизу): страница перестраивается
@@ -2689,29 +2709,11 @@ function lorTextbook(){
   });
   document.addEventListener("keydown", function tbFsK(e){ if(!main.isConnected){ document.removeEventListener("keydown", tbFsK); return; } if(e.key === "Escape") fsClose(); });
   var immBack = null;
-  /* На телефоне чтение без панелей включает и полноэкранный режим браузера: уходят строка адреса и системные панели
-     (просьба 29.10.2026). Пока экран меняет размер, перестройка по resize не запускается — страница перестраивается один раз,
-     когда полноэкранный режим включился. Выход жестом «назад» или клавишей — панели возвращаются */
+  /* Полноэкранный режим браузера не включается (отказ 04.11.2026: мобильный Chrome при каждом входе показывал внизу крупное
+     уведомление на треть экрана, а смена размера экрана перестраивала страницы — тапы по центру уводили всё дальше по главе).
+     Без панелей уходят только шапка, нижняя панель и кнопки справа */
   var rsHold = 0;
-  var fsCan = function(){ return !!(document.fullscreenEnabled && root.requestFullscreen) && matchMedia("(pointer:coarse)").matches; };
-  document.addEventListener("fullscreenchange", function tbFsc(){
-    if(!flow.isConnected){ document.removeEventListener("fullscreenchange", tbFsc); return; }
-    if(!document.fullscreenElement && root.classList.contains("tb-immersive")) immersive(false);
-  });
-  function immersive(on){
-    if(on === root.classList.contains("tb-immersive")) return;
-    if(on && fsCan() && !document.fullscreenElement){
-      rsHold = performance.now() + 900;
-      root.requestFullscreen({navigationUI: "hide"}).then(function(){ setTimeout(function(){ immersiveRun(true); }, 80); }, function(){ immersiveRun(true); });
-      return;
-    }
-    if(!on && document.fullscreenElement){
-      rsHold = performance.now() + 900;
-      document.exitFullscreen().then(function(){ setTimeout(function(){ immersiveRun(false); }, 80); }, function(){ immersiveRun(false); });
-      return;
-    }
-    immersiveRun(on);
-  }
+  function immersive(on){ immersiveRun(on); }
   function immersiveRun(on){
     if(on === root.classList.contains("tb-immersive")) return;
     rsHold = 0;

@@ -2173,7 +2173,9 @@ html.tb-paged .fig-scroll{break-inside:avoid}
    отключена — элемент с прокруткой браузер не может разрезать между колонками */
 html.tb-paged .tbl-wrap{break-inside:auto;overflow:visible}
 html.tb-paged .tbl-wrap tr{break-inside:avoid}
-html.tb-paged .tbl-wrap thead{display:table-header-group}
+/* шапка таблицы повторяется на каждой странице — только у настоящей таблицы; у таблиц-карточек (телефон, класс stack) шапки нет
+   (жалоба 04.11.2026: внизу страницы оставалась пустая строка заголовков, а карточки начинались на следующей) */
+@media (min-width:641px){html.tb-paged .tbl-wrap table:not(.stack) thead{display:table-header-group}}
 html.tb-paged .tb-tcap{break-after:avoid}
 
 /* постоянное оглавление учебника в колонке: место под полосу прокрутки занято всегда — ширина и текст не прыгают */
