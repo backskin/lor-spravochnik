@@ -2710,3 +2710,26 @@ html[data-anim="off"] .fv-cap,html[data-anim="off"] .fv-x{transition:none}
 /* учебник: пометка устаревшего сведения книги (метод, препарат, теория) с пояснением */
 .tb-old{color:var(--fg2);font-size:.9em}
 .tb-old-b{display:inline-block;margin:0 .15em;padding:0 .4em;border-radius:6px;border:1px solid var(--warn);color:var(--warn);font-size:.78em;font-weight:700;line-height:1.5;text-indent:0;vertical-align:.08em;white-space:nowrap}
+/* учебник: вставки (один вид — один смысл; docs/TEXTBOOK-RULES.md «Вставки») */
+:root{--caution:#8a4b00;--caution-bg:#fff3df}
+html[data-theme="dark"]{--caution:#f0b25a;--caution-bg:#33270f}
+@media (prefers-color-scheme:dark){html:not([data-theme="light"]){--caution:#f0b25a;--caution-bg:#33270f}}
+.tb-sec-content p.tb-lead{font-size:1.12em;line-height:1.55;text-indent:0}
+.tb-sec-content .tb-minor{font-family:var(--sans);font-size:.88em;line-height:1.55;color:var(--fg2)}
+.tb-sec-content .tb-minor p{text-indent:0}
+.tb-sec-content .tb-minor .tb-minor-h{margin:0;font-size:.85em;font-weight:700;letter-spacing:.03em;color:var(--fg2)}
+.tb-sec-content .tb-minor + .tb-minor{margin-top:var(--s2)}
+.tb-sec-content .tb-warn,.tb-sec-content .tb-cmp{margin:var(--s3) 0;padding:var(--s3) var(--s4);break-inside:avoid}
+.tb-sec-content .tb-warn{background:var(--caution-bg)}
+.tb-sec-content .tb-cmp{border:1px solid var(--ac);border-radius:10px}
+.tb-sec-content .tb-warn p,.tb-sec-content .tb-cmp p{text-indent:0;margin:0}
+.tb-sec-content .tb-warn p + p,.tb-sec-content .tb-cmp p + p{margin-top:var(--s1)}
+.tb-sec-content .tb-warn-h,.tb-sec-content .tb-cmp-h{font-family:var(--sans);font-size:.85em;font-weight:700}
+.tb-sec-content .tb-warn .tb-warn-h{color:var(--caution)}
+.tb-sec-content .tb-cmp .tb-cmp-h{color:var(--ac)}
+.tb-sec-content p.tb-term{margin:var(--s3) 0 0;font-family:var(--sans);font-weight:700;color:var(--ac);text-indent:0;break-after:avoid}
+.tb-sec-content p.tb-term + p{margin-top:var(--s1)}
+.tb-sec-content .tb-minor{margin-top:var(--s3)}
+.tb-sec-content .tb-minor + p,.tb-sec-content .tb-warn + p,.tb-sec-content .tb-cmp + p{margin-top:var(--s3)}
+.tb-sec-content .tb-minor{margin-top:var(--s3)}
+.tb-sec-content .tb-minor + p,.tb-sec-content .tb-warn + p,.tb-sec-content .tb-cmp + p{margin-top:var(--s3)}
