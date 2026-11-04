@@ -402,6 +402,7 @@ document.addEventListener("click", function(e){
   if(!f) return;
   var fig = f.closest(".fig") || f.parentNode;
   if(fig.classList.contains("fig-full")) return;  /* во весь экран касание не закрывает: им листают и масштабируют */
+  if(!fig.classList.contains("fig-alg") && figEl(fig)){ fvOpen(fig); return; }  /* рисунки и графики — просмотр fvOpen */
   /* во весь экран схема переносится прямо в <body>: внутри блоков страницы (анимации, contain) position:fixed
      отсчитывался от блока, и схема съезжала, открывая полосу шапки (жалоба 26.10.2026); при закрытии — на место */
   fig._home = document.createComment("fig"); fig.parentNode.replaceChild(fig._home, fig); document.body.appendChild(fig);
@@ -440,6 +441,138 @@ document.addEventListener("touchmove", function(e){
 }, {passive: false});
 document.addEventListener("touchend", function(e){ if(figOpen && e.touches.length < 2) figOpen._d0 = 0; });
 addEventListener("popstate", function(){ figClose(true); });
+/* Просмотр рисунка во весь экран (просьба 04.11.2026: прежний режим с кнопками «−/По ширине/+» сдвигал увеличенный снимок за край,
+   щипок не работал). Нажатие на рисунок открывает его модально на тёмном фоне, целиком по размеру экрана. Подпись — внизу поверх
+   рисунка на полупрозрачной подложке; тап по рисунку убирает и возвращает подпись и крестик, щипок их убирает. Щипок и двойной тап
+   увеличивают к точке, увеличенный рисунок двигается пальцем; без увеличения смахивание вниз закрывает. Крестик, «Назад», Escape —
+   закрыть. На компьютере — колесо мыши, перетаскивание и двойной клик. Схемы-алгоритмы открываются по-прежнему (у них свои режимы) */
+var fv = null;
+function fvAnim(){ return document.documentElement.dataset.anim !== "off" && !matchMedia("(prefers-reduced-motion: reduce)").matches; }
+function fvOpen(fig){
+  var src = figEl(fig); if(!src) return;
+  var cap = fig.querySelector("figcaption");
+  var o = document.createElement("div");
+  o.className = "fv"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", "Рисунок");
+  o.innerHTML = '<div class="fv-stage"></div>' + (cap ? '<div class="fv-cap"></div>' : "") + '<button type="button" class="x fv-x" aria-label="Закрыть">✕</button>';
+  var node = src.cloneNode(true);
+  ["style", "loading", "width", "height"].forEach(function(a){ node.removeAttribute(a); });
+  node.classList.add("fv-img"); node.setAttribute("draggable", "false");
+  o.firstChild.appendChild(node);
+  if(cap) o.querySelector(".fv-cap").innerHTML = cap.innerHTML;
+  document.body.appendChild(o); document.documentElement.style.overflow = "hidden";
+  var vb = src.viewBox && src.viewBox.baseVal, r = src.getBoundingClientRect();
+  var nw = src.tagName === "IMG" ? src.naturalWidth : (vb && vb.width) || r.width;
+  var nh = src.tagName === "IMG" ? src.naturalHeight : (vb && vb.height) || r.height;
+  if(!nw || !nh){ nw = r.width || 300; nh = r.height || 200; }
+  fv = {o: o, node: node, nw: nw, nh: nh, vec: src.tagName !== "IMG", s: 1, x: 0, y: 0};
+  fvLayout();
+  try{ history.pushState({fv: 1}, ""); }catch(err){}
+  o.querySelector(".fv-x").addEventListener("click", function(){ fvClose(); });
+  fvGestures(o.firstChild);
+}
+function fvLayout(){  /* рисунок целиком в экран; снимок крупнее своего размера — не больше чем вдвое, вектор — без ограничения */
+  var W = innerWidth, H = innerHeight, k = Math.min(W / fv.nw, H / fv.nh);
+  if(!fv.vec) k = Math.min(k, 2);
+  fv.w = Math.round(fv.nw * k); fv.h = Math.round(fv.nh * k);
+  fv.l = (W - fv.w) / 2; fv.t = (H - fv.h) / 2;
+  fv.node.style.width = fv.w + "px"; fv.node.style.height = fv.h + "px";
+  fv.node.style.left = fv.l + "px"; fv.node.style.top = fv.t + "px";
+  fv.s = 1; fv.x = 0; fv.y = 0; fvApply(false);
+}
+function fvMax(){ return fv.vec ? 8 : 5; }
+function fvClamp(){  /* меньше экрана — по центру; больше — без пустых полос у краёв */
+  var W = innerWidth, H = innerHeight, sw = fv.w * fv.s, sh = fv.h * fv.s;
+  if(sw <= W) fv.x = (W - sw) / 2 - fv.l; else fv.x = Math.min(-fv.l, Math.max(W - sw - fv.l, fv.x));
+  if(sh <= H) fv.y = (H - sh) / 2 - fv.t; else fv.y = Math.min(-fv.t, Math.max(H - sh - fv.t, fv.y));
+}
+function fvApply(anim, dy){
+  fv.node.style.transition = anim && fvAnim() ? "transform .22s cubic-bezier(.2,.8,.2,1)" : "none";
+  fv.node.style.transform = "translate(" + fv.x + "px," + (fv.y + (dy || 0)) + "px) scale(" + fv.s + ")";
+}
+function fvZoomAt(s, px, py, anim){  /* масштаб s с неподвижной точкой экрана (px, py) */
+  s = Math.max(1, Math.min(fvMax(), s));
+  var k = s / fv.s;
+  fv.x = px - fv.l - (px - fv.l - fv.x) * k; fv.y = py - fv.t - (py - fv.t - fv.y) * k; fv.s = s;
+  fvClamp(); fvApply(anim);
+}
+function fvBare(on){ fv.o.classList.toggle("fv-bare", on); }
+function fvGestures(st){
+  var p = {}, start = null, pinch = null, lastTap = 0, tapT = 0;
+  st.addEventListener("pointerdown", function(e){
+    try{ st.setPointerCapture(e.pointerId); }catch(err){}
+    p[e.pointerId] = {x: e.clientX, y: e.clientY};
+    var ids = Object.keys(p);
+    if(ids.length === 1) start = {x: e.clientX, y: e.clientY, fx: fv.x, fy: fv.y, t: performance.now(), moved: false};
+    if(ids.length === 2){
+      var a = p[ids[0]], b = p[ids[1]];
+      pinch = {d: Math.hypot(a.x - b.x, a.y - b.y) || 1, s: fv.s, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, fx: fv.x, fy: fv.y};
+      start = null; clearTimeout(tapT); fvBare(true);
+    }
+  });
+  st.addEventListener("pointermove", function(e){
+    if(!fv || !p[e.pointerId]) return;
+    p[e.pointerId] = {x: e.clientX, y: e.clientY};
+    var ids = Object.keys(p);
+    if(pinch && ids.length >= 2){
+      var a = p[ids[0]], b = p[ids[1]], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      var s = Math.max(1, Math.min(fvMax(), pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d)), k = s / pinch.s;
+      fv.s = s;
+      fv.x = mx - fv.l - (pinch.mx - fv.l - pinch.fx) * k; fv.y = my - fv.t - (pinch.my - fv.t - pinch.fy) * k;
+      fvClamp(); fvApply(false); return;
+    }
+    if(!start) return;
+    var dx = e.clientX - start.x, dy = e.clientY - start.y;
+    if(!start.moved && Math.hypot(dx, dy) > 8) start.moved = true;
+    if(!start.moved) return;
+    if(fv.s > 1.01){ fv.x = start.fx + dx; fv.y = start.fy + dy; fvClamp(); fvApply(false); }
+    else if(e.pointerType !== "mouse"){  /* без увеличения: смахивание вниз уводит рисунок и затемнение */
+      var d = Math.max(0, dy); fvApply(false, d); fv.o.style.backgroundColor = "rgba(0,0,0," + Math.max(.3, .97 - d / 500) + ")";
+    }
+  });
+  function up(e){
+    if(!fv || !p[e.pointerId]) return;
+    delete p[e.pointerId];
+    var ids = Object.keys(p);
+    if(pinch){
+      if(ids.length < 2){ pinch = null; if(ids.length === 1) start = {x: p[ids[0]].x, y: p[ids[0]].y, fx: fv.x, fy: fv.y, t: 0, moved: true}; }
+      return;
+    }
+    if(!start) return;
+    var dy = e.clientY - start.y, wasMove = start.moved, dt = performance.now() - start.t; start = null;
+    if(wasMove){
+      if(fv.s <= 1.01 && e.pointerType !== "mouse"){
+        if(dy > 110){ fvClose(); return; }
+        fv.o.style.backgroundColor = ""; fvApply(true);
+      }
+      return;
+    }
+    if(dt > 400) return;
+    var now = performance.now();
+    if(now - lastTap < 300){  /* двойной тап: увеличить в точке или вернуть целиком */
+      clearTimeout(tapT); lastTap = 0;
+      if(fv.s > 1.05){ fv.s = 1; fv.x = 0; fv.y = 0; fvClamp(); fvApply(true); }
+      else { fvZoomAt(2.5, e.clientX, e.clientY, true); fvBare(true); }
+      return;
+    }
+    lastTap = now;
+    tapT = setTimeout(function(){ if(fv) fvBare(!fv.o.classList.contains("fv-bare")); }, 300);
+  }
+  st.addEventListener("pointerup", up); st.addEventListener("pointercancel", up);
+  st.addEventListener("wheel", function(e){
+    e.preventDefault();
+    fvZoomAt(fv.s * Math.exp(-e.deltaY * 0.0022), e.clientX, e.clientY, false);
+    if(fv.s > 1.01) fvBare(true);
+  }, {passive: false});
+}
+function fvClose(fromPop){
+  if(!fv) return;
+  var o = fv.o; fv = null;
+  o.remove(); document.documentElement.style.overflow = "";
+  if(!fromPop && history.state && history.state.fv) history.back();
+}
+addEventListener("popstate", function(){ fvClose(true); });
+addEventListener("keydown", function(e){ if(fv && e.key === "Escape"){ e.preventDefault(); fvClose(); } });
+addEventListener("resize", function(){ if(fv) fvLayout(); });
 /* алгоритм по шагам: «Да → шаг 4» прокручивает к шагу и подсвечивает его (в режиме «Все шаги») */
 document.addEventListener("click", function(e){
   var b = e.target.closest(".as-go"); if(!b) return;
@@ -2585,7 +2718,7 @@ function lorTextbook(){
   });
   document.addEventListener("keydown", function(e){
     if(e.key === "Escape" && aside.classList.contains("open")){ asideOpen(false); return; }
-    if(!root.classList.contains("tb-paged") || e.defaultPrevented || /INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || "") || document.querySelector(".fig-full, .sheet.on")) return;
+    if(!root.classList.contains("tb-paged") || e.defaultPrevented || /INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || "") || document.querySelector(".fig-full, .fv, .sheet.on")) return;
     var k = e.key, d = k === "ArrowRight" || k === "PageDown" || (k === " " && !e.shiftKey) ? 1 : k === "ArrowLeft" || k === "PageUp" || (k === " " && e.shiftKey) ? -1 : 0;
     if(k === "Home"){ e.preventDefault(); pgGo(0, true); } else if(k === "End"){ e.preventDefault(); pgGo(pgN - 1, true); }
     else if(d){ e.preventDefault(); pgGo(pg + d, true); }

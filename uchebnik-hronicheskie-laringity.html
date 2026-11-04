@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="preload" href="assets/fonts/lora-cyr.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/lora-lat.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/ptsans-400.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Хронические ларингиты и предраковые заболевания гортани · ЛОР-справочник</title>
+<link rel="stylesheet" href="assets/style.css?v=c057a1c66b6c">
+<style data-page>
+.tb-src{font-size:.9em;color:var(--fg2);margin:4px 0 6px;max-width:68ch}
+.tb-src:last-of-type{margin-bottom:18px}
+.tb-cite{display:block;margin-top:4px;font-size:.82em;color:var(--fg2);font-style:italic}
+.tb-body h2{font-size:var(--t2);line-height:var(--l2);margin:var(--s6) 0 var(--s2)}
+.tb-body p+p{margin-top:var(--s3)}
+.tb-body figure{margin:var(--s4) 0}
+.tb-body p{max-width:68ch;line-height:1.6}
+.tb-list{list-style:none;padding:0;margin:0}
+.tb-list li{border-bottom:1px solid var(--line)}
+.tb-list a{display:block;padding:12px 0;text-decoration:none;color:inherit}
+.tb-list small{display:block;color:var(--fg2);margin-top:2px}
+.tb-note{font-size:.9em;color:var(--fg2);max-width:68ch}
+.tb-sources{margin:var(--s6) 0 var(--s3);padding-top:var(--s3);border-top:1px solid var(--line);font-size:.78em;line-height:1.5;color:var(--fg2);
+  max-width:68ch;-webkit-user-select:text;user-select:text}
+.tb-sources p{margin:0 0 4px;font-weight:600}
+.tb-sources ol{margin:0;padding-left:1.4em}
+.tb-sources li+li{margin-top:4px}
+.fn-ref{font-size:.72em;line-height:0;vertical-align:super;text-decoration:none;padding:0 2px;font-weight:600}
+.tb-fn{margin:var(--s6) 0 0;padding-top:var(--s3);border-top:1px solid var(--line);max-width:68ch;font-size:.88em;line-height:1.55}
+.tb-fn h2{font-size:1em;margin:0 0 var(--s2)}
+.tb-fn p{margin:0;display:flex;gap:.5em}
+.tb-fn p+p{margin-top:var(--s2)}
+.tb-fn .fn-n{flex:none;min-width:1.4em;text-decoration:none;font-weight:600}
+.tb-fn :target{background:var(--mark,rgba(255,214,0,.25));border-radius:4px}
+.tb-fn .tb-cite{display:inline;margin:0;font-size:.92em}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body data-page="textbook">
+<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
+   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
+   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
+(function(){
+  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
+  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
+     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
+     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
+  var cl = document.body.classList;
+  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
+    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
+  }
+  try{
+    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
+    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
+    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
+  }catch(e){}
+  if(document.getElementById("q")) return;
+  document.body.insertAdjacentHTML("afterbegin",
+  '<header class="top"><div class="top-in">'
+  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
+  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
+  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
+  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
+  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
+  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
+  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
+  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
+})();
+</script>
+
+<main class="page"><nav class="crumbs"><a href="uchebnik.html">Учебник</a> › <span>Гортань</span></nav><h1>Хронические ларингиты и предраковые заболевания гортани</h1><div class="tb-body"><h2 id="r1">Хронические неспецифические ларингиты</h2><p>Хронический неспецифический ларингит определён как поверхностное диффузное воспаление слизистой оболочки гортани с длительным течением и периодическими обострениями. Чаще им страдают взрослые мужчины, подверженные бытовым и профессиональным вредностям. В этиологии названы индивидуальная предрасположенность, факторы риска (курение, алкоголь, голосовая нагрузка) и активация условно патогенной флоры. Значение имеют очаги инфекции в верхних дыхательных путях и полости рта, хронический трахеобронхит, нарушение носового дыхания, эндокринные нарушения, аллергия. По преобладающему характеру воспаления различают катаральную, гипертрофическую и атрофическую формы.</p><p>Типичные жалобы: осиплость и быстрая утомляемость голоса, першение, сухость, постоянный кашель, более выраженный по утрам у курильщиков и работников вредных производств. Дисфония бывает лёгкой, появляясь к вечеру, или постоянной при органических изменениях голосовых складок.</p><p>При катаральном ларингите наблюдается диффузная гиперемия застойного характера, наиболее выраженная в области голосовых складок, слизистая оболочка местами покрыта вязким секретом, сосуды расширены, при сильном кашле возможны мелкоточечные кровоизлияния. При гипертрофическом ларингите голосовые складки утолщены, отёчны, с неровными краями; в межчерпаловидном пространстве видна пахидермия с бугристой серой поверхностью, препятствующая смыканию складок, голос становится грубым и быстро утомляется. Гиперплазия складок преддверия придаёт голосу грубый звук, подскладочная образует валики, дублирующие голосовые складки. К формам гипертрофического ларингита автор относит певческие узелки, контактную язву на уровне голосовых отростков черпаловидных хрящей, пролапс желудочка гортани, который может быть принят за опухоль, ретенционные и ложные кисты, полипозные образования, отёк Рейнке, папиллому с гиперкератозом. Эти формы требуют дифференциации с предраком и карциномой: односторонность изменений и «плюс ткань» говорят против простого воспаления, симметричность свидетельствует в пользу доброкачественного процесса.</p><p>Хронический атрофический ларингит встречается реже. Слизистая оболочка сухая, красновато-серая, истончённая, через неё просвечивают извитые сосуды, голосовые складки покрыты плотными жёлтыми или грязно-зелёными корками; при их отторжении остаются мелкие кровоизлияния. Больные постоянно покашливают, голос сиплый и быстро утомляется; в сухих помещениях симптомы усиливаются, во влажных ослабевают. Её дифференцируют с первичной озеной гортани, гипертрофические формы с туберкулёзом, третичным сифилисом, склеромой, папилломатозом, опухолями.</p></div><section class="tb-sources" aria-label="Источники"><p>Источники</p><ol><li>Бабияк В. И., Накатис Я. А., Говорун М. И. Оториноларингология. Руководство. Т. 2. — СПб.: Питер, 2009. — Часть IV, гл. 20 «Болезни гортани»: хронические неспецифические ларингиты — с. 110–118.</li></ol></section><p class="tb-note">Раздел «Учебник» — справочная теория, не клинические рекомендации. Тактика ведения пациента — по разборам КР.</p></main>
+
+<script src="assets/tb-chapters.js?v=c057a1c66b6c"></script>
+<script src="assets/data.js?v=c057a1c66b6c"></script>
+<script src="assets/grls.js?v=c057a1c66b6c"></script>
+<script src="assets/app.js?v=c057a1c66b6c"></script>
+<script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
+</body>
+</html>
