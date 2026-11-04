@@ -1806,11 +1806,11 @@ requestAnimationFrame(function(){ root.classList.remove("lor-boot"); });  /* э�
   var B = document.body.dataset, home = document.body.classList.contains("home"), tabs = document.getElementById("tabbar");
   var wide = matchMedia("(min-width:1024px)").matches;
   var STEPS = [
-    {id:"menu", sel:"#menuBtn", text:"Кнопка с тремя полосками открывает меню: главная страница, препараты, коды МКБ-10, все разборы в PDF, источники, тема оформления и размер текста."},
+    {id:"menu2", sel:"#menuBtn", text:"Кнопка с тремя полосками открывает меню: закладки, все разборы одним PDF, справка «Как пользоваться», источники, размер текста и тема оформления. На остальных страницах там же переход в учебник, препараты, коды МКБ-10 и словарь."},
     {id:"home", sel:"#homeBtn", text:"Этой кнопкой можно сразу вернуться на главную страницу."},
     {id:"search", sel:".searchbox", text:"Поиск по всем разборам: название болезни, код МКБ-10, действующее вещество или торговое название. Можно писать несколько слов, например «синусит амоксициллин дети»."},
     {id:"ai", sel:"#askBtn", text:"Вопрос искусственному интеллекту — Алисе, DeepSeek или Google. Со страницы болезни к вопросу автоматически добавляются название рекомендации, коды МКБ-10 и основные положения."},
-    {id:"groups", sel:"#home .grp", when:function(){ return home; }, text:"В каждом разделе показаны пять самых востребованных рекомендаций. Остальные открываются строкой «Ещё…» в конце раздела."},
+    {id:"groups2", sel:"#home .grp", when:function(){ return home; }, text:"Рекомендации сгруппированы по органам. Нажатие на заголовок раздела сворачивает и разворачивает его список."},
     {id:"tabs", sel:"#tabbar", when:function(){ return !!tabs; }, text:"Разбор разделён на четыре вкладки: обзор, клиническая картина, диагностика и лечение."},
     {id:"toc", sel:".toc", when:function(){ return !!tabs && wide; }, text:"Оглавление текущей вкладки: нажатие переводит к нужному подразделу."},
     {id:"srcof", sel:"main .src-of", when:function(){ return !!tabs; }, text:"Под каждым разделом указано, из какой рекомендации и из каких её разделов взят текст, со ссылкой на официальный документ."},
@@ -1826,8 +1826,8 @@ requestAnimationFrame(function(){ root.classList.remove("lor-boot"); });  /* э�
       text:"Страницы листаются свайпом влево и вправо или кнопками ‹ ›. «Содержание» открывает разделы главы и переключатель режима, флажок справа — закладка на этом месте."},
     {id:"tbfs", sel:".tb-pager .tb-fs-open", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
       text:"Кнопка «Аа» — размер текста. Окно уходит само после выбора или по нажатию мимо него; место чтения сохраняется."},
-    {id:"tbtap", sel:".tb-flow", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
-      text:"Нажмите на текст, чтобы убрать панели и читать на весь экран: внизу останутся номер страницы и полоса прогресса. Ещё одно нажатие возвращает панели."},
+    {id:"tbtap2", sel:".tb-flow", fixed:true, when:function(){ return B.page === "textbook" && document.documentElement.classList.contains("tb-paged"); },
+      text:"Нажатие на середину текста убирает верхнюю и нижнюю панели, остаются номер страницы и полоса прогресса. Ещё одно нажатие возвращает панели."},
     /* закладки (02.11.2026: в обучении их не было ни в прокрутке, ни постранично) */
     {id:"bmadd", sel:"#fabBm", fixed:true, when:function(){ return !document.documentElement.classList.contains("tb-paged"); },
       text:"Кнопка с флажком справа внизу добавляет закладку на месте, где вы читаете. Список закладок открывается из меню: «Закладки учебника» и «Закладки разборов». Закладки хранятся в браузере этого устройства."},

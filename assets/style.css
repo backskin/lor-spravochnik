@@ -2706,3 +2706,7 @@ html[data-anim="off"] .fv-cap,html[data-anim="off"] .fv-x{transition:none}
   html.tb-paged .tb-pager .tb-fs-open,html.tb-paged .tb-pager .tb-pg-bm{order:3}
   html.tb-paged .tb-pager [data-pg="1"]{margin-right:var(--s2)}
 }
+
+/* учебник: пометка устаревшего сведения книги (метод, препарат, теория) с пояснением */
+.tb-old{color:var(--fg2);font-size:.9em}
+.tb-old-b{display:inline-block;margin:0 .15em;padding:0 .4em;border-radius:6px;border:1px solid var(--warn);color:var(--warn);font-size:.78em;font-weight:700;line-height:1.5;text-indent:0;vertical-align:.08em;white-space:nowrap}
