@@ -4,40 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Коды МКБ-10 · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=f89508f13366">
+<link rel="stylesheet" href="assets/style.css?v=7374eb33819f">
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
-<script data-shell>/* Шапка справочника — строится сразу после <body>, до первой отрисовки страницы: при переходе между экранами
-   шапка, поиск и кнопки не пропадают и не сдвигают содержимое. Тема и размер текста применяются тут же — без вспышки.
-   Подключается первым тегом в <body>; остальное поведение — assets/app.js. */
-(function(){
-  var B = document.body.dataset, HOME = document.body.classList.contains("home"), root = document.documentElement;
-  /* экраны, которые скрипт достраивает (главная, словарь, «Препараты», МКБ, учебник), до сборки не показываются:
-     иначе на пустом кэше сначала видна «заготовка», а потом всё уезжает вниз (замеры 27.10.2026: сдвиг до 0,6 экрана).
-     Снимает app.js после initPage(); если скрипт не пришёл — через 4 с, чтобы страница не осталась пустой */
-  var cl = document.body.classList;
-  if(HOME || B.page === "glossary" || B.page === "drugs" || B.page === "textbook" || /(^|\/)mkb\.html$/.test(location.pathname)){
-    root.classList.add("lor-boot"); setTimeout(function(){ root.classList.remove("lor-boot"); }, 4000);
-  }
-  try{
-    var th = localStorage.getItem("lor-theme"); if(th) root.dataset.theme = th;
-    var k = localStorage.getItem("lor-k"); if(k) root.style.setProperty("--k", k);
-    if(localStorage.getItem("lor-anim") === "off") root.dataset.anim = "off";
-  }catch(e){}
-  if(document.getElementById("q")) return;
-  document.body.insertAdjacentHTML("afterbegin",
-  '<header class="top"><div class="top-in">'
-  + '<button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu">'
-  + '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button>'
-  + ('<a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"' + (HOME ? ' aria-current="page"' : "") + '><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>')
-  + '<div class="searchbox"><input id="q" type="search" placeholder="' + (B.page === "drugs" ? (innerWidth < 420 ? "Название или вещество" : "Торговое название или вещество") : (innerWidth < 420 ? "Поиск" : "Болезнь, код, препарат")) + '" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div>'
-  + '<button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button>'
-  + '<button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button>'
-  + '</div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div>'
-  + '<div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>');
-})();
-</script>
+<script data-shell>(function(){var e=document.body.dataset,t=document.body.classList.contains(`home`),n=document.documentElement;(t||e.page===`glossary`||e.page===`drugs`||e.page===`textbook`||/(^|\/)mkb\.html$/.test(location.pathname))&&(n.classList.add(`lor-boot`),setTimeout(()=>{n.classList.remove(`lor-boot`)},4e3));try{let e=localStorage.getItem(`lor-theme`);e&&(n.dataset.theme=e);let t=localStorage.getItem(`lor-k`);t&&n.style.setProperty(`--k`,t),localStorage.getItem(`lor-anim`)===`off`&&(n.dataset.anim=`off`)}catch{}function r(){return e.page===`drugs`?innerWidth<420?`Название или вещество`:`Торговое название или вещество`:innerWidth<420?`Поиск`:`Болезнь, код, препарат`}document.getElementById(`q`)||document.body.insertAdjacentHTML(`afterbegin`,`<header class="top"><div class="top-in"><button class="logo-btn" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></svg></button><a class="home-btn" id="homeBtn" href="index.html" aria-label="Главная" title="Главная"`+(t?` aria-current="page"`:``)+`><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a><div class="searchbox"><input id="q" type="search" placeholder="`+r()+`" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику"></div><button class="brand q-cancel" id="qCancel" type="button" hidden>Отмена</button><button class="ask-btn" id="askBtn" type="button" aria-expanded="false" aria-controls="ask" aria-label="Спросить ИИ" title="Спросить ИИ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg><span>ИИ</span></button></div></header><div class="offline-bar" role="status">Нет интернета — справочник работает, ссылки на сайты и ИИ недоступны</div><div class="results" id="results" hidden><div class="results-in" id="resIn"></div></div>`)})();</script>
 
 <main class="page">
   <h1 class="pt">Коды МКБ-10</h1>
@@ -48,37 +19,12 @@
   <p class="foot" id="mkbSrc"></p>
 </main>
 
-<script src="assets/data.js?v=f89508f13366"></script>
-<script src="assets/mkb.js?v=f89508f13366"></script>
-<script src="assets/grls.js?v=f89508f13366"></script>
-<script src="assets/app.js?v=f89508f13366"></script>
+<script src="assets/data.js?v=7374eb33819f"></script>
+<script src="assets/mkb.js?v=7374eb33819f"></script>
+<script src="assets/grls.js?v=7374eb33819f"></script>
+<script src="assets/app.js?v=7374eb33819f"></script>
 <script>
-(function(){
-  var L = window.LOR, box = document.getElementById("mkbRef");
-  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
-  /* разбор, где этот код есть: точное совпадение или рубрика из трёх знаков */
-  function crFor(code){
-    var c = code.replace(/[*†]/g, ""), rub = c.slice(0, 3);
-    return L.diseases.filter(function(d){ return d.href && (d.codes || []).some(function(x){ var k = x[0].replace("*", ""); return k === c || k === rub; }); });
-  }
-  box.innerHTML = (window.LOR_MKB || []).map(function(sec, si){
-    var m = sec.sec.match(/^(.*?)\s*(\([^)]*\))?$/), shown = {};
-    return '<li><button class="row toggle" aria-expanded="false"><span class="rt">' + esc(m[1])
-      + '<span class="rs">' + (m[2] ? esc(m[2].slice(1, -1)) + " · " : "") + sec.rows.length + " код.</span></span></button>"
-      + '<div class="sublist" hidden><div class="mkb-list">' + sec.rows.map(function(r){
-          var rub = r[0].replace(/[*†]/g, "").slice(0, 3), links = "";
-          if(r[2] && !shown[rub]){ shown[rub] = 1; links = crFor(rub).map(function(d){ return '<a class="row" href="' + d.href + '"><span class="rt">Разбор: ' + esc(d.name) + "</span></a>"; }).join(""); }
-          return '<button class="mkb-row" data-code="' + esc(r[0].replace(/[*†]/g, "")) + '"><code>' + esc(r[0]) + "</code><span>" + esc(r[1]) + "</span></button>" + links;
-        }).join("") + "</div></div></li>";
-  }).join("");
-  box.addEventListener("click", function(e){
-    var b = e.target.closest(".toggle"); if(!b) return;
-    var open = b.getAttribute("aria-expanded") !== "true";
-    b.setAttribute("aria-expanded", String(open)); b.nextElementSibling.hidden = !open;
-  });
-  var meta = window.LOR_MKB_META;
-  if(meta) document.getElementById("mkbSrc").textContent = "Коды и названия — " + meta.source + ". Знаки «*» и «†» — двойное кодирование (проявление и причина).";
-})();
+(function(){function e(e){return String(e).replace(/[&<>"]/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`})[e]??e)}var t=window.LOR,n=document.getElementById(`mkbRef`);function r(e){let n=e.replace(/[*†]/g,``),r=n.slice(0,3);return t.diseases.filter(e=>e.href&&(e.codes||[]).some(e=>{let t=e[0].replace(`*`,``);return t===n||t===r}))}n.innerHTML=(window.LOR_MKB||[]).map(t=>{let n=t.sec.match(/^(.*?)\s*(\([^)]*\))?$/),i={};return`<li><button class="row toggle" aria-expanded="false"><span class="rt">`+e(n[1])+`<span class="rs">`+(n[2]?e(n[2].slice(1,-1))+` · `:``)+t.rows.length+` код.</span></span></button><div class="sublist" hidden><div class="mkb-list">`+t.rows.map(t=>{let n=t[0].replace(/[*†]/g,``).slice(0,3),a=``;return t[2]&&!i[n]&&(i[n]=1,a=r(n).map(t=>`<a class="row" href="`+t.href+`"><span class="rt">Разбор: `+e(t.name)+`</span></a>`).join(``)),`<button class="mkb-row" data-code="`+e(t[0].replace(/[*†]/g,``))+`"><code>`+e(t[0])+`</code><span>`+e(t[1])+`</span></button>`+a}).join(``)+`</div></div></li>`}).join(``),n.addEventListener(`click`,e=>{let t=e.target.closest(`.toggle`);if(!t)return;let n=t.getAttribute(`aria-expanded`)!==`true`;t.setAttribute(`aria-expanded`,String(n)),t.nextElementSibling.hidden=!n});var i=window.LOR_MKB_META;i&&(document.getElementById(`mkbSrc`).textContent=`Коды и названия — `+i.source+`. Знаки «*» и «†» — двойное кодирование (проявление и причина).`)})();
 </script>
 <script>if("serviceWorker" in navigator)addEventListener("load",function(){var sw=navigator.serviceWorker,had=!!sw.controller,done=false;function rl(){if(!done&&document.visibilityState==="hidden"){done=true;location.reload();}}sw.addEventListener("controllerchange",function(){if(had){rl();document.addEventListener("visibilitychange",rl);}});sw.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});});</script>
 </body>
