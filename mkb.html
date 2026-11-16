@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Коды МКБ-10 · ЛОР-справочник</title>
-<link rel="stylesheet" href="assets/style.css?v=7374eb33819f">
+<link rel="stylesheet" href="assets/style.css?v=95a82781b62a">
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b53"><style>@view-transition{navigation:auto}html{scrollbar-gutter:stable}header.top{view-transition-name:top}::view-transition-old(root),::view-transition-new(root){animation-duration:.12s}</style><script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
@@ -19,10 +19,10 @@
   <p class="foot" id="mkbSrc"></p>
 </main>
 
-<script src="assets/data.js?v=7374eb33819f"></script>
-<script src="assets/mkb.js?v=7374eb33819f"></script>
-<script src="assets/grls.js?v=7374eb33819f"></script>
-<script src="assets/app.js?v=7374eb33819f"></script>
+<script src="assets/data.js?v=95a82781b62a"></script>
+<script src="assets/mkb.js?v=95a82781b62a"></script>
+<script src="assets/grls.js?v=95a82781b62a"></script>
+<script src="assets/app.js?v=95a82781b62a"></script>
 <script>
 (function(){function e(e){return String(e).replace(/[&<>"]/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`})[e]??e)}var t=window.LOR,n=document.getElementById(`mkbRef`);function r(e){let n=e.replace(/[*†]/g,``),r=n.slice(0,3);return t.diseases.filter(e=>e.href&&(e.codes||[]).some(e=>{let t=e[0].replace(`*`,``);return t===n||t===r}))}n.innerHTML=(window.LOR_MKB||[]).map(t=>{let n=t.sec.match(/^(.*?)\s*(\([^)]*\))?$/),i={};return`<li><button class="row toggle" aria-expanded="false"><span class="rt">`+e(n[1])+`<span class="rs">`+(n[2]?e(n[2].slice(1,-1))+` · `:``)+t.rows.length+` код.</span></span></button><div class="sublist" hidden><div class="mkb-list">`+t.rows.map(t=>{let n=t[0].replace(/[*†]/g,``).slice(0,3),a=``;return t[2]&&!i[n]&&(i[n]=1,a=r(n).map(t=>`<a class="row" href="`+t.href+`"><span class="rt">Разбор: `+e(t.name)+`</span></a>`).join(``)),`<button class="mkb-row" data-code="`+e(t[0].replace(/[*†]/g,``))+`"><code>`+e(t[0])+`</code><span>`+e(t[1])+`</span></button>`+a}).join(``)+`</div></div></li>`}).join(``),n.addEventListener(`click`,e=>{let t=e.target.closest(`.toggle`);if(!t)return;let n=t.getAttribute(`aria-expanded`)!==`true`;t.setAttribute(`aria-expanded`,String(n)),t.nextElementSibling.hidden=!n});var i=window.LOR_MKB_META;i&&(document.getElementById(`mkbSrc`).textContent=`Коды и названия — `+i.source+`. Знаки «*» и «†» — двойное кодирование (проявление и причина).`)})();
 </script>
